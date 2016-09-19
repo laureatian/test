@@ -12,4 +12,5 @@ result+=i;
 printf("result[1-100]=%ld /n",result);
 printf("result[1-250]=%d /n",func(250));
 return 0;
-}
+}dyfguh
+sdfhdsf
