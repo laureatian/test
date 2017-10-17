@@ -11,7 +11,7 @@
 using namespace std;
 #define PAGESIZE 4096 
 #define MEMORYSIZE 4
-#define MAXPAGENUM 1000
+#define MAXPAGENUM 5000
 #define INTERVAL 20
 
 using BIT8=bitset<8>;
@@ -65,9 +65,9 @@ int arb(string file)
 {
     set<int> pageset;
     set<int>::iterator it;
-    queue<int> memorypage;
-    vector<Page>  pagevector;
-    vector<BIT8> shift;
+ //   queue<int> memorypage;
+    vector<Page>  pagevector* =  new vector<Page>[MEMORYSIZE];
+    vector<BIT8> shift(MAXPAGENUM);
     int iswrite[MAXPAGENUM] = {0}; 
     int eventsnum = 0;
     int diskreads = 0;
@@ -90,28 +90,30 @@ int arb(string file)
         line = line.substr(2,8);
         int address  = hextodecimal(line);
         int pageid = address / PAGESIZE ;
-//`        cout << "page " << page << endl;          
+//        cout << "page " << page << endl;          
 
         if(s[0] == 'W'){
             iswrite[pageid] = 1;
         }
 
-        shift[page].set(0);
+        shift[pageid].set(0);
         it = pageset.find(pageid);
         if(it == pageset.end()){
-            cout << "MISS:    "<<"page " << page <<endl;
+            cout << "MISS:    "<<"page " << pageid <<endl;
             if(pageset.size() == MEMORYSIZE){
-
+              cout<<"not here" << endl;
                 for (int i = 0; i < MEMORYSIZE; i ++ ){
-                    pagevector[i].refernum =(int) shift[pagevector[i].id].to_ulong();
-
+                    cout <<"vecorid "<<pagevector[i].id << endl;
+                    pagevector[i].refernum =(int) (shift[pagevector[i].id].to_ulong());
+                    cout << "pagevector[i].refernum" << pagevector[i].refernum <<endl;
                 } 
                 sort(pagevector.begin(), pagevector.end(),comp);
 
                 int first = pagevector[MEMORYSIZE].id;
+                delete pagevector[MEMORYSIZE];
                 pagevector.pop_back();
                 pageset.erase(first);
-                memorypage.pop();
+                //memorypage.pop();
                 if(iswrite[first] == 1){
                     diskwrites += 1;
                     iswrite[first] = 0;
@@ -120,9 +122,13 @@ int arb(string file)
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
+            cout <<"p(pageid) "<<pageid <<endl;
+//            Page p* = new Page(pageid);
             Page p(pageid);
             pagevector.push_back(p);
+            cout<< "pagevector.size: " << pagevector.size() <<endl;
             pageset.insert(pageid);
+            cout<< "pageset.size: " << pageset.size() <<endl;
             diskreads += 1;
         } else {
           cout << "HIT:     " <<"page " << page << endl;
