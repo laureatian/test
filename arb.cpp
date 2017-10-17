@@ -1,0 +1,148 @@
+#include<iostream>
+#include<fstream>
+#include<stdlib.h>
+#include<math.h>
+#include<set>
+#include<queue>
+#include<hash_map>
+#include"memory.h"
+#include"page.h"
+using namespace std;
+#define PAGESIZE 4096 
+#define MEMORYSIZE 4
+#define MAXPAGENUM 1000
+#define INTERVAL  30
+
+
+int hextodecimal(string hex);
+int readfile(string file){
+char s[80];
+ifstream  fin;
+string line;
+int page;
+fin.open("example1-3.trace",ios::in);
+while(fin.getline(s,80)){
+
+//if(s[0] == '#'){
+//}
+line.copy(s,8,2);
+int address  = hextodecimal(line);
+int page = address / PAGESIZE ;
+if(s[0] == 'R'){
+;
+}else{
+;
+}
+cout<<s<<endl;
+}
+
+return 0;
+}
+
+int hextodecimal(string hex){
+    long sum = 0;
+    if(hex.length() != 7) 
+        return -1;
+    for(int  i = 0; i < 7; i++){
+        if(hex[i] >= 'a' && hex[i] <= 'f'){
+            sum += (hex[i]-87) * pow (16, 6 - i);
+//            cout<< (hex[i]-87) * pow (16, 6 - i) << endl;
+        } else{ 
+            sum += atoi(hex.substr(i,1).data()) * pow (16, 6 - i);
+  //          cout << atoi(hex.substr(i,1).data()) * pow (16, 6 - i) << endl;
+        }
+    }
+return sum;
+}
+
+int mycompare(page p1, page p2){
+
+    return p1.refernum < p2.refernum;
+
+}
+
+int mapcompare(std::pare<int,int> ele1, std::pare<int,int>  ele2){
+    return ele1.second < ele2.second;
+}
+
+int arb(string file)
+{
+    set<int> pageset;
+    hash_map<int,int>::iterator it;
+    queue<int> memorypage;
+    int iswrite[MAXPAGENUM] = {0};
+    hash_map<int,int> pagemap;
+    vector<bitset<8>>  shift;
+    int eventsnum = 0;
+    int diskreads = 0;
+    int diskwrites = 0;
+    int prefetches = 0;
+    char s[80];
+    ifstream  fin;
+    string line;
+    int page;
+    int  temp = 0; 
+    fin.open("example1-3.trace",ios::in);
+    while(fin.getline(s,80)){
+   
+        if(s[0] == 'W' || s[0] == 'R')
+           eventsnum += 1;
+        else 
+           continue;
+ 
+        line = s;
+        line = line.substr(2,8);
+        int address = hextodecimal(line);
+        int page = address / PAGESIZE ;
+//`        cout << "page " << page << endl;          
+        shift[page].set(0);
+        if(s[0] == 'W'){
+            iswrite[page] = 1;
+        }
+        it = pagemap.find(page);
+        if(it == pagemap.end()){
+            cout << "MISS:    "<<"page " << page <<endl;
+            if(pagemap.size() == MEMORYSIZE){
+                int first = memorypage.front();
+                pageset.erase(first);
+                memorypage.pop();
+              
+                if(iswrite[first] == 1){
+                    diskwrites += 1;
+                    iswrite[first] = 0;
+                    cout << "REPLACE: "  << "page "<<first<< " (DIRTY)" << endl;
+                } else {
+                    cout << "REPLACE: "  <<"page "<< first <<  endl;
+                }
+            }
+            memorypage.push(page);
+            pageset.insert(page);
+            diskreads += 1;
+        } else {
+          cout << "HIT:     " <<"page " << page << endl;
+        }
+    temp ++;
+    if (temp == INTERVAL) {
+       temp = 0;
+       for (int  i = 0 ; i < shift.size(); i++){
+            shift[i] >> 1;
+
+       }
+    }
+    }  
+    cout << "events in trace:    " << eventsnum << endl;
+    cout << "total disk reads:   " << diskreads << endl;
+    cout << "total disk writes:  " << diskwrites << endl;
+    cout << "page faults:        " << diskreads << endl;
+    cout << "prefetch faults:    " << prefetches << endl;
+    return 0;
+}
+
+
+
+int main(){
+string s="00000abc";
+arb(s);
+return 0;
+
+}
