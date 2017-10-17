@@ -5,6 +5,7 @@
 #include<set>
 #include<queue>
 #include<bitset>
+#include<algorithm>
 #include"memory.h"
 #include"page.h"
 using namespace std;
@@ -105,9 +106,9 @@ int arb(string file)
                     pagevector[i].refernum =(int) shift[pagevector[i].id].to_ulong();
 
                 } 
-                sort(pagevector.begin(), pagevctor.end(),comp);
+                sort(pagevector.begin(), pagevector.end(),comp);
 
-                int first = pagevector[MEMOEYSIZE];
+                int first = pagevector[MEMORYSIZE].id;
                 pagevector.pop_back();
                 pageset.erase(first);
                 memorypage.pop();
