@@ -11,9 +11,8 @@ using namespace std;
 #define PAGESIZE 4096 
 #define MEMORYSIZE 4
 #define MAXPAGENUM 1000
-#define INTERVAL 20
+#define INTERVAL  30
 
-using BIT8=bitset<8>;
 
 int hextodecimal(string hex);
 int readfile(string file){
@@ -55,19 +54,29 @@ int hextodecimal(string hex){
     }
 return sum;
 }
-bool comp(const Page& p1, const Page &p2){
- return p1.refernum  < p2.refernum;
+
+int mycompare(page p1, page p2){
+
+    return p1.refernum < p2.refernum;
 
 }
 
+int mapcompare(std::pair<int,int> ele1, std::pair<int,int>  ele2){
+    return ele1.second < ele2.second;
+}
+struct CmpByValue {  
+  bool operator()(const pair<int,int>& lhs, const pair<int,int>& rhs) {  
+    return lhs.second < rhs.second;  
+  }  
+};  
 int arb(string file)
 {
     set<int> pageset;
-    set<int>::iterator it;
-    queue<int> memorypage;
-    vector<Page>  pagevector;
-    vector<BIT8> shift;
-    int iswrite[MAXPAGENUM] = {0}; 
+    vector<int>::iterator it;
+  //  queue<int> memorypage;
+    int iswrite[MAXPAGENUM] = {0};
+//    map<int,int> pagemap;
+    vector<bitset<8>>  shift;
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -76,7 +85,7 @@ int arb(string file)
     ifstream  fin;
     string line;
     int page;
-    int temp = 0; 
+    int  temp = 0; 
     fin.open("example1-3.trace",ios::in);
     while(fin.getline(s,80)){
    
@@ -87,30 +96,21 @@ int arb(string file)
  
         line = s;
         line = line.substr(2,8);
-        int address  = hextodecimal(line);
-        int pageid = address / PAGESIZE ;
+        int address = hextodecimal(line);
+        int page = address / PAGESIZE ;
 //`        cout << "page " << page << endl;          
-
-        if(s[0] == 'W'){
-            iswrite[pageid] = 1;
-        }
-
         shift[page].set(0);
-        it = pageset.find(pageid);
-        if(it == pageset.end()){
+        if(s[0] == 'W'){
+            iswrite[page] = 1;
+        }
+//        it = pagemap.find(page);
+        if(pagemap.find(page) == pagemap.end()){
             cout << "MISS:    "<<"page " << page <<endl;
-            if(pageset.size() == MEMORYSIZE){
-
-                for (int i = 0; i < MEMORYSIZE; i ++ ){
-                    pagevector[i].refernum =(int) shift[pagevector[i].id].to_ulong();
-
-                } 
-                sort(pagevector.begin(), pagevctor.end(),comp);
-
-                int first = pagevector[MEMOEYSIZE];
-                pagevector.pop_back();
+            if(pagemap.size() == MEMORYSIZE){
+                int first = memorypage.front();
                 pageset.erase(first);
                 memorypage.pop();
+              
                 if(iswrite[first] == 1){
                     diskwrites += 1;
                     iswrite[first] = 0;
@@ -119,20 +119,20 @@ int arb(string file)
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
-            Page p(pageid);
-            pagevector.push_back(p);
-            pageset.insert(pageid);
+            memorypage.push(page);
+            pageset.insert(page);
             diskreads += 1;
         } else {
           cout << "HIT:     " <<"page " << page << endl;
         }
-        temp ++ ;
-        if (temp == INTERVAL) {
-            temp = 0;
-            for (int  i = 0 ; i < shift.size(); i++){
-                shift[i] >> 1;
-            }
-        }
+    temp ++;
+    if (temp == INTERVAL) {
+       temp = 0;
+       for (int  i = 0 ; i < shift.size(); i++){
+            shift[i] >> 1;
+
+       }
+    }
     }  
     cout << "events in trace:    " << eventsnum << endl;
     cout << "total disk reads:   " << diskreads << endl;

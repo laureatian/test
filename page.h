@@ -1,15 +1,14 @@
 #include<bitset>
 //using std::bitset = bitset;
 using namespace std;
-class page{
+class Page{
 public:
 int id;
 int dirty; //0 for clean 1 for dirty
 bitset<8> refer;
 int refernum;
-page(int id, int read){
+Page(int id ){
 id = id;
-dirty =read;
 }
-~page(){}
+~Page(){}
 };
