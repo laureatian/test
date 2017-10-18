@@ -5,14 +5,16 @@
 #include<set>
 #include<queue>
 #include<bitset>
+#include<algorithm>
 #include"memory.h"
 #include"page.h"
 using namespace std;
 #define PAGESIZE 4096 
 #define MEMORYSIZE 4
-#define MAXPAGENUM 1000
-#define INTERVAL  30
+#define MAXPAGENUM 5000
+#define INTERVAL 20
 
+using BIT8=bitset<8>;
 
 int hextodecimal(string hex);
 int readfile(string file){
@@ -54,29 +56,19 @@ int hextodecimal(string hex){
     }
 return sum;
 }
-
-int mycompare(page p1, page p2){
-
-    return p1.refernum < p2.refernum;
+bool comp(const Page& p1, const Page &p2){
+ return p1.refernum  < p2.refernum;
 
 }
 
-int mapcompare(std::pair<int,int> ele1, std::pair<int,int>  ele2){
-    return ele1.second < ele2.second;
-}
-struct CmpByValue {  
-  bool operator()(const pair<int,int>& lhs, const pair<int,int>& rhs) {  
-    return lhs.second < rhs.second;  
-  }  
-};  
 int arb(string file)
 {
     set<int> pageset;
-    vector<int>::iterator it;
-  //  queue<int> memorypage;
-    int iswrite[MAXPAGENUM] = {0};
-//    map<int,int> pagemap;
-    vector<bitset<8>>  shift;
+    set<int>::iterator it;
+ //   queue<int> memorypage;
+    vector<Page>  pagevector* =  new vector<Page>[MEMORYSIZE];
+    vector<BIT8> shift(MAXPAGENUM);
+    int iswrite[MAXPAGENUM] = {0}; 
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -85,7 +77,7 @@ int arb(string file)
     ifstream  fin;
     string line;
     int page;
-    int  temp = 0; 
+    int temp = 0; 
     fin.open("example1-3.trace",ios::in);
     while(fin.getline(s,80)){
    
@@ -96,21 +88,32 @@ int arb(string file)
  
         line = s;
         line = line.substr(2,8);
-        int address = hextodecimal(line);
-        int page = address / PAGESIZE ;
-//`        cout << "page " << page << endl;          
-        shift[page].set(0);
+        int address  = hextodecimal(line);
+        int pageid = address / PAGESIZE ;
+//        cout << "page " << page << endl;          
+
         if(s[0] == 'W'){
-            iswrite[page] = 1;
+            iswrite[pageid] = 1;
         }
-//        it = pagemap.find(page);
-        if(pagemap.find(page) == pagemap.end()){
-            cout << "MISS:    "<<"page " << page <<endl;
-            if(pagemap.size() == MEMORYSIZE){
-                int first = memorypage.front();
+
+        shift[pageid].set(0);
+        it = pageset.find(pageid);
+        if(it == pageset.end()){
+            cout << "MISS:    "<<"page " << pageid <<endl;
+            if(pageset.size() == MEMORYSIZE){
+              cout<<"not here" << endl;
+                for (int i = 0; i < MEMORYSIZE; i ++ ){
+                    cout <<"vecorid "<<pagevector[i].id << endl;
+                    pagevector[i].refernum =(int) (shift[pagevector[i].id].to_ulong());
+                    cout << "pagevector[i].refernum" << pagevector[i].refernum <<endl;
+                } 
+                sort(pagevector.begin(), pagevector.end(),comp);
+
+                int first = pagevector[MEMORYSIZE].id;
+                delete pagevector[MEMORYSIZE];
+                pagevector.pop_back();
                 pageset.erase(first);
-                memorypage.pop();
-              
+                //memorypage.pop();
                 if(iswrite[first] == 1){
                     diskwrites += 1;
                     iswrite[first] = 0;
@@ -119,20 +122,24 @@ int arb(string file)
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
-            memorypage.push(page);
-            pageset.insert(page);
+            cout <<"p(pageid) "<<pageid <<endl;
+//            Page p* = new Page(pageid);
+            Page p(pageid);
+            pagevector.push_back(p);
+            cout<< "pagevector.size: " << pagevector.size() <<endl;
+            pageset.insert(pageid);
+            cout<< "pageset.size: " << pageset.size() <<endl;
             diskreads += 1;
         } else {
           cout << "HIT:     " <<"page " << page << endl;
         }
-    temp ++;
-    if (temp == INTERVAL) {
-       temp = 0;
-       for (int  i = 0 ; i < shift.size(); i++){
-            shift[i] >> 1;
-
-       }
-    }
+        temp ++ ;
+        if (temp == INTERVAL) {
+            temp = 0;
+            for (int  i = 0 ; i < shift.size(); i++){
+                shift[i] >> 1;
+            }
+        }
     }  
     cout << "events in trace:    " << eventsnum << endl;
     cout << "total disk reads:   " << diskreads << endl;
