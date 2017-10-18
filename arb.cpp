@@ -5,6 +5,8 @@
 #include<set>
 #include<queue>
 #include<bitset>
+#include<map>
+#include<algorithm>
 #include"memory.h"
 #include"page.h"
 using namespace std;
@@ -12,9 +14,9 @@ using namespace std;
 #define MEMORYSIZE 4
 #define MAXPAGENUM 1000
 #define INTERVAL  30
-
-
-int hextodecimal(string hex);
+using BIT8 = bitset<8>;
+typedef pair<int, int> PAIR;
+long hextodecimal(string hex);
 int readfile(string file){
 char s[80];
 ifstream  fin;
@@ -39,7 +41,7 @@ cout<<s<<endl;
 return 0;
 }
 
-int hextodecimal(string hex){
+long hextodecimal(string hex){
     long sum = 0;
     if(hex.length() != 7) 
         return -1;
@@ -55,7 +57,7 @@ int hextodecimal(string hex){
 return sum;
 }
 
-int mycompare(page p1, page p2){
+int mycompare(const Page &p1, const Page &p2){
 
     return p1.refernum < p2.refernum;
 
@@ -72,11 +74,11 @@ struct CmpByValue {
 int arb(string file)
 {
     set<int> pageset;
-    vector<int>::iterator it;
+    map<int,int>::iterator it;
   //  queue<int> memorypage;
     int iswrite[MAXPAGENUM] = {0};
-//    map<int,int> pagemap;
-    vector<bitset<8>>  shift;
+    map<int,int> pagemap;
+    vector<BIT8>  shift(MAXPAGENUM);
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -99,7 +101,10 @@ int arb(string file)
         int address = hextodecimal(line);
         int page = address / PAGESIZE ;
 //`        cout << "page " << page << endl;          
-        shift[page].set(0);
+ 
+        cout <<"before set "<< shift[page] << endl;
+        shift[page].set(7);
+        cout <<"after set "<< shift[page] << endl;
         if(s[0] == 'W'){
             iswrite[page] = 1;
         }
@@ -107,9 +112,23 @@ int arb(string file)
         if(pagemap.find(page) == pagemap.end()){
             cout << "MISS:    "<<"page " << page <<endl;
             if(pagemap.size() == MEMORYSIZE){
-                int first = memorypage.front();
+               for(it = pagemap.begin(); it != pagemap.end(); it ++){
+                   it->second = (int) (shift[it->first].to_ulong());
+                   cout << "bitset " << shift[it->first] <<endl;
+                   cout<<"elefirst "<< it->first <<"ele.second "<< it->second <<endl;
+               }
+              
+                vector<PAIR> pagevector(pagemap.begin(),pagemap.end());
+                sort(pagevector.begin(), pagevector.end(),CmpByValue());
+                 
+                for(int k = 0;  k < MEMORYSIZE; k++){
+                 cout<< "vector[k]" << pagevector[k].first << "  " << pagevector[k].second << endl;
+
+                } 
+                
+                int first = pagevector[MEMORYSIZE - 1].first;
+                pagemap.erase(first);
                 pageset.erase(first);
-                memorypage.pop();
               
                 if(iswrite[first] == 1){
                     diskwrites += 1;
@@ -119,10 +138,12 @@ int arb(string file)
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
-            memorypage.push(page);
+            pagemap[page] = 0;
+//            memorypage.push(page);
             pageset.insert(page);
             diskreads += 1;
         } else {
+         
           cout << "HIT:     " <<"page " << page << endl;
         }
     temp ++;
