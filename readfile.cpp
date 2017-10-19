@@ -6,47 +6,21 @@
 #include<queue>
 #include"memory.h"
 using namespace std;
-#define PAGESIZE 4096 
-#define MEMORYSIZE 4
-#define MAXPAGENUM 1000
+#define PAGESIZE 512 
+#define MEMORYSIZE 10
+#define MAXPAGENUM 10000000
 
 
 
-int hextodecimal(string hex);
-int readfile(string file){
-char s[80];
-ifstream  fin;
-string line;
-int page;
-fin.open("example1-3.trace",ios::in);
-while(fin.getline(s,80)){
 
-//if(s[0] == '#'){
-//}
-line.copy(s,8,2);
-int address  = hextodecimal(line);
-int page = address / PAGESIZE ;
-if(s[0] == 'R'){
-;
-}else{
-;
-}
-cout<<s<<endl;
-}
-
-return 0;
-}
-
-int hextodecimal(string hex){
-    long sum = 0;
-    if(hex.length() != 7) 
-        return -1;
-    for(int  i = 0; i < 7; i++){
+long long hextodecimal(string hex){
+    long long sum = 0;
+    for(int  i = 0; i < hex.length(); i++){
         if(hex[i] >= 'a' && hex[i] <= 'f'){
-            sum += (hex[i]-87) * pow (16, 6 - i);
+            sum += (hex[i]-87) * pow (16, hex.length() - 1 - i);
 //            cout<< (hex[i]-87) * pow (16, 6 - i) << endl;
         } else{ 
-            sum += atoi(hex.substr(i,1).data()) * pow (16, 6 - i);
+            sum += atoi(hex.substr(i,1).data()) * pow (16, hex.length() - 1 - i);
   //          cout << atoi(hex.substr(i,1).data()) * pow (16, 6 - i) << endl;
         }
     }
@@ -56,9 +30,9 @@ return sum;
 
 int fifo(string file)
 {
-    set<int> pageset;
-    set<int>::iterator it;
-    queue<int> memorypage;
+    set<long> pageset;
+    set<long>::iterator it;
+    queue<long> memorypage;
     int iswrite[MAXPAGENUM] = {0}; 
     int eventsnum = 0;
     int diskreads = 0;
@@ -67,9 +41,9 @@ int fifo(string file)
     char s[80];
     ifstream  fin;
     string line;
-    int page;
+    long page;
     
-    fin.open("example1-3.trace",ios::in);
+    fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
@@ -78,10 +52,13 @@ int fifo(string file)
            continue;
  
         line = s;
-        line = line.substr(2,8);
-        int address  = hextodecimal(line);
-        int page = address / PAGESIZE ;
-//`        cout << "page " << page << endl;          
+        cout << "line " << line << endl;
+        int pos = line.find_first_of(" ");
+        line = line.substr(pos + 1, line.length() - pos - 1);
+        long long address  = hextodecimal(line);
+        long page = address / PAGESIZE ;
+        cout << "address " << address << endl;          
+        cout << "page " << page << endl;          
 
         if(s[0] == 'W'){
             iswrite[page] = 1;
@@ -90,7 +67,7 @@ int fifo(string file)
         if(it == pageset.end()){
             cout << "MISS:    "<<"page " << page <<endl;
             if(pageset.size() == MEMORYSIZE){
-                int first = memorypage.front();
+                long first = memorypage.front();
                 pageset.erase(first);
                 memorypage.pop();
                 if(iswrite[first] == 1){
@@ -107,6 +84,7 @@ int fifo(string file)
         } else {
           cout << "HIT:     " <<"page " << page << endl;
         }
+
     }  
     cout << "events in trace:    " << eventsnum << endl;
     cout << "total disk reads:   " << diskreads << endl;

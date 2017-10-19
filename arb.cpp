@@ -10,47 +10,21 @@
 #include"memory.h"
 #include"page.h"
 using namespace std;
-#define PAGESIZE 4096 
-#define MEMORYSIZE 4
-#define MAXPAGENUM 1000
-#define INTERVAL  1
+#define PAGESIZE 512 
+#define MEMORYSIZE 10
+#define MAXPAGENUM 100000
+#define INTERVAL 1 
 using BIT8 = bitset<8>;
-typedef pair<int, int> PAIR;
-long hextodecimal(string hex);
-int readfile(string file){
-char s[80];
-ifstream  fin;
-string line;
-int page;
-fin.open("example1-3.trace",ios::in);
-while(fin.getline(s,80)){
+typedef pair<long, int> PAIR;
 
-//if(s[0] == '#'){
-//}
-line.copy(s,8,2);
-int address  = hextodecimal(line);
-int page = address / PAGESIZE ;
-if(s[0] == 'R'){
-;
-}else{
-;
-}
-cout<<s<<endl;
-}
-
-return 0;
-}
-
-long hextodecimal(string hex){
-    long sum = 0;
-    if(hex.length() != 7) 
-        return -1;
-    for(int  i = 0; i < 7; i++){
+long long hextodecimal(string hex){
+    long long sum = 0;
+    for(int  i = 0; i < hex.length(); i++){
         if(hex[i] >= 'a' && hex[i] <= 'f'){
-            sum += (hex[i]-87) * pow (16, 6 - i);
+            sum += (hex[i]-87) * pow (16, hex.length() - 1 - i);
 //            cout<< (hex[i]-87) * pow (16, 6 - i) << endl;
         } else{ 
-            sum += atoi(hex.substr(i,1).data()) * pow (16, 6 - i);
+            sum += atoi(hex.substr(i,1).data()) * pow (16, hex.length() - 1 - i);
   //          cout << atoi(hex.substr(i,1).data()) * pow (16, 6 - i) << endl;
         }
     }
@@ -63,23 +37,20 @@ int mycompare(const Page &p1, const Page &p2){
 
 }
 
-int mapcompare(std::pair<int,int> ele1, std::pair<int,int>  ele2){
+int mapcompare(std::pair<long,int> ele1, std::pair<long,int>  ele2){
     return ele1.second > ele2.second;
 }
 struct CmpByValue {  
-  bool operator()(const pair<int,int>& lhs, const pair<int,int>& rhs) {  
+  bool operator()(const pair<long,int>& lhs, const pair<long,int>& rhs) {  
     return lhs.second < rhs.second;  
   }  
 };  
 int arb(string file)
 {
-    set<int> pageset;
-    map<int,int>::iterator it;
- // queue<int> memorypage;
+    set<long> pageset;
     int iswrite[MAXPAGENUM] = {0};
-    map<int,int> pagemap;
     vector<BIT8>  shift(MAXPAGENUM);
-    vector<pair<int,int>>  pagevector;
+    vector<pair<long,int>>  pagevector;
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -87,9 +58,9 @@ int arb(string file)
     char s[80];
     ifstream  fin;
     string line;
-    int page;
+    long page;
     int  temp = 0; 
-    fin.open("example1-3.trace",ios::in);
+    fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
@@ -98,10 +69,12 @@ int arb(string file)
            continue;
  
         line = s;
-        line = line.substr(2,8);
-        int address = hextodecimal(line);
-        int page = address / PAGESIZE ;
- 
+        int pos = line.find_first_of(" ");
+        line = line.substr(pos + 1,line.length() - pos -1 );
+        long long address = hextodecimal(line);
+        long page = address / PAGESIZE ;
+        cout << "address" << address << endl; 
+        cout << "page" << page << endl; 
         shift[page].set(7);
         if(s[0] == 'W'){
             iswrite[page] = 1;
@@ -117,7 +90,7 @@ int arb(string file)
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 
-                int first = pagevector[0].first;
+                long first = pagevector[0].first;
                 pagevector.erase(pagevector.begin());
                 pageset.erase(first);
               
@@ -129,7 +102,7 @@ int arb(string file)
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
-            pagevector.push_back(pair<int,int>(page,0));
+            pagevector.push_back(pair<long,int>(page,0));
             pageset.insert(page);
             diskreads += 1;
         } else {
