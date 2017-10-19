@@ -5,14 +5,18 @@
 #include<set>
 #include<queue>
 #include<bitset>
+#include<map>
+#include<algorithm>
 #include"memory.h"
+#include"page.h"
 using namespace std;
 #define PAGESIZE 4096 
-#define MEMORYSIZE 4
+#define MEMORYSIZE 10
 #define MAXPAGENUM 10000000
-
-
-
+#define INTERVAL 4
+#define WINDOWSIZE 4
+using BIT8 = bitset<8>;
+typedef pair<long, int> PAIR;
 
 long long hextodecimal(string hex){
     long long sum = 0;
@@ -28,13 +32,23 @@ long long hextodecimal(string hex){
 return sum;
 }
 
+int mycompare(const Page &p1, const Page &p2){
 
-int fifo(string file)
+    return p1.refernum > p2.refernum;
+
+}
+
+struct CmpByValue {  
+  bool operator()(const pair<long,int>& lhs, const pair<long,int>& rhs) {  
+    return lhs.second < rhs.second;  
+  }  
+};  
+int workingset(string file)
 {
     set<long> pageset;
-    set<long>::iterator it;
-    queue<long> memorypage;
-    bitset<MAXPAGENUM> iswrite; 
+    bitset<MAXPAGENUM> iswrite;
+    vector<BIT8>  shift(MAXPAGENUM);
+    vector<pair<long,int>>  pagevector;
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -43,34 +57,52 @@ int fifo(string file)
     ifstream  fin;
     string line;
     long page;
-    
+    int  temp = 0; 
     fin.open("example1-3.trace",ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
            eventsnum += 1;
-        else 
+        else if(s[0] == '#'){
+           iswrite.reset();
+           shift.clear();
+           vector<pair<long,int>>().swap(pagevector);
+           set<int>::iterator it ;
+           for(; it != pageset.end()){
+               pageset.erase(it);
+           }        
+
+
+        } else  
            continue;
  
         line = s;
-//        cout << "line " << line << endl;
+      //  cout <<"line" << line << endl;
         int pos = line.find_first_of(" ");
-        line = line.substr(pos + 1, line.length() - pos - 1);
-        long long address  = hextodecimal(line);
+        line = line.substr(pos + 1,line.length() - pos -1 );
+        long long address = hextodecimal(line);
         long page = address / PAGESIZE ;
-  //      cout << "address " << address << endl;          
-    //    cout << "page " << page << endl;          
-
+    //    cout << "address" << address << endl; 
+      //  cout << "page" << page << endl; 
+        shift[page].set(7);
         if(s[0] == 'W'){
             iswrite.set(page);
         }
-        it = pageset.find(page);
-        if(it == pageset.end()){
+        if(pageset.find(page) == pageset.end()){
             cout << "MISS:    "<<"page " << page <<endl;
+            //cout << " mapsize:" <<  pagemap.size()<< endl; 
             if(pageset.size() == MEMORYSIZE){
-                long first = memorypage.front();
+                for(int i = 0 ; i < MEMORYSIZE; i++){
+                 pagevector[i].second = (int) (shift[pagevector[i].first].to_ulong());
+
+
+                } 
+                sort(pagevector.begin(), pagevector.end(),CmpByValue());
+                
+                long first = pagevector[0].first;
+                pagevector.erase(pagevector.begin());
                 pageset.erase(first);
-                memorypage.pop();
+              
                 if(iswrite[first] == 1){
                     diskwrites += 1;
                     iswrite.reset(first);
@@ -79,13 +111,20 @@ int fifo(string file)
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
-            memorypage.push(page);
+            pagevector.push_back(pair<long,int>(page,0));
             pageset.insert(page);
             diskreads += 1;
         } else {
+         
           cout << "HIT:     " <<"page " << page << endl;
         }
-
+    temp ++;
+    if (temp == INTERVAL) {
+       temp = 0;
+       for (int i = 0 ; i < shift.size(); i++){
+            shift[i] = shift[i] >> 1;
+       }
+    }
     }  
     cout << "events in trace:    " << eventsnum << endl;
     cout << "total disk reads:   " << diskreads << endl;
@@ -99,7 +138,7 @@ int fifo(string file)
 
 int main(){
 string s="00000abc";
-fifo(s);
+workingset(s);
 return 0;
 
 }
