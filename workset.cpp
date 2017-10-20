@@ -11,7 +11,7 @@
 #include"page.h"
 using namespace std;
 #define PAGESIZE 4096 
-#define MEMORYSIZE 10
+#define MEMORYSIZE 10 
 #define MAXPAGENUM 10000000
 #define INTERVAL 4
 #define WINDOWSIZE 4
@@ -57,27 +57,60 @@ int workingset(string file)
     ifstream  fin;
     string line;
     long page;
-    int  temp = 0; 
-    fin.open("example1-3.trace",ios::in);
+    int  temp = 0;
+    int count = 0;
+    int context_switch; 
+    fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
-   
+        count ++;
         if(s[0] == 'W' || s[0] == 'R')
            eventsnum += 1;
-        else if(s[0] == '#'){
-           iswrite.reset();
-           shift.clear();
-           vector<pair<long,int>>().swap(pagevector);
-           set<int>::iterator it ;
-           for(; it != pageset.end()){
-               pageset.erase(it);
-           }        
+        else if(s[0] == '#' && (count != 1)){
+            iswrite.reset();
+            cout<<"before clear shift size " <<shift.size() <<endl;
+            shift.clear();
+            cout<<"after clear shift size " <<shift.size() <<endl;
 
-
+            vector<pair<long,int>>().swap(pagevector);
+            
+            pageset.clear();
+            cout <<"pagesetsize "<<pageset.size()<< endl;
+            cout <<"pagevectorsize "<<pagevector.size()<< endl;
+           for(int  i = 0; i < MEMORYSIZE; i++){
+                fin.getline(s,80);
+                line = s;
+                cout <<"line" << line << endl;
+                cout << "count " <<count <<endl;
+                int pos = line.find_first_of(" ");
+                line = line.substr(pos + 1,line.length() - pos -1 );
+                long long address = hextodecimal(line);
+                long page = address / PAGESIZE ;
+     
+                shift[page].set(7);
+                if(s[0] == 'W'){
+                    iswrite.set(page);
+                 }
+                 if(pageset.find(page) == pageset.end()){     
+                     pagevector.push_back(pair<long,int>(page,0));
+                     pageset.insert(page);
+                     diskreads ++;
+                 }
+                 temp ++;
+                 if (temp % INTERVAL == 0) {
+                 for (int i = 0 ; i < shift.size(); i++){
+                     shift[i] = shift[i] >> 1;
+                 }
+                 }
+                 prefetches ++;
+                 diskreads --;
+            }
+            continue;
         } else  
            continue;
  
         line = s;
-      //  cout <<"line" << line << endl;
+        cout <<"line" << line << endl;
+        cout << "count " <<count <<endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1,line.length() - pos -1 );
         long long address = hextodecimal(line);
@@ -118,13 +151,13 @@ int workingset(string file)
          
           cout << "HIT:     " <<"page " << page << endl;
         }
-    temp ++;
-    if (temp == INTERVAL) {
-       temp = 0;
-       for (int i = 0 ; i < shift.size(); i++){
-            shift[i] = shift[i] >> 1;
-       }
-    }
+        temp ++;
+        if (temp == INTERVAL) {
+            temp = 0;
+            for (int i = 0 ; i < shift.size(); i++){
+                shift[i] = shift[i] >> 1;
+            }
+        }
     }  
     cout << "events in trace:    " << eventsnum << endl;
     cout << "total disk reads:   " << diskreads << endl;
