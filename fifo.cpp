@@ -4,13 +4,13 @@
 #include<math.h>
 #include<set>
 #include<queue>
+#include<bitset>
 #include"memory.h"
 using namespace std;
-#define PAGESIZE 512 
-#define MEMORYSIZE 10
+#define PAGESIZE 4096 
+#define MEMORYSIZE 4
 #define MAXPAGENUM 10000000
-
-
+#define DEBUG 0
 
 
 long long hextodecimal(string hex){
@@ -33,7 +33,7 @@ int fifo(string file)
     set<long> pageset;
     set<long>::iterator it;
     queue<long> memorypage;
-    int iswrite[MAXPAGENUM] = {0}; 
+    bitset<MAXPAGENUM> iswrite; 
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -43,7 +43,7 @@ int fifo(string file)
     string line;
     long page;
     
-    fin.open("example3.trace",ios::in);
+    fin.open("example1-3.trace",ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
@@ -52,37 +52,45 @@ int fifo(string file)
            continue;
  
         line = s;
-        cout << "line " << line << endl;
+//        cout << "line " << line << endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1, line.length() - pos - 1);
         long long address  = hextodecimal(line);
         long page = address / PAGESIZE ;
-        cout << "address " << address << endl;          
-        cout << "page " << page << endl;          
+  //      cout << "address " << address << endl;          
+    //    cout << "page " << page << endl;          
 
         if(s[0] == 'W'){
-            iswrite[page] = 1;
+            iswrite.set(page);
         }
         it = pageset.find(page);
         if(it == pageset.end()){
+            # if DEBUG
             cout << "MISS:    "<<"page " << page <<endl;
+            #endif
             if(pageset.size() == MEMORYSIZE){
                 long first = memorypage.front();
                 pageset.erase(first);
                 memorypage.pop();
                 if(iswrite[first] == 1){
                     diskwrites += 1;
-                    iswrite[first] = 0;
+                    iswrite.reset(first);
+                    # if DEBUG
                     cout << "REPLACE: "  << "page "<<first<< " (DIRTY)" << endl;
+                    # endif
                 } else {
+                    # if DEBUG
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
+                    # endif
                 }
             }
             memorypage.push(page);
             pageset.insert(page);
             diskreads += 1;
         } else {
-          cout << "HIT:     " <<"page " << page << endl;
+            # if DEBUG
+            cout << "HIT:     " <<"page " << page << endl;
+            # endif
         }
 
     }  

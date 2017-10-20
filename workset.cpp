@@ -15,6 +15,7 @@ using namespace std;
 #define MAXPAGENUM 10000000
 #define INTERVAL 4
 #define WINDOWSIZE 4
+#define DEBUG 1
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
 
@@ -78,6 +79,7 @@ int workingset(string file)
             cout <<"pagevectorsize "<<pagevector.size()<< endl;
            for(int  i = 0; i < MEMORYSIZE; i++){
                 fin.getline(s,80);
+                eventsnum ++;
                 line = s;
                 cout <<"line" << line << endl;
                 cout << "count " <<count <<endl;
@@ -93,6 +95,7 @@ int workingset(string file)
                  if(pageset.find(page) == pageset.end()){     
                      pagevector.push_back(pair<long,int>(page,0));
                      pageset.insert(page);
+                     prefetches ++;
                      diskreads ++;
                  }
                  temp ++;
@@ -101,7 +104,6 @@ int workingset(string file)
                      shift[i] = shift[i] >> 1;
                  }
                  }
-                 prefetches ++;
                  diskreads --;
             }
             continue;
@@ -139,17 +141,22 @@ int workingset(string file)
                 if(iswrite[first] == 1){
                     diskwrites += 1;
                     iswrite.reset(first);
+                    # if DEBUG
                     cout << "REPLACE: "  << "page "<<first<< " (DIRTY)" << endl;
+                    # endif
                 } else {
+                    # if DEBUG
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
+                    # endif 
                 }
             }
             pagevector.push_back(pair<long,int>(page,0));
             pageset.insert(page);
             diskreads += 1;
         } else {
-         
-          cout << "HIT:     " <<"page " << page << endl;
+            # if DEBUG
+            cout << "HIT:     " <<"page " << page << endl;
+            # endif
         }
         temp ++;
         if (temp == INTERVAL) {
