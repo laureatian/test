@@ -6,6 +6,7 @@
 #include<queue>
 #include<bitset>
 #include<map>
+#include<string>
 #include<algorithm>
 #include"memory.h"
 #include"page.h"
@@ -15,7 +16,7 @@ using namespace std;
 #define MAXPAGENUM 10000000
 #define INTERVAL 4
 #define WINDOWSIZE 4
-#define DEBUG 1
+#define DEBUG 0
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
 
@@ -50,10 +51,14 @@ int workingset(string file)
     bitset<MAXPAGENUM> iswrite;
     vector<BIT8>  shift(MAXPAGENUM);
     vector<pair<long,int>>  pagevector;
+    vector<pair<string,vector<long,int>>> memoryvector;
+    set<string> memoryset;
+//    processvector
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
     int prefetches = 0;
+    int pagefaults = 0;
     char s[80];
     ifstream  fin;
     string line;
@@ -67,17 +72,33 @@ int workingset(string file)
         if(s[0] == 'W' || s[0] == 'R')
            eventsnum += 1;
         else if(s[0] == '#' && (count != 1)){
-            iswrite.reset();
-            cout<<"before clear shift size " <<shift.size() <<endl;
-            shift.clear();
-            cout<<"after clear shift size " <<shift.size() <<endl;
+            line = s;
+            int pos1 = line.find_last_of(" ");
+            string processname = line.substr(pos1 + 1,line.length() - pos1 -1);
+            cout <<"process name" << processname << endl; 
+             
+            if((memoryvector.size() < 2) && (memoryset.find(processname) != memoryset.end()) ) {
+                cout << "before  put  memoryvector.size()" << memoryvector.size() << endl;
+           //     vector<long>  v(pagevector);
+                memoryvector.push_back(pair<string,vector<long>>(processname,v));
+                memoryset.insert(processname);
+            } 
 
+            cout << "after put memoryvector.size()" << memoryvector.size() << endl;
+            cout<<"before clear shift size " <<shift.size() <<endl;
+            cout<<"after clear shift size " <<shift.size() <<endl;
             vector<pair<long,int>>().swap(pagevector);
-            
             pageset.clear();
             cout <<"pagesetsize "<<pageset.size()<< endl;
             cout <<"pagevectorsize "<<pagevector.size()<< endl;
-           for(int  i = 0; i < MEMORYSIZE; i++){
+
+            if(memoryset.find(processname) != memoryset.end()){
+                pagevector.assign(memoryvector[processname]);
+                pageset(memoryvector[processname].begin(),memoryvector[processname].end());
+                cout << "context switch page set size" << pageset.size() << endl;
+            }
+ 
+           for(int  i = 0; i < WINDOWSIZE; i++){
                 fin.getline(s,80);
                 eventsnum ++;
                 line = s;
@@ -95,17 +116,19 @@ int workingset(string file)
                  if(pageset.find(page) == pageset.end()){     
                      pagevector.push_back(pair<long,int>(page,0));
                      pageset.insert(page);
-                     prefetches ++;
                      diskreads ++;
+                     prefetches ++;
                  }
                  temp ++;
                  if (temp % INTERVAL == 0) {
-                 for (int i = 0 ; i < shift.size(); i++){
-                     shift[i] = shift[i] >> 1;
+                     temp = 0;
+                     for (int i = 0 ; i < shift.size(); i++){
+                         shift[i] = shift[i] >> 1;
+                     }
                  }
-                 }
-                 diskreads --;
             }
+            pagefaults ++;
+            prefetches --;
             continue;
         } else  
            continue;
@@ -124,10 +147,13 @@ int workingset(string file)
             iswrite.set(page);
         }
         if(pageset.find(page) == pageset.end()){
+            #if DEBUG
             cout << "MISS:    "<<"page " << page <<endl;
+            # endif
+            pagefaults ++;
             //cout << " mapsize:" <<  pagemap.size()<< endl; 
-            if(pageset.size() == MEMORYSIZE){
-                for(int i = 0 ; i < MEMORYSIZE; i++){
+            if(pageset.size() == WINDOWSIZE){
+                for(int i = 0 ; i < WINDOWSIZE; i++){
                  pagevector[i].second = (int) (shift[pagevector[i].first].to_ulong());
 
 
@@ -169,7 +195,7 @@ int workingset(string file)
     cout << "events in trace:    " << eventsnum << endl;
     cout << "total disk reads:   " << diskreads << endl;
     cout << "total disk writes:  " << diskwrites << endl;
-    cout << "page faults:        " << diskreads << endl;
+    cout << "page faults:        " << pagefaults << endl;
     cout << "prefetch faults:    " << prefetches << endl;
     return 0;
 }
