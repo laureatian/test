@@ -19,6 +19,7 @@ using namespace std;
 #define DEBUG 0
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
+using MEMVECTOR = pair<string,vector<pair<long,int>>>;
 
 long long hextodecimal(string hex){
     long long sum = 0;
@@ -51,7 +52,7 @@ int workingset(string file)
     bitset<MAXPAGENUM> iswrite;
     vector<BIT8>  shift(MAXPAGENUM);
     vector<pair<long,int>>  pagevector;
-    vector<pair<string,vector<long,int>>> memoryvector;
+    vector<MEMVECTOR> memoryvector;
     set<string> memoryset;
 //    processvector
     int eventsnum = 0;
@@ -65,73 +66,96 @@ int workingset(string file)
     long page;
     int  temp = 0;
     int count = 0;
-    int context_switch; 
+    int context_switch;
+    int processnum = MEMORYSIZE / WINDOWSIZE;
+    string lastprocessname; 
+    string processname; 
     fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
         count ++;
+        line = s;
         if(s[0] == 'W' || s[0] == 'R')
            eventsnum += 1;
-        else if(s[0] == '#' && (count != 1)){
-            line = s;
-            int pos1 = line.find_last_of(" ");
-            string processname = line.substr(pos1 + 1,line.length() - pos1 -1);
-            cout <<"process name" << processname << endl; 
-             
-            if((memoryvector.size() < 2) && (memoryset.find(processname) != memoryset.end()) ) {
-                cout << "before  put  memoryvector.size()" << memoryvector.size() << endl;
-           //     vector<long>  v(pagevector);
-                memoryvector.push_back(pair<string,vector<long>>(processname,v));
-                memoryset.insert(processname);
-            } 
+        else if (s[0] == '#'){
+             int pos1 = line.find_last_of(" ");
+             lastprocessname = processname;
+             processname = line.substr(pos1 + 1,line.length() - pos1 -1);
+             if (count != 1){
+                 cout <<"process name" << processname << endl;
 
-            cout << "after put memoryvector.size()" << memoryvector.size() << endl;
-            cout<<"before clear shift size " <<shift.size() <<endl;
-            cout<<"after clear shift size " <<shift.size() <<endl;
-            vector<pair<long,int>>().swap(pagevector);
-            pageset.clear();
-            cout <<"pagesetsize "<<pageset.size()<< endl;
-            cout <<"pagevectorsize "<<pagevector.size()<< endl;
+                // store pagevector to memoryvector && memoryset
+                 for (int i = 0 ; i < pagevector.size(); i ++){
+                 vector<PAIR> tempvector(pagevector);    
+                 memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
+                 }  
+                 memoryset.insert(lastprocessname);
+                     
+                 // after store, clear them
+                 pagevector.clear();
+                 pageset.clear();
+           
+                 // if memory has this process, load it to pagevector
+                 if(memoryset.find(processname) != memoryset.end()){ 
+                     for(int i = 0; i < memoryvector.size(); i++){
+                         if (memoryvector[i].first == processname ){
+                              vector<PAIR>  tempv = memoryvector[i].second;
+                              for(int j = 0; j < tempv.size(); j++){
+                                  pageset.insert(tempv[j].first);
+                              }
+                              pagevector.assign(tempv.begin(),tempv.end());                    
+                              memoryvector.erase(memoryvector.begin() + i);  
+                              break;
+                          }
+                          if ( i == memoryvector.size() - 1){
+                               cout << "sorry nothing can be load to pagevector!" <<endl;
+                          } 
+                      }
+                 // delete from memoryvector && memoryset after load
+                       memoryset.erase(processname);       
+                 } else{ //  bu cun zai then prefetch
+                      if(memoryvector.size() == (processnum + 1)){
 
-            if(memoryset.find(processname) != memoryset.end()){
-                pagevector.assign(memoryvector[processname]);
-                pageset(memoryvector[processname].begin(),memoryvector[processname].end());
-                cout << "context switch page set size" << pageset.size() << endl;
-            }
+                          memoryvector.erase(memoryvector.begin());
+                          
+                      }   
+                } 
+
  
-           for(int  i = 0; i < WINDOWSIZE; i++){
-                fin.getline(s,80);
-                eventsnum ++;
-                line = s;
-                cout <<"line" << line << endl;
-                cout << "count " <<count <<endl;
-                int pos = line.find_first_of(" ");
-                line = line.substr(pos + 1,line.length() - pos -1 );
-                long long address = hextodecimal(line);
-                long page = address / PAGESIZE ;
-     
-                shift[page].set(7);
-                if(s[0] == 'W'){
-                    iswrite.set(page);
+                for(int  i = 0; i < WINDOWSIZE; i++){
+                     fin.getline(s,80);
+                     eventsnum ++;
+                     line = s;
+                     cout <<"line" << line << endl;
+                     cout << "count " <<count <<endl;
+                     int pos = line.find_first_of(" ");
+                     line = line.substr(pos + 1,line.length() - pos -1 );
+                     long long address = hextodecimal(line);
+                     long page = address / PAGESIZE ;
+      
+                     shift[page].set(7);
+                     if(s[0] == 'W'){
+                         iswrite.set(page);
+                      }
+                      if(pageset.find(page) == pageset.end()){     
+                          pagevector.push_back(pair<long,int>(page,0));
+                          pageset.insert(page);
+                          diskreads ++;
+                          prefetches ++;
+                      }
+                      temp ++;
+                      if (temp % INTERVAL == 0) {
+                          temp = 0;
+                          for (int i = 0 ; i < shift.size(); i++){
+                              shift[i] = shift[i] >> 1;
+                          }
+                      } 
                  }
-                 if(pageset.find(page) == pageset.end()){     
-                     pagevector.push_back(pair<long,int>(page,0));
-                     pageset.insert(page);
-                     diskreads ++;
-                     prefetches ++;
-                 }
-                 temp ++;
-                 if (temp % INTERVAL == 0) {
-                     temp = 0;
-                     for (int i = 0 ; i < shift.size(); i++){
-                         shift[i] = shift[i] >> 1;
-                     }
-                 }
-            }
-            pagefaults ++;
-            prefetches --;
-            continue;
+                 pagefaults ++;
+                 prefetches --;
+                 continue;
+             }
         } else  
-           continue;
+            continue;
  
         line = s;
         cout <<"line" << line << endl;

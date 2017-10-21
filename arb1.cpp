@@ -61,7 +61,7 @@ int arb(string file)
     string line;
     long page;
     int  temp = 0; 
-    fin.open("example3.trace",ios::in);
+    fin.open("example2.trace",ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
@@ -77,10 +77,6 @@ int arb(string file)
         long page = address / PAGESIZE ;
     //    cout << "address" << address << endl; 
       //  cout << "page" << page << endl; 
-        shift[page].set(7);
-        if(s[0] == 'W'){
-            iswrite.set(page);
-        }
         if(pageset.find(page) == pageset.end()){
             cout << "MISS:    "<<"page " << page <<endl;
             //cout << " mapsize:" <<  pagemap.size()<< endl; 
