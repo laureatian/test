@@ -26,10 +26,8 @@ long long hextodecimal(string hex){
     for(int  i = 0; i < hex.length(); i++){
         if(hex[i] >= 'a' && hex[i] <= 'f'){
             sum += (hex[i]-87) * pow (16, hex.length() - 1 - i);
-//            cout<< (hex[i]-87) * pow (16, 6 - i) << endl;
         } else{ 
             sum += atoi(hex.substr(i,1).data()) * pow (16, hex.length() - 1 - i);
-  //          cout << atoi(hex.substr(i,1).data()) * pow (16, 6 - i) << endl;
         }
     }
 return sum;
@@ -74,98 +72,97 @@ int workingset(string file)
     while(fin.getline(s,80)){
         count ++;
         line = s;
+        cout <<"count " <<count <<endl;
+        cout <<"line " <<line <<endl;
         if(s[0] == 'W' || s[0] == 'R')
-           eventsnum += 1;
+            eventsnum += 1;
         else if (s[0] == '#'){
-             int pos1 = line.find_last_of(" ");
-             lastprocessname = processname;
-             processname = line.substr(pos1 + 1,line.length() - pos1 -1);
-             if (count != 1){
-                 cout <<"process name" << processname << endl;
+            int pos1 = line.find_last_of(" ");
+            lastprocessname = processname;
+            processname = line.substr(pos1 + 1,line.length() - pos1 -1);
+            if (count != 1){
+                cout <<"process name   " << processname << endl;
 
                 // store pagevector to memoryvector && memoryset
-                 for (int i = 0 ; i < pagevector.size(); i ++){
-                 vector<PAIR> tempvector(pagevector);    
-                 memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
-                 }  
-                 memoryset.insert(lastprocessname);
+                for (int i = 0 ; i < pagevector.size(); i ++){
+                    vector<PAIR> tempvector(pagevector);    
+                    memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
+                }  
+                memoryset.insert(lastprocessname);
                      
-                 // after store, clear them
-                 pagevector.clear();
-                 pageset.clear();
+                // after store, clear them
+                pagevector.clear();
+                pageset.clear();
            
-                 // if memory has this process, load it to pagevector
-                 if(memoryset.find(processname) != memoryset.end()){ 
-                     for(int i = 0; i < memoryvector.size(); i++){
-                         if (memoryvector[i].first == processname ){
-                              vector<PAIR>  tempv = memoryvector[i].second;
-                              for(int j = 0; j < tempv.size(); j++){
-                                  pageset.insert(tempv[j].first);
-                              }
-                              pagevector.assign(tempv.begin(),tempv.end());                    
-                              memoryvector.erase(memoryvector.begin() + i);  
-                              break;
-                          }
-                          if ( i == memoryvector.size() - 1){
-                               cout << "sorry nothing can be load to pagevector!" <<endl;
-                          } 
-                      }
+                // if memory has this process, load it to pagevector
+                if (memoryset.find(processname) != memoryset.end()){ 
+                    for(int i = 0; i < memoryvector.size(); i++){
+                        if (memoryvector[i].first == processname ){
+                            vector<PAIR>  tempv = memoryvector[i].second;
+                            for(int j = 0; j < tempv.size(); j++){
+                                pageset.insert(tempv[j].first);
+                            }
+                            pagevector.assign(tempv.begin(),tempv.end());                    
+                            memoryvector.erase(memoryvector.begin() + i);  
+                            break;
+                        }
+                        if ( i == memoryvector.size() - 1){
+                            cout << "sorry nothing can be load to pagevector!" <<endl;
+                        } 
+                    }
                  // delete from memoryvector && memoryset after load
-                       memoryset.erase(processname);       
-                 } else{ //  bu cun zai then prefetch
-                      if(memoryvector.size() == (processnum + 1)){
-
-                          memoryvector.erase(memoryvector.begin());
-                          
-                      }   
-                } 
-
- 
-                for(int  i = 0; i < WINDOWSIZE; i++){
-                     fin.getline(s,80);
-                     eventsnum ++;
-                     line = s;
-                     cout <<"line" << line << endl;
-                     cout << "count " <<count <<endl;
-                     int pos = line.find_first_of(" ");
-                     line = line.substr(pos + 1,line.length() - pos -1 );
-                     long long address = hextodecimal(line);
-                     long page = address / PAGESIZE ;
+                    memoryset.erase(processname);       
+                } else{ //  bu cun zai then prefetch
+                    if (memoryvector.size() == (processnum + 1)){
+                        vector<PAIR>  vectortodelete = memoryvector[0].second; 
+                        for (int k = 0; k < vectortodelete.size(); k ++){
+                            if (iswrite[vectortodelete[k].first] == 1)
+                                diskwrites ++;
+                        }
+                        memoryvector.erase(memoryvector.begin());
+                    } 
+                    for(int  i = 0; i < WINDOWSIZE; i++){
+                        fin.getline(s,80);
+                        count ++;
+                        eventsnum ++;
+                        line = s;
+                        int pos = line.find_first_of(" ");
+                        line = line.substr(pos + 1,line.length() - pos -1 );
+                        long long address = hextodecimal(line);
+                        long page = address / PAGESIZE ;
       
-                     shift[page].set(7);
-                     if(s[0] == 'W'){
-                         iswrite.set(page);
-                      }
-                      if(pageset.find(page) == pageset.end()){     
-                          pagevector.push_back(pair<long,int>(page,0));
-                          pageset.insert(page);
-                          diskreads ++;
-                          prefetches ++;
-                      }
-                      temp ++;
-                      if (temp % INTERVAL == 0) {
-                          temp = 0;
-                          for (int i = 0 ; i < shift.size(); i++){
-                              shift[i] = shift[i] >> 1;
-                          }
-                      } 
-                 }
-                 pagefaults ++;
-                 prefetches --;
-                 continue;
-             }
+                        shift[page].set(7);
+                        if (s[0] == 'W'){
+                            iswrite.set(page);
+                        }
+                        if (pageset.find(page) == pageset.end()){     
+                            pagevector.push_back(pair<long,int>(page,0));
+                            pageset.insert(page);
+                            diskreads ++;
+                            prefetches ++;
+                        }
+                        temp ++;
+                        if (temp % INTERVAL == 0) {
+                            temp = 0;
+                            for (int i = 0 ; i < shift.size(); i++){
+                                shift[i] = shift[i] >> 1;
+                            }
+                        } 
+                    }
+                    pagefaults ++;
+                    prefetches --;
+                    continue;
+                }  
+            }
         } else  
             continue;
  
-        line = s;
-        cout <<"line" << line << endl;
-        cout << "count " <<count <<endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1,line.length() - pos -1 );
         long long address = hextodecimal(line);
         long page = address / PAGESIZE ;
-    //    cout << "address" << address << endl; 
-      //  cout << "page" << page << endl; 
+        //    cout << "address" << address << endl; 
+        //  cout << "page" << page << endl; 
         shift[page].set(7);
         if(s[0] == 'W'){
             iswrite.set(page);
