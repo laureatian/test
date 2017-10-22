@@ -201,11 +201,6 @@ int workingset(string file)
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                
-                for (int k = 0; k < pagevector.size(); k++){
-                   cout << "pagevector ele: " << pagevector[k].first  << "  " << pagevector[k].second << endl;  
-
-                }
- 
                 long first = pagevector[0].first;
                 pagevector.erase(pagevector.begin());
                 pageset.erase(first);
@@ -233,12 +228,12 @@ int workingset(string file)
         }
         temp ++;
         if (temp == INTERVAL) {
-             cout<<"before shift "<< shift[page].to_ulong() << endl;
+//             cout<<"before shift "<< shift[page].to_ulong() << endl;
             temp = 0;
             for (int i = 0 ; i < shift.size(); i++){
                 shift[i] = shift[i] >> 1;
             }
-            cout<<"after shift "<< shift[page].to_ulong() << endl;
+  //          cout<<"after shift "<< shift[page].to_ulong() << endl;
         }
     }  
     cout << "events in trace:    " << eventsnum << endl;
