@@ -57,6 +57,7 @@ int workingset(string file)
     vector<BIT8>  shift(MAXPAGENUM);
     vector<pair<long,int>>  pagevector;
     vector<MEMVECTOR> memoryvector;
+    queue<long> pagequeue;
     set<string> memoryset;
     int eventsnum = 0;
     int diskreads = 0;
@@ -106,17 +107,23 @@ int workingset(string file)
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 vector<PAIR> tempvector;
                 tempvector.assign(pagevector.begin(),pagevector.begin() + WINDOWSIZE);  
-                for (int k = 4; k < pagevector.size(); k++){
-                     if (pagevector.size() < 4){
+                for (int k = WINDOWSIZE; k < pagevector.size(); k++){
+                     if (pagevector.size() < WINDOWSIZE){
                           break;
                      }
                      if(iswrite[pagevector[k].first]){
                          diskwrites ++;
-                        iswrite.reset(pagevector[k].first);
+                         iswrite.reset(pagevector[k].first);
                      }
 
 
                 } 
+             /*   vector<PAIR>  tempvector;
+                for(int k = 0; k < pagequeue.size(); k ++){
+                    tempvector.push_back(pair<long,int>(pagequeue.front(),0));
+                    pagequeue.pop();
+                }*/
+
                 memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
                 memoryset.insert(lastprocessname);
                 //cout <<"memory vector size(after add)"<< memoryvector.size() << endl;
@@ -143,7 +150,7 @@ int workingset(string file)
                     }
                  // delete from memoryvector && memoryset after load
                 } else{ //  bu cun zai then prefetch
-                    if (memoryvector.size() == (processnum + 1)){
+                    if (memoryvector.size() == (processnum + 1 )){
                     
                         vector<PAIR>  vectortodelete = memoryvector[0].second; 
                         for (int k = 0; k < vectortodelete.size(); k ++){
@@ -197,6 +204,9 @@ int workingset(string file)
         addresstring = line.substr(pos + 1,line.length() - pos -1 );
         long long address = hextodecimal(addresstring);
         long page = address / PAGESIZE ;
+        pagequeue.push(page);
+        if (pagequeue.size() >  WINDOWSIZE )
+              pagequeue.pop();
         //    cout << "address" << address << endl; 
         //  cout << "page" << page << endl; 
         shift[page].set(7);
