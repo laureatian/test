@@ -27,7 +27,7 @@ return sum;
 }
 
 
-int fifo(string file)
+int fifo(string file, string mode, int pagesize, int framenum, string algo)
 {
     set<long> pageset;
     set<long>::iterator it;
@@ -106,7 +106,8 @@ int fifo(string file)
 
 int main(){
 string s="00000abc";
-fifo(s);
+//string file, string mode, int pagesize, int framenum, string algo
+fifo("exampe1-3.trace","debug", 4096, 10,"fifo");
 return 0;
 
 }

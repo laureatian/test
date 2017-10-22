@@ -38,7 +38,7 @@ struct CmpByValue {
     return lhs.second < rhs.second;  
   }  
 };  
-int arb(string file)
+int arb(string file, string mode, int pagesize, int framenum, string algo,int interval)
 {
     set<long> pageset;
     bitset<MAXPAGENUM> iswrite;
@@ -134,7 +134,7 @@ int arb(string file)
 
 int main(){
 string s="00000abc";
-arb(s);
+arb("exampe1-3.trace","debug", 4096, 10,"arb",4);
 return 0;
 
 }

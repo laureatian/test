@@ -11,12 +11,14 @@
 #include"memory.h"
 #include"page.h"
 using namespace std;
-#define PAGESIZE 4096 
-#define MEMORYSIZE 10 
-#define MAXPAGENUM 10000000
-#define INTERVAL  4
-#define WINDOWSIZE 4
-#define DEBUG 1 
+
+
+int PAGESIZE=4096 ;
+int MEMORYSIZE = 10;
+#define  MAXPAGENUM  10000000
+int INTERVAL = 4;
+int WINDOWSIZE = 4;
+int DEBUG =  1; 
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
 using MEMVECTOR = pair<string,vector<pair<long,int>>>;
@@ -50,7 +52,7 @@ struct CmpByValue {
     return lhs.second < rhs.second;  
   }  
 };  
-int workingset(string file)
+int workingset(string file, string mode, int pagesize, int framenum, string algo,int interval, int windowsize)
 {
     set<long> pageset;
     bitset<MAXPAGENUM> iswrite;
@@ -77,7 +79,7 @@ int workingset(string file)
     string addresstring;
     iswrite.reset();
     //shift.clear(); 
-    fin.open("example3.trace",ios::in);
+    fin.open(file,ios::in);
     while(fin.getline(s,80)){
         count ++;
         line = s;
@@ -270,9 +272,36 @@ int workingset(string file)
 
 
 
-int main(){
-string s="00000abc";
-workingset(s);
+int main(int argc, char* argv[]){
+      for(int i = 0; i < argc; i++){
+       cout <<argv[i] <<endl;
+      
+       }
+
+     string s1 = argv[1];
+     string s2 = argv[2];
+     string s5 = argv[5];
+     if(s2 == "debug")
+     DEBUG = 1;
+     else 
+     DEBUG = 0;
+     PAGESIZE = atoi(argv[3]);
+     cout <<"debug" << DEBUG << endl;
+     cout <<"pageize" << PAGESIZE << endl;
+     MEMORYSIZE = atoi(argv[4]);
+     cout <<"memorysize" << MEMORYSIZE << endl;
+     if (argc == 7){
+       INTERVAL = atoi(argv[6]);
+     cout <<"nterval " << INTERVAL << endl;
+     } else if(argc == 8){
+     INTERVAL = atoi(argv[6]);
+     WINDOWSIZE  = atoi(argv[7]);
+     cout <<" ndowsieze" << WINDOWSIZE << endl;
+     workingset(argv[1],argv[2],0,0,argv[5],0,0);
+     } else{
+         
+    }
 return 0;
+//int workingset(string file, string mode, int pagesize, int framenum, string algo,int interval, int windowsize)
 
 }
