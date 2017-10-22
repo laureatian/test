@@ -103,7 +103,20 @@ int workingset(string file)
                 cout << endl;*/
 
                 // store pagevector to memoryvector && memoryset
-                vector<PAIR> tempvector(pagevector);    
+                sort(pagevector.begin(), pagevector.end(),CmpByValue());
+                vector<PAIR> tempvector;
+                tempvector.assign(pagevector.begin(),pagevector.begin() + WINDOWSIZE);  
+                for (int k = 4; k < pagevector.size(); k++){
+                     if (pagevector.size() < 4){
+                          break;
+                     }
+                     if(iswrite[pagevector[k].first]){
+                         diskwrites ++;
+                        iswrite.reset(pagevector[k].first);
+                     }
+
+
+                } 
                 memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
                 memoryset.insert(lastprocessname);
                 //cout <<"memory vector size(after add)"<< memoryvector.size() << endl;
