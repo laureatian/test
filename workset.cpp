@@ -12,10 +12,10 @@
 #include"page.h"
 using namespace std;
 #define PAGESIZE 4096 
-#define MEMORYSIZE 10 
+#define MEMORYSIZE 4 
 #define MAXPAGENUM 10000000
-#define INTERVAL 4
-#define WINDOWSIZE 4
+#define INTERVAL 1
+#define WINDOWSIZE 1
 #define DEBUG 0
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
@@ -76,7 +76,7 @@ int workingset(string file)
     string addresstring;
     iswrite.reset();
     shift.clear(); 
-    fin.open("example3.trace",ios::in);
+    fin.open("example1-3.trace",ios::in);
     while(fin.getline(s,80)){
         count ++;
         line = s;

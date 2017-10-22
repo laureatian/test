@@ -7,14 +7,12 @@
 #include<bitset>
 #include<map>
 #include<algorithm>
-#include"memory.h"
-#include"page.h"
 using namespace std;
 #define PAGESIZE 4096 
 #define MEMORYSIZE 10
 #define MAXPAGENUM 10000000
 #define INTERVAL 4
-#define DEBUG 1
+#define DEBUG  1
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
 
@@ -30,12 +28,6 @@ long long hextodecimal(string hex){
         }
     }
 return sum;
-}
-
-int mycompare(const Page &p1, const Page &p2){
-
-    return p1.refernum > p2.refernum;
-
 }
 
 int mapcompare(std::pair<long,int> ele1, std::pair<long,int>  ele2){
@@ -60,8 +52,11 @@ int arb(string file)
     ifstream  fin;
     string line;
     long page;
-    int  temp = 0; 
-    fin.open("example2.trace",ios::in);
+    int  temp = 0;
+    iswrite.reset();
+    pagevector.clear();
+    pageset.clear(); 
+    fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
@@ -77,8 +72,14 @@ int arb(string file)
         long page = address / PAGESIZE ;
     //    cout << "address" << address << endl; 
       //  cout << "page" << page << endl; 
+        shift[page].set(7);
+        if(s[0] == 'W'){
+            iswrite.set(page);
+        }
         if(pageset.find(page) == pageset.end()){
+            # if DEBUG
             cout << "MISS:    "<<"page " << page <<endl;
+            # endif
             //cout << " mapsize:" <<  pagemap.size()<< endl; 
             if(pageset.size() == MEMORYSIZE){
                 for(int i = 0 ; i < MEMORYSIZE; i++){
@@ -108,7 +109,8 @@ int arb(string file)
             pageset.insert(page);
             diskreads += 1;
         } else {
-          # if DEBUG         
+         
+          # if DEBUG
           cout << "HIT:     " <<"page " << page << endl;
           # endif
         }
