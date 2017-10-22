@@ -5,7 +5,6 @@
 #include<set>
 #include<queue>
 #include<bitset>
-#include"memory.h"
 using namespace std;
 #define PAGESIZE 4096 
 #define MEMORYSIZE 4
@@ -42,7 +41,8 @@ int fifo(string file)
     ifstream  fin;
     string line;
     long page;
-    
+    iswrite.reset();
+    pageset.clear();
     fin.open("example1-3.trace",ios::in);
     while(fin.getline(s,80)){
    

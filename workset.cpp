@@ -81,32 +81,32 @@ int workingset(string file)
         count ++;
         line = s;
         line = trim(line);
-        cout <<"count " <<count <<endl;
-        cout <<"line " <<line <<endl;
+        //cout <<"count " <<count <<endl;
+        //cout <<"line " <<line <<endl;
         if(s[0] == 'W' || s[0] == 'R')
             eventsnum += 1;
         else if (s[0] == '#'){
             context_switch ++;
-            cout << "context switch  "<< context_switch << endl;
+            //cout << "context switch  "<< context_switch << endl;
             int pos1 = line.find_last_of(" ");
             lastprocessname = processname;
             processname = line.substr(pos1 + 1,line.length() - pos1 -1);
-            cout << " processname length "<<processname.length() <<endl;
-            cout <<"process name                                " << processname << " count " << count<< endl;
+            //cout << " processname length "<<processname.length() <<endl;
+            //cout <<"process name                                " << processname << " count " << count<< endl;
             
             if (count != 1){
-                cout <<"memorysetprint  size "<< memoryset.size()<< endl;
+                /*cout <<"memorysetprint  size "<< memoryset.size()<< endl;
                 cout << "                     ";
                 for (set<string>::iterator it = memoryset.begin(); it != memoryset.end(); it ++ ){
                    cout << *it << " ";
                 }
-                cout << endl;
+                cout << endl;*/
 
                 // store pagevector to memoryvector && memoryset
                 vector<PAIR> tempvector(pagevector);    
                 memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
                 memoryset.insert(lastprocessname);
-                cout <<"memory vector size(after add)"<< memoryvector.size() << endl;
+                //cout <<"memory vector size(after add)"<< memoryvector.size() << endl;
                      
                 // after store, clear them
                 pagevector.clear();
@@ -114,7 +114,7 @@ int workingset(string file)
            
                 // if memory has this process, load it to pagevector
                 if (memoryset.find(processname) != memoryset.end()){
-                    cout << processname <<" in memory" << endl; 
+                 //   cout << processname <<" in memory" << endl; 
                     for(int i = 0; i < memoryvector.size(); i++){
                         if (memoryvector[i].first == processname ){
              
@@ -125,22 +125,16 @@ int workingset(string file)
                             pagevector.assign(tempv.begin(),tempv.end());                    
                             memoryvector.erase(memoryvector.begin() + i); 
                             memoryset.erase(processname);       
-                            cout << processname << " to erase " << endl; 
                             break;
                         }
-                        if ( i == memoryvector.size() - 1){
-                            cout << "sorry nothing can be load to pagevector!" <<endl;
-                        } 
                     }
                  // delete from memoryvector && memoryset after load
                 } else{ //  bu cun zai then prefetch
-                    cout << processname << " not in memory"<<endl;
                     if (memoryvector.size() == (processnum + 1)){
                     
-                        cout << memoryvector[0].first << " is delete from memory. "<< endl;
                         vector<PAIR>  vectortodelete = memoryvector[0].second; 
                         for (int k = 0; k < vectortodelete.size(); k ++){
-                            if (iswrite[vectortodelete[k].first] == 1){
+                            if (iswrite[vectortodelete[k].first] ){
                                 diskwrites ++;
                                 iswrite.reset(vectortodelete[k].first);
                             }
@@ -150,10 +144,6 @@ int workingset(string file)
                     } 
                     for(int  i = 0; i < WINDOWSIZE; i++){
            /*  label1: */   fin.getline(s,80);
-                        if ((s[0] != 'R') &&  (s[0] != 'W')){
-                            cout << "context_switch  is not smooth" << endl;
-                            cout << "line  " <<line <<endl;
-                        }
                         count ++;
                         eventsnum ++;
                         line = s;
@@ -165,7 +155,6 @@ int workingset(string file)
                         long long address = hextodecimal(addresstring);
                         long page = address / PAGESIZE ;
       
-                 //`       shift[page].set(7);
                         if (s[0] == 'W'){
                             iswrite.set(page);
                         }
@@ -174,7 +163,16 @@ int workingset(string file)
                             pageset.insert(page);
                             diskreads ++;
                             prefetches ++;
-                        } 
+                        }
+                        /*shift[page].set(7);
+                        temp ++;
+                        if (temp == INTERVAL){
+                            temp = 0;
+                            for (int l = 0; l < shift.size(); l ++){
+                               shift[l] = shift[l] >> 1;
+
+                            }
+                        } */
                     }
                 }  
             }
@@ -197,11 +195,9 @@ int workingset(string file)
             cout << "MISS:    "<<"page " << page <<endl;
             # endif
             //cout << " mapsize:" <<  pagemap.size()<< endl; 
-            if(pageset.size() == MEMORYSIZE){
+            if(pageset.size() == MEMORYSIZE ){
                 for(int i = 0 ; i < MEMORYSIZE; i++){
                  pagevector[i].second = (int) (shift[pagevector[i].first].to_ulong());
-
-
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 
@@ -209,7 +205,7 @@ int workingset(string file)
                 pagevector.erase(pagevector.begin());
                 pageset.erase(first);
               
-                if(iswrite[first] == 1){
+                if(iswrite[first]){
                     diskwrites ++;
                     iswrite.reset(first);
                     # if DEBUG
@@ -243,7 +239,7 @@ int workingset(string file)
     cout << "total disk writes:  " << diskwrites << endl;
     cout << "page faults:        " << pagefaults << endl;
     cout << "prefetch faults:    " << prefetches << endl;
-    cout << "context switch      " << context_switch << endl;
+//    cout << "context switch      " << context_switch << endl;
     return 0;
 }
 
