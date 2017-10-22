@@ -33,6 +33,19 @@ long long hextodecimal(string hex){
 return sum;
 }
 
+std::string& trim(std::string &s)   
+{  
+    if (s.empty())   
+    {  
+        return s;  
+    }  
+  
+    s.erase(0,s.find_first_not_of(" "));  
+    s.erase(s.find_last_not_of(" ") + 1);  
+    return s;  
+}  
+
+
 int mycompare(const Page &p1, const Page &p2){
 
     return p1.refernum > p2.refernum;
@@ -67,43 +80,57 @@ int workingset(string file)
     int context_switch;
     int processnum = MEMORYSIZE / WINDOWSIZE;
     string lastprocessname; 
-    string processname; 
+    string processname;
+    string addresstring; 
     fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
         count ++;
         line = s;
+        line = trim(line);
         cout <<"count " <<count <<endl;
         cout <<"line " <<line <<endl;
         if(s[0] == 'W' || s[0] == 'R')
             eventsnum += 1;
         else if (s[0] == '#'){
+            context_switch ++;
             int pos1 = line.find_last_of(" ");
             lastprocessname = processname;
             processname = line.substr(pos1 + 1,line.length() - pos1 -1);
+            cout << " processname length "<<processname.length() <<endl;
+            cout <<"process name                                " << processname << " count " << count<< endl;
+            
             if (count != 1){
-                cout <<"process name   " << processname << endl;
+                cout <<"memorysetprint  size "<< memoryset.size()<< endl;
+                cout << "                     ";
+                for (set<string>::iterator it = memoryset.begin(); it != memoryset.end(); it ++ ){
+                   cout << *it << " ";
+                }
+                cout << endl;
 
                 // store pagevector to memoryvector && memoryset
-                for (int i = 0 ; i < pagevector.size(); i ++){
-                    vector<PAIR> tempvector(pagevector);    
-                    memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
-                }  
+                vector<PAIR> tempvector(pagevector);    
+                memoryvector.push_back(MEMVECTOR(lastprocessname,tempvector));                 
                 memoryset.insert(lastprocessname);
+                cout <<"memory vector size(after add)"<< memoryvector.size() << endl;
                      
                 // after store, clear them
                 pagevector.clear();
                 pageset.clear();
            
                 // if memory has this process, load it to pagevector
-                if (memoryset.find(processname) != memoryset.end()){ 
+                if (memoryset.find(processname) != memoryset.end()){
+                    cout << processname <<" in memory" << endl; 
                     for(int i = 0; i < memoryvector.size(); i++){
                         if (memoryvector[i].first == processname ){
+             
                             vector<PAIR>  tempv = memoryvector[i].second;
                             for(int j = 0; j < tempv.size(); j++){
                                 pageset.insert(tempv[j].first);
                             }
                             pagevector.assign(tempv.begin(),tempv.end());                    
-                            memoryvector.erase(memoryvector.begin() + i);  
+                            memoryvector.erase(memoryvector.begin() + i); 
+                            memoryset.erase(processname);       
+                            cout << processname << " to erase " << endl; 
                             break;
                         }
                         if ( i == memoryvector.size() - 1){
@@ -111,24 +138,34 @@ int workingset(string file)
                         } 
                     }
                  // delete from memoryvector && memoryset after load
-                    memoryset.erase(processname);       
                 } else{ //  bu cun zai then prefetch
+                    cout << processname << " not in memory"<<endl;
                     if (memoryvector.size() == (processnum + 1)){
+                    
+                        cout << memoryvector[0].first << " is delete from memory. "<< endl;
                         vector<PAIR>  vectortodelete = memoryvector[0].second; 
                         for (int k = 0; k < vectortodelete.size(); k ++){
                             if (iswrite[vectortodelete[k].first] == 1)
                                 diskwrites ++;
                         }
+                        memoryset.erase(memoryvector[0].first);
                         memoryvector.erase(memoryvector.begin());
                     } 
                     for(int  i = 0; i < WINDOWSIZE; i++){
                         fin.getline(s,80);
+                        if ((s[0] != 'R') ||  (s[0] != 'W')){
+                            cout << "context_switch  is not smooth" << endl;
+                            cout << "line  " <<line <<endl;
+                        }
                         count ++;
                         eventsnum ++;
                         line = s;
+                        line = trim(line);
+                        // cout << "line " <<line << endl;
+                        //cout << "count " << count << endl;
                         int pos = line.find_first_of(" ");
-                        line = line.substr(pos + 1,line.length() - pos -1 );
-                        long long address = hextodecimal(line);
+                        addresstring = line.substr(pos + 1,line.length() - pos -1 );
+                        long long address = hextodecimal(addresstring);
                         long page = address / PAGESIZE ;
       
                         shift[page].set(7);
@@ -156,10 +193,13 @@ int workingset(string file)
             }
         } else  
             continue;
- 
+        if ((s[0]!='R') || (s[0]!='W')){
+            cout << "not begin with RW" << endl;
+
+        } 
         int pos = line.find_first_of(" ");
-        line = line.substr(pos + 1,line.length() - pos -1 );
-        long long address = hextodecimal(line);
+        addresstring = line.substr(pos + 1,line.length() - pos -1 );
+        long long address = hextodecimal(addresstring);
         long page = address / PAGESIZE ;
         //    cout << "address" << address << endl; 
         //  cout << "page" << page << endl; 
