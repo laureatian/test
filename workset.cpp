@@ -45,13 +45,6 @@ std::string& trim(std::string &s)
     return s;  
 }  
 
-
-int mycompare(const Page &p1, const Page &p2){
-
-    return p1.refernum > p2.refernum;
-
-}
-
 struct CmpByValue {  
   bool operator()(const pair<long,int>& lhs, const pair<long,int>& rhs) {  
     return lhs.second < rhs.second;  
@@ -65,7 +58,6 @@ int workingset(string file)
     vector<pair<long,int>>  pagevector;
     vector<MEMVECTOR> memoryvector;
     set<string> memoryset;
-//    processvector
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -77,11 +69,13 @@ int workingset(string file)
     long page;
     int  temp = 0;
     int count = 0;
-    int context_switch;
+    int context_switch = 0;
     int processnum = MEMORYSIZE / WINDOWSIZE;
     string lastprocessname; 
     string processname;
-    string addresstring; 
+    string addresstring;
+    iswrite.reset();
+    shift.clear(); 
     fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
         count ++;
@@ -93,6 +87,7 @@ int workingset(string file)
             eventsnum += 1;
         else if (s[0] == '#'){
             context_switch ++;
+            cout << "context switch  "<< context_switch << endl;
             int pos1 = line.find_last_of(" ");
             lastprocessname = processname;
             processname = line.substr(pos1 + 1,line.length() - pos1 -1);
@@ -145,15 +140,17 @@ int workingset(string file)
                         cout << memoryvector[0].first << " is delete from memory. "<< endl;
                         vector<PAIR>  vectortodelete = memoryvector[0].second; 
                         for (int k = 0; k < vectortodelete.size(); k ++){
-                            if (iswrite[vectortodelete[k].first] == 1)
+                            if (iswrite[vectortodelete[k].first] == 1){
                                 diskwrites ++;
+                                iswrite.reset(vectortodelete[k].first);
+                            }
                         }
                         memoryset.erase(memoryvector[0].first);
                         memoryvector.erase(memoryvector.begin());
                     } 
                     for(int  i = 0; i < WINDOWSIZE; i++){
-                        fin.getline(s,80);
-                        if ((s[0] != 'R') ||  (s[0] != 'W')){
+           /*  label1: */   fin.getline(s,80);
+                        if ((s[0] != 'R') &&  (s[0] != 'W')){
                             cout << "context_switch  is not smooth" << endl;
                             cout << "line  " <<line <<endl;
                         }
@@ -168,7 +165,7 @@ int workingset(string file)
                         long long address = hextodecimal(addresstring);
                         long page = address / PAGESIZE ;
       
-                        shift[page].set(7);
+                 //`       shift[page].set(7);
                         if (s[0] == 'W'){
                             iswrite.set(page);
                         }
@@ -177,26 +174,14 @@ int workingset(string file)
                             pageset.insert(page);
                             diskreads ++;
                             prefetches ++;
-                        }
-                        temp ++;
-                        if (temp % INTERVAL == 0) {
-                            temp = 0;
-                            for (int i = 0 ; i < shift.size(); i++){
-                                shift[i] = shift[i] >> 1;
-                            }
                         } 
                     }
-                    pagefaults ++;
-                    prefetches --;
-                    continue;
                 }  
             }
+            continue;
         } else  
             continue;
-        if ((s[0]!='R') || (s[0]!='W')){
-            cout << "not begin with RW" << endl;
-
-        } 
+         
         int pos = line.find_first_of(" ");
         addresstring = line.substr(pos + 1,line.length() - pos -1 );
         long long address = hextodecimal(addresstring);
@@ -211,10 +196,9 @@ int workingset(string file)
             #if DEBUG
             cout << "MISS:    "<<"page " << page <<endl;
             # endif
-            pagefaults ++;
             //cout << " mapsize:" <<  pagemap.size()<< endl; 
-            if(pageset.size() == WINDOWSIZE){
-                for(int i = 0 ; i < WINDOWSIZE; i++){
+            if(pageset.size() == MEMORYSIZE){
+                for(int i = 0 ; i < MEMORYSIZE; i++){
                  pagevector[i].second = (int) (shift[pagevector[i].first].to_ulong());
 
 
@@ -226,7 +210,7 @@ int workingset(string file)
                 pageset.erase(first);
               
                 if(iswrite[first] == 1){
-                    diskwrites += 1;
+                    diskwrites ++;
                     iswrite.reset(first);
                     # if DEBUG
                     cout << "REPLACE: "  << "page "<<first<< " (DIRTY)" << endl;
@@ -239,7 +223,8 @@ int workingset(string file)
             }
             pagevector.push_back(pair<long,int>(page,0));
             pageset.insert(page);
-            diskreads += 1;
+            diskreads ++;
+            pagefaults ++;
         } else {
             # if DEBUG
             cout << "HIT:     " <<"page " << page << endl;
@@ -258,6 +243,7 @@ int workingset(string file)
     cout << "total disk writes:  " << diskwrites << endl;
     cout << "page faults:        " << pagefaults << endl;
     cout << "prefetch faults:    " << prefetches << endl;
+    cout << "context switch      " << context_switch << endl;
     return 0;
 }
 
