@@ -12,11 +12,11 @@
 #include"page.h"
 using namespace std;
 #define PAGESIZE 4096 
-#define MEMORYSIZE 4 
+#define MEMORYSIZE 10 
 #define MAXPAGENUM 10000000
-#define INTERVAL 1
-#define WINDOWSIZE 1
-#define DEBUG 0
+#define INTERVAL  4
+#define WINDOWSIZE 4
+#define DEBUG 1 
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
 using MEMVECTOR = pair<string,vector<pair<long,int>>>;
@@ -75,8 +75,8 @@ int workingset(string file)
     string processname;
     string addresstring;
     iswrite.reset();
-    shift.clear(); 
-    fin.open("example1-3.trace",ios::in);
+    //shift.clear(); 
+    fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
         count ++;
         line = s;
@@ -200,7 +200,12 @@ int workingset(string file)
                  pagevector[i].second = (int) (shift[pagevector[i].first].to_ulong());
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
-                
+               
+                for (int k = 0; k < pagevector.size(); k++){
+                   cout << "pagevector ele: " << pagevector[k].first  << "  " << pagevector[k].second << endl;  
+
+                }
+ 
                 long first = pagevector[0].first;
                 pagevector.erase(pagevector.begin());
                 pageset.erase(first);
@@ -228,10 +233,12 @@ int workingset(string file)
         }
         temp ++;
         if (temp == INTERVAL) {
+             cout<<"before shift "<< shift[page].to_ulong() << endl;
             temp = 0;
             for (int i = 0 ; i < shift.size(); i++){
                 shift[i] = shift[i] >> 1;
             }
+            cout<<"after shift "<< shift[page].to_ulong() << endl;
         }
     }  
     cout << "events in trace:    " << eventsnum << endl;

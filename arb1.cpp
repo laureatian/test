@@ -9,7 +9,7 @@
 #include<algorithm>
 using namespace std;
 #define PAGESIZE 4096 
-#define MEMORYSIZE 10
+#define MEMORYSIZE 10 
 #define MAXPAGENUM 10000000
 #define INTERVAL 4
 #define DEBUG  1

@@ -7,7 +7,7 @@
 #include<bitset>
 using namespace std;
 #define PAGESIZE 4096 
-#define MEMORYSIZE 4
+#define MEMORYSIZE 10 
 #define MAXPAGENUM 10000000
 #define DEBUG 0
 
@@ -43,7 +43,7 @@ int fifo(string file)
     long page;
     iswrite.reset();
     pageset.clear();
-    fin.open("example1-3.trace",ios::in);
+    fin.open("example3.trace",ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
