@@ -62,8 +62,9 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     if("debug" == mode){
        debug =1;
     }
-
-
+    set<long> contextset;
+    contextset.clear();
+   
     /*cout <<"debug int "<< debug << endl;
     cout << "pagesize " << pagesize << endl; 
     cout << "framenum " << framenum << endl; 
