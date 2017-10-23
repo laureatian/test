@@ -13,12 +13,12 @@
 using namespace std;
 
 
-int PAGESIZE=4096 ;
-int MEMORYSIZE = 10;
+ static int PAGESIZE=4096 ;
+static int MEMORYSIZE = 10;
 #define  MAXPAGENUM  10000000
-int INTERVAL = 4;
-int WINDOWSIZE = 4;
-int DEBUG =  1; 
+static int INTERVAL = 4;
+static int WINDOWSIZE = 4;
+static int DEBUG =  1; 
 using BIT8 = bitset<8>;
 typedef pair<long, int> PAIR;
 using MEMVECTOR = pair<string,vector<pair<long,int>>>;
@@ -52,8 +52,23 @@ struct CmpByValue {
     return lhs.second < rhs.second;  
   }  
 };  
-int workingset(string file, string mode, int pagesize, int framenum, string algo,int interval, int windowsize)
+int workingset(string file, string mode, int pagesizes, int framenums, string algo,int intervals, int windowsizes)
 {
+    int pagesize = pagesizes;
+    int framenum = framenums;
+    int interval = intervals;
+    int windowsize = windowsizes;
+    int debug = 0;
+    if("debug" == mode){
+       debug =1;
+    }
+
+
+    cout <<"debug int "<< debug << endl;
+    cout << "pagesize " << pagesize << endl; 
+    cout << "framenum " << framenum << endl; 
+    cout << "interval " << interval << endl; 
+    cout << "windowsize " << windowsize << endl; 
     set<long> pageset;
     bitset<MAXPAGENUM> iswrite;
     vector<BIT8>  shift(MAXPAGENUM);
@@ -73,7 +88,7 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
     int  temp = 0;
     int count = 0;
     int context_switch = 0;
-    int processnum = MEMORYSIZE / WINDOWSIZE;
+    int processnum = framenum / windowsize;
     string lastprocessname; 
     string processname;
     string addresstring;
@@ -109,8 +124,8 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 vector<PAIR> tempvector;
                 tempvector.assign(pagevector.begin(),pagevector.begin() + WINDOWSIZE);  
-                for (int k = WINDOWSIZE; k < pagevector.size(); k++){
-                     if (pagevector.size() < WINDOWSIZE){
+                for (int k = windowsize; k < pagevector.size(); k++){
+                     if (pagevector.size() < windowsize){
                           break;
                      }
                      if(iswrite[pagevector[k].first]){
@@ -164,7 +179,7 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
                         memoryset.erase(memoryvector[0].first);
                         memoryvector.erase(memoryvector.begin());
                     } 
-                    for(int  i = 0; i < WINDOWSIZE; i++){
+                    for(int  i = 0; i < windowsize; i++){
            /*  label1: */   fin.getline(s,80);
                         count ++;
                         eventsnum ++;
@@ -205,9 +220,9 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
         int pos = line.find_first_of(" ");
         addresstring = line.substr(pos + 1,line.length() - pos -1 );
         long long address = hextodecimal(addresstring);
-        long page = address / PAGESIZE ;
+        long page = address /  pagesize;
         pagequeue.push(page);
-        if (pagequeue.size() >  WINDOWSIZE )
+        if (pagequeue.size() >  windowsize )
               pagequeue.pop();
         //    cout << "address" << address << endl; 
         //  cout << "page" << page << endl; 
@@ -216,12 +231,11 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
             iswrite.set(page);
         }
         if(pageset.find(page) == pageset.end()){
-            #if DEBUG
+            if (debug) 
             cout << "MISS:    "<<"page " << page <<endl;
-            # endif
             //cout << " mapsize:" <<  pagemap.size()<< endl; 
-            if(pageset.size() == MEMORYSIZE ){
-                for(int i = 0 ; i < MEMORYSIZE; i++){
+            if(pageset.size() == framenum ){
+                for(int i = 0 ; i < framenum; i++){
                  pagevector[i].second = (int) (shift[pagevector[i].first].to_ulong());
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
@@ -233,13 +247,11 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
                 if(iswrite[first]){
                     diskwrites ++;
                     iswrite.reset(first);
-                    # if DEBUG
+                     if (debug)
                     cout << "REPLACE: "  << "page "<<first<< " (DIRTY)" << endl;
-                    # endif
                 } else {
-                    # if DEBUG
+                     if (debug)
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
-                    # endif 
                 }
             }
             pagevector.push_back(pair<long,int>(page,0));
@@ -247,12 +259,11 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
             diskreads ++;
             pagefaults ++;
         } else {
-            # if DEBUG
+            if (debug)
             cout << "HIT:     " <<"page " << page << endl;
-            # endif
         }
         temp ++;
-        if (temp == INTERVAL) {
+        if (temp == interval) {
 //             cout<<"before shift "<< shift[page].to_ulong() << endl;
             temp = 0;
             for (int i = 0 ; i < shift.size(); i++){
@@ -273,14 +284,14 @@ int workingset(string file, string mode, int pagesize, int framenum, string algo
 
 
 int main(int argc, char* argv[]){
-      for(int i = 0; i < argc; i++){
+      for (int i = 0; i < argc; i++){
        cout <<argv[i] <<endl;
-      
        }
 
      string s1 = argv[1];
      string s2 = argv[2];
      string s5 = argv[5];
+     cout << "argv[2] " << argv[2] <<endl;
      if(s2 == "debug")
      DEBUG = 1;
      else 
@@ -297,7 +308,7 @@ int main(int argc, char* argv[]){
      INTERVAL = atoi(argv[6]);
      WINDOWSIZE  = atoi(argv[7]);
      cout <<" ndowsieze" << WINDOWSIZE << endl;
-     workingset(argv[1],argv[2],0,0,argv[5],0,0);
+     workingset(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL,WINDOWSIZE);
      } else{
          
     }
