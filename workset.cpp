@@ -14,7 +14,7 @@ using namespace std;
  static int PAGESIZE=4096 ;
 static int MEMORYSIZE = 10;
 #define  MAXPAGENUM  10000000
-#define  MAXPAGENUM2 1000000000
+#define  MAXPAGENUM2 10000000
 static int INTERVAL = 4;
 static int WINDOWSIZE = 4;
 static int DEBUG =  1; 
@@ -124,7 +124,26 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                 cout << endl;*/
 
                 // store pagevector to memoryvector && memoryset
-                sort(pagevector.begin(), pagevector.end(),CmpByValue());
+//                pageincontext += contextset.size();
+                vector<PAIR> tempvector;
+                tempvector.clear();
+                set<unsigned long long>::iterator it;
+                for (it = contextset.begin(); it != contextset.end(); it ++){
+                    tempvector.push_back(PAIR(*it,0));
+                } 
+                cout <<"tepvectr.size " <<tempvector.size() <<endl;
+                cout <<"contextsetsize " <<contextset.size() <<endl;
+                for(int k  = 0; k < pagevector.size(); k++){
+                    if(contextset.find(pagevector[k].first) == contextset.end()){
+                        if(iswrite[pagevector[k].first].to_ulong()){
+                           diskwrites ++;
+                           iswrite[pagevector[k].first].reset();
+                        }                     
+                    }
+
+                }
+                
+              /*  sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 vector<PAIR> tempvector;
                 tempvector.assign(pagevector.begin(),pagevector.begin() + windowsize);  
                 for (int k = windowsize; k < pagevector.size(); k++){
@@ -137,7 +156,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                      }
 
 
-                } 
+                } */
              /*   vector<PAIR>  tempvector;
                 for(int k = 0; k < pagequeue.size(); k ++){
                     tempvector.push_back(pair<long,int>(pagequeue.front(),0));
@@ -151,6 +170,9 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                 // after store, clear them
                 pagevector.clear();
                 pageset.clear();
+                contextset.clear();
+                queue<unsigned long long> q;
+                swap(contextqueue, q);
            
                 // if memory has this process, load it to pagevector
                 if (memoryset.find(processname) != memoryset.end()){
