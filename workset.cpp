@@ -305,7 +305,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
     long page;
     iswrite.reset();
     pageset.clear();
-    fin.open("example3.trace",ios::in);
+    fin.open(file,ios::in);
     while(fin.getline(s,80)){
    
         if(s[0] == 'W' || s[0] == 'R')
@@ -388,10 +388,10 @@ int main(int argc, char* argv[]){
      } else{
          
     }
-    if(s5 == "fifi")
+    if(s5 == "fifo")
     fifo(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5]);
     if(s5 == "arb")
-    arb(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL);
+//    arb(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL);
     if(s5 == "wsarb")
     workingset(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL,WINDOWSIZE);
  
