@@ -14,7 +14,7 @@ using namespace std;
  static int PAGESIZE=4096 ;
 static int MEMORYSIZE = 10;
 #define  MAXPAGENUM  10000000
-#define  MAXPAGENUM2 10000000
+#define  MAXPAGENUM2 1000000000
 static int INTERVAL = 4;
 static int WINDOWSIZE = 4;
 static int DEBUG =  1; 
@@ -489,9 +489,9 @@ int main(int argc, char* argv[]){
          
     }
     if(s5 == "fifo")
-    fifo(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5]);
+        fifo(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5]);
     if(s5 == "arb")
-       arb(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL);
+        arb(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL);
     if(s5 == "wsarb")
         workingset(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL,WINDOWSIZE);
  
