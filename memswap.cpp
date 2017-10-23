@@ -14,14 +14,14 @@ using namespace std;
  static int PAGESIZE=4096 ;
 static int MEMORYSIZE = 10;
 #define  MAXPAGENUM  10000000
-#define  MAXPAGENUM2 10000000
+#define  MAXPAGENUM2 1000000000
 static int INTERVAL = 4;
 static int WINDOWSIZE = 4;
 static int DEBUG =  1; 
 using BIT8 = bitset<8>;
 using BIT1 = bitset<1>;
-typedef pair<long, int> PAIR;
-using MEMVECTOR = pair<string,vector<pair<long,int>>>;
+typedef pair<unsigned long long, int> PAIR;
+using MEMVECTOR = pair<string,vector<pair<unsigned long long,int>>>;
 
 unsigned long long hextodecimal(string hex){
    unsigned long long sum = 0;
@@ -48,7 +48,7 @@ std::string& trim(std::string &s)
 }  
 
 struct CmpByValue {  
-  bool operator()(const pair<long,int>& lhs, const pair<long,int>& rhs) {  
+  bool operator()(const pair<unsigned long long,int>& lhs, const pair<unsigned long long,int>& rhs) {  
     return lhs.second < rhs.second;  
   }  
 };  
@@ -62,19 +62,20 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     if("debug" == mode){
        debug =1;
     }
-
-
+    set<unsigned long long> contextset;
+    contextset.clear();
+   
     /*cout <<"debug int "<< debug << endl;
     cout << "pagesize " << pagesize << endl; 
     cout << "framenum " << framenum << endl; 
     cout << "interval " << interval << endl; 
     cout << "windowsize " << windowsize << endl; */
-    set<long> pageset;
+    set<unsigned long long> pageset;
     vector<BIT1> iswrite(MAXPAGENUM2);
     vector<BIT8>  shift(MAXPAGENUM2);
-    vector<pair<long,int>>  pagevector;
+    vector<pair<unsigned long long,int>>  pagevector;
     vector<MEMVECTOR> memoryvector;
-    queue<long> pagequeue;
+    queue<unsigned long long> pagequeue;
     set<string> memoryset;
     iswrite.clear();
     int eventsnum = 0;
@@ -85,7 +86,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     char s[80];
     ifstream  fin;
     string line;
-    long page;
+    unsigned long long page;
     int  temp = 0;
     int count = 0;
     int context_switch = 0;
@@ -190,14 +191,14 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                         //cout << "count " << count << endl;
                         int pos = line.find_first_of(" ");
                         addresstring = line.substr(pos + 1,line.length() - pos -1 );
-                        long long address = hextodecimal(addresstring);
-                        long page = address / PAGESIZE ;
+                        unsigned long long address = hextodecimal(addresstring);
+                        unsigned long long page = address / PAGESIZE ;
       
                         if (s[0] == 'W'){
                             iswrite[page].set();
                         }
                         if (pageset.find(page) == pageset.end()){     
-                            pagevector.push_back(pair<long,int>(page,0));
+                            pagevector.push_back(pair<unsigned long long,int>(page,0));
                             pageset.insert(page);
                             diskreads ++;
                             prefetches ++;
@@ -220,8 +221,8 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
          
         int pos = line.find_first_of(" ");
         addresstring = line.substr(pos + 1,line.length() - pos -1 );
-        long long address = hextodecimal(addresstring);
-        long page = address /  pagesize;
+        unsigned long long address = hextodecimal(addresstring);
+        unsigned long long page = address /  pagesize;
         pagequeue.push(page);
         if (pagequeue.size() >  windowsize )
               pagequeue.pop();
@@ -241,7 +242,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                
-                long first = pagevector[0].first;
+                unsigned long long first = pagevector[0].first;
                 pagevector.erase(pagevector.begin());
                 pageset.erase(first);
               
@@ -255,7 +256,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
-            pagevector.push_back(pair<long,int>(page,0));
+            pagevector.push_back(pair<unsigned long long,int>(page,0));
             pageset.insert(page);
             diskreads ++;
             pagefaults ++;
@@ -292,9 +293,9 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
         debug =1;
      }
 
-    set<long> pageset;
-    set<long>::iterator it;
-    queue<long> memorypage;
+    set<unsigned long long> pageset;
+    set<unsigned long long>::iterator it;
+    queue<unsigned long long> memorypage;
     vector<BIT1> iswrite(MAXPAGENUM2);
     iswrite.clear(); 
     int eventsnum = 0;
@@ -304,7 +305,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
     char s[80];
     ifstream  fin;
     string line;
-    long page;
+    unsigned long long page;
     //iswrite.reset();
     pageset.clear();
     fin.open(file,ios::in);
@@ -320,7 +321,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1, line.length() - pos - 1);
         unsigned long long address  = hextodecimal(line);
-        long page = address / pagesize ;
+        unsigned long long page = address / pagesize ;
   //      cout << "address " << address << endl;          
     //    cout << "page " << page << endl;          
 
@@ -332,7 +333,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
             if (debug)
             cout << "MISS:    "<<"page " << page <<endl;
             if(pageset.size() == framenum){
-                long first = memorypage.front();
+                unsigned long long first = memorypage.front();
                 pageset.erase(first);
                 memorypage.pop();
                 if(iswrite[first].to_ulong() ){
@@ -373,10 +374,10 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
      }
 
 
-    set<long> pageset;
+    set<unsigned long long> pageset;
     vector<BIT1> iswrite(MAXPAGENUM2);
     vector<BIT8>  shift(MAXPAGENUM2);
-    vector<pair<long,int>>  pagevector;
+    vector<pair<unsigned long long,int>>  pagevector;
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -384,7 +385,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
     char s[80];
     ifstream  fin;
     string line;
-    long page;
+    unsigned long long page;
     int  temp = 0;
     iswrite.clear();
     pagevector.clear();
@@ -401,8 +402,8 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
       //  cout <<"line" << line << endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1,line.length() - pos -1 );
-        long long address = hextodecimal(line);
-        long page = address / pagesize ;
+        unsigned long long address = hextodecimal(line);
+        unsigned long long page = address / pagesize ;
     //    cout << "address" << address << endl; 
       //  cout << "page" << page << endl; 
         shift[page].set(7);
@@ -421,7 +422,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 
-                long first = pagevector[0].first;
+                unsigned long long first = pagevector[0].first;
                 pagevector.erase(pagevector.begin());
                 pageset.erase(first);
               
@@ -435,7 +436,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
                     cout << "REPLACE: "  <<"page "<< first <<  endl;
                 }
             }
-            pagevector.push_back(pair<long,int>(page,0));
+            pagevector.push_back(pair<unsigned long long,int>(page,0));
             pageset.insert(page);
             diskreads += 1;
         } else {
@@ -489,9 +490,9 @@ int main(int argc, char* argv[]){
          
     }
     if(s5 == "fifo")
-    fifo(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5]);
+        fifo(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5]);
     if(s5 == "arb")
-       arb(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL);
+        arb(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL);
     if(s5 == "wsarb")
         workingset(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL,WINDOWSIZE);
  
