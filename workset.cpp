@@ -62,8 +62,10 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     if("debug" == mode){
        debug =1;
     }
+    queue<unsigned long long> contextqueue;
     set<unsigned long long> contextset;
     contextset.clear();
+    int pageincontext = 0;
    
     /*cout <<"debug int "<< debug << endl;
     cout << "pagesize " << pagesize << endl; 
@@ -75,7 +77,6 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     vector<BIT8>  shift(MAXPAGENUM2);
     vector<pair<unsigned long long,int>>  pagevector;
     vector<MEMVECTOR> memoryvector;
-    queue<unsigned long long> pagequeue;
     set<string> memoryset;
     iswrite.clear();
     int eventsnum = 0;
@@ -223,9 +224,16 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
         addresstring = line.substr(pos + 1,line.length() - pos -1 );
         unsigned long long address = hextodecimal(addresstring);
         unsigned long long page = address /  pagesize;
-        pagequeue.push(page);
-        if (pagequeue.size() >  windowsize )
-              pagequeue.pop();
+        
+        contextqueue.push(page);
+        if (contextqueue.size() >  windowsize ){
+            unsigned long long pagerase = contextqueue.front();
+            contextqueue.pop();
+            contextset.erase(pagerase);
+            contextset.insert(page);
+        } else {
+           contextset.insert(page);
+        }
         //    cout << "address" << address << endl; 
         //  cout << "page" << page << endl; 
         shift[page].set(7);
