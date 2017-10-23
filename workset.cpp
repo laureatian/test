@@ -282,6 +282,83 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
 }
 
 
+int fifo(string file, string mode, int pagesizes, int framenums, string algo)
+{
+     int pagesize = pagesizes;
+     int framenum = framenums;
+     int debug = 0;
+     if("debug" == mode){
+        debug =1;
+     }
+
+    set<long> pageset;
+    set<long>::iterator it;
+    queue<long> memorypage;
+    bitset<MAXPAGENUM> iswrite; 
+    int eventsnum = 0;
+    int diskreads = 0;
+    int diskwrites = 0;
+    int prefetches = 0;
+    char s[80];
+    ifstream  fin;
+    string line;
+    long page;
+    iswrite.reset();
+    pageset.clear();
+    fin.open("example3.trace",ios::in);
+    while(fin.getline(s,80)){
+   
+        if(s[0] == 'W' || s[0] == 'R')
+           eventsnum += 1;
+        else 
+           continue;
+ 
+        line = s;
+//        cout << "line " << line << endl;
+        int pos = line.find_first_of(" ");
+        line = line.substr(pos + 1, line.length() - pos - 1);
+        long long address  = hextodecimal(line);
+        long page = address / pagesize ;
+  //      cout << "address " << address << endl;          
+    //    cout << "page " << page << endl;          
+
+        if(s[0] == 'W'){
+            iswrite.set(page);
+        }
+        it = pageset.find(page);
+        if(it == pageset.end()){
+            if (debug)
+            cout << "MISS:    "<<"page " << page <<endl;
+            if(pageset.size() == framenum){
+                long first = memorypage.front();
+                pageset.erase(first);
+                memorypage.pop();
+                if(iswrite[first] == 1){
+                    diskwrites += 1;
+                    iswrite.reset(first);
+                    if (debug)
+                    cout << "REPLACE: "  << "page "<<first<< " (DIRTY)" << endl;
+                } else {
+                    if(debug) 
+                    cout << "REPLACE: "  <<"page "<< first <<  endl;
+                }
+            }
+            memorypage.push(page);
+            pageset.insert(page);
+            diskreads += 1;
+        } else {
+            if (debug)
+            cout << "HIT:     " <<"page " << page << endl;
+        }
+
+    }  
+    cout << "events in trace:    " << eventsnum << endl;
+    cout << "total disk reads:   " << diskreads << endl;
+    cout << "total disk writes:  " << diskwrites << endl;
+    cout << "page faults:        " << diskreads << endl;
+    cout << "prefetch faults:    " << prefetches << endl;
+    return 0;
+}
 
 int main(int argc, char* argv[]){
       for (int i = 0; i < argc; i++){
@@ -308,10 +385,16 @@ int main(int argc, char* argv[]){
      INTERVAL = atoi(argv[6]);
      WINDOWSIZE  = atoi(argv[7]);
      cout <<" ndowsieze" << WINDOWSIZE << endl;
-     workingset(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL,WINDOWSIZE);
      } else{
          
     }
+    if(s5 == "fifi")
+    fifo(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5]);
+    if(s5 == "arb")
+    arb(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL);
+    if(s5 == "wsarb")
+    workingset(argv[1],argv[2],PAGESIZE,MEMORYSIZE,argv[5],INTERVAL,WINDOWSIZE);
+ 
 return 0;
 //int workingset(string file, string mode, int pagesize, int framenum, string algo,int interval, int windowsize)
 
