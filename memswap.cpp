@@ -8,8 +8,6 @@
 #include<map>
 #include<string>
 #include<algorithm>
-#include"memory.h"
-#include"page.h"
 using namespace std;
 
 
@@ -64,11 +62,11 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     }
 
 
-    cout <<"debug int "<< debug << endl;
+    /*cout <<"debug int "<< debug << endl;
     cout << "pagesize " << pagesize << endl; 
     cout << "framenum " << framenum << endl; 
     cout << "interval " << interval << endl; 
-    cout << "windowsize " << windowsize << endl; 
+    cout << "windowsize " << windowsize << endl; */
     set<long> pageset;
     bitset<MAXPAGENUM> iswrite;
     vector<BIT8>  shift(MAXPAGENUM);
@@ -459,30 +457,30 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
 
 
 int main(int argc, char* argv[]){
-      for (int i = 0; i < argc; i++){
+/*      for (int i = 0; i < argc; i++){
        cout <<argv[i] <<endl;
-       }
+       }*/
 
      string s1 = argv[1];
      string s2 = argv[2];
      string s5 = argv[5];
-     cout << "argv[2] " << argv[2] <<endl;
+//     cout << "argv[2] " << argv[2] <<endl;
      if(s2 == "debug")
      DEBUG = 1;
      else 
      DEBUG = 0;
      PAGESIZE = atoi(argv[3]);
-     cout <<"debug" << DEBUG << endl;
-     cout <<"pageize" << PAGESIZE << endl;
+  //   cout <<"debug" << DEBUG << endl;
+    // cout <<"pageize" << PAGESIZE << endl;
      MEMORYSIZE = atoi(argv[4]);
-     cout <<"memorysize" << MEMORYSIZE << endl;
+   //  cout <<"memorysize" << MEMORYSIZE << endl;
      if (argc == 7){
        INTERVAL = atoi(argv[6]);
-     cout <<"nterval " << INTERVAL << endl;
+     //cout <<"nterval " << INTERVAL << endl;
      } else if(argc == 8){
      INTERVAL = atoi(argv[6]);
      WINDOWSIZE  = atoi(argv[7]);
-     cout <<" ndowsieze" << WINDOWSIZE << endl;
+    // cout <<" ndowsieze" << WINDOWSIZE << endl;
      } else{
          
     }
