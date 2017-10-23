@@ -317,6 +317,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
            continue;
  
         line = s;
+        line = trim(line);
 //        cout << "line " << line << endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1, line.length() - pos - 1);
@@ -399,6 +400,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
            continue;
  
         line = s;
+        line = trim(line);
       //  cout <<"line" << line << endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1,line.length() - pos -1 );
