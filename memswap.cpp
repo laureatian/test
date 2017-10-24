@@ -14,7 +14,7 @@ using namespace std;
  static int PAGESIZE=4096 ;
 static int MEMORYSIZE = 10;
 #define  MAXPAGENUM  10000000
-#define  MAXPAGENUM2 1000000000
+#define  MAXPAGENUM2 10000000
 static int INTERVAL = 4;
 static int WINDOWSIZE = 4;
 static int DEBUG =  1; 
@@ -71,8 +71,8 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     cout << "interval " << interval << endl; 
     cout << "windowsize " << windowsize << endl; */
     set<unsigned long long> pageset;
-    vector<BIT1> iswrite(MAXPAGENUM2);
-    vector<BIT8>  shift(MAXPAGENUM2);
+    map<unsigned long long,BIT1> iswrite;
+    map<unsigned long long,BIT8>  shift;
     vector<pair<unsigned long long,int>>  pagevector;
     vector<MEMVECTOR> memoryvector;
     queue<unsigned long long> pagequeue;
@@ -125,8 +125,8 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                 // store pagevector to memoryvector && memoryset
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 vector<PAIR> tempvector;
-                tempvector.assign(pagevector.begin(),pagevector.begin() + windowsize);  
-                for (int k = windowsize; k < pagevector.size(); k++){
+                tempvector.assign(pagevector.end() - windowsize,pagevector.end());  
+                for (int k = 0; k < pagevector.size() - windowsize; k++){
                      if (pagevector.size() < windowsize){
                           break;
                      }
@@ -268,8 +268,9 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
         if (temp == interval) {
 //             cout<<"before shift "<< shift[page].to_ulong() << endl;
             temp = 0;
-            for (int i = 0 ; i < shift.size(); i++){
-                shift[i] = shift[i] >> 1;
+            map<unsigned long long, BIT8>::iterator mapit;
+            for (mapit = shift.begin(); mapit != shift.end(); mapit ++){
+                mapit->second = (mapit->second) >> 1;
             }
   //          cout<<"after shift "<< shift[page].to_ulong() << endl;
         }
@@ -296,8 +297,10 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
     set<unsigned long long> pageset;
     set<unsigned long long>::iterator it;
     queue<unsigned long long> memorypage;
-    vector<BIT1> iswrite(MAXPAGENUM2);
+    map<unsigned long long,BIT1> iswrite;
+//    vector<BIT1> iswrite2(MAXPAGENUM2);
     iswrite.clear(); 
+//    iswrite2.clear(); 
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -317,6 +320,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
            continue;
  
         line = s;
+        line = trim(line);
 //        cout << "line " << line << endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1, line.length() - pos - 1);
@@ -324,7 +328,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
         unsigned long long page = address / pagesize ;
   //      cout << "address " << address << endl;          
     //    cout << "page " << page << endl;          
-
+        cout<< "page "<< page << endl;
         if(s[0] == 'W'){
             iswrite[page].set();
         }
@@ -375,8 +379,8 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
 
 
     set<unsigned long long> pageset;
-    vector<BIT1> iswrite(MAXPAGENUM2);
-    vector<BIT8>  shift(MAXPAGENUM2);
+    map<unsigned long long,BIT1> iswrite;
+    map<unsigned long long,BIT8>  shift;
     vector<pair<unsigned long long,int>>  pagevector;
     int eventsnum = 0;
     int diskreads = 0;
@@ -399,6 +403,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
            continue;
  
         line = s;
+        line = trim(line);
       //  cout <<"line" << line << endl;
         int pos = line.find_first_of(" ");
         line = line.substr(pos + 1,line.length() - pos -1 );
@@ -447,8 +452,9 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
     temp ++;
     if (temp == interval) {
        temp = 0;
-       for (int i = 0 ; i < shift.size(); i++){
-            shift[i] = shift[i] >> 1;
+       map<unsigned long long, BIT8>::iterator mapit;
+       for (mapit = shift.begin(); mapit != shift.end(); mapit ++){
+            mapit->second = (mapit->second) >> 1;
        }
     }
     }  
