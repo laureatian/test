@@ -71,7 +71,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     cout << "interval " << interval << endl; 
     cout << "windowsize " << windowsize << endl; */
     set<unsigned long long> pageset;
-    vector<BIT1> iswrite(MAXPAGENUM2);
+    map<unsigned long long,BIT1> iswrite;
     vector<BIT8>  shift(MAXPAGENUM2);
     vector<pair<unsigned long long,int>>  pagevector;
     vector<MEMVECTOR> memoryvector;
@@ -296,8 +296,10 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
     set<unsigned long long> pageset;
     set<unsigned long long>::iterator it;
     queue<unsigned long long> memorypage;
-    vector<BIT1> iswrite(MAXPAGENUM2);
+    map<unsigned long long,BIT1> iswrite;
+//    vector<BIT1> iswrite2(MAXPAGENUM2);
     iswrite.clear(); 
+//    iswrite2.clear(); 
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -325,7 +327,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
         unsigned long long page = address / pagesize ;
   //      cout << "address " << address << endl;          
     //    cout << "page " << page << endl;          
-
+        cout<< "page "<< page << endl;
         if(s[0] == 'W'){
             iswrite[page].set();
         }
@@ -376,7 +378,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
 
 
     set<unsigned long long> pageset;
-    vector<BIT1> iswrite(MAXPAGENUM2);
+    map<unsigned long long,BIT1> iswrite;
     vector<BIT8>  shift(MAXPAGENUM2);
     vector<pair<unsigned long long,int>>  pagevector;
     int eventsnum = 0;
