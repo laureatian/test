@@ -80,6 +80,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     queue<unsigned long long> pagequeue;
     set<string> memoryset;
     iswrite.clear();
+    shift.clear();
     int eventsnum = 0;
     int diskreads = 0;
     int diskwrites = 0;
@@ -311,7 +312,7 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
     ifstream  fin;
     string line;
     unsigned long long page;
-    //iswrite.reset();
+    iswrite.clear();
     pageset.clear();
     fin.open(file,ios::in);
     while(fin.getline(s,80)){
@@ -394,6 +395,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
     unsigned long long page;
     int  temp = 0;
     iswrite.clear();
+    shift.clear();
     pagevector.clear();
     pageset.clear(); 
     fin.open(file,ios::in);
