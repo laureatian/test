@@ -34,7 +34,7 @@ unsigned long long hextodecimal(string hex){
     }
 return sum;
 }
-
+// delete space on both sides of string
 std::string& trim(std::string &s)   
 {  
     if (s.empty())   
@@ -46,12 +46,14 @@ std::string& trim(std::string &s)
     s.erase(s.find_last_not_of(" ") + 1);  
     return s;  
 }  
-
+//compare shift reference
 struct CmpByValue {  
   bool operator()(const pair<unsigned long long,int>& lhs, const pair<unsigned long long,int>& rhs) {  
     return lhs.second < rhs.second;  
   }  
 };  
+
+// wsarb algo
 int workingset(string file, string mode, int pagesizes, int framenums, string algo,int intervals, int windowsizes)
 {
     int pagesize = pagesizes;
