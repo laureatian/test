@@ -415,7 +415,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
       //  cout << "page" << page << endl; 
         shift[page].set(7);
         if(s[0] == 'W'){
-            iswrite[page].set();
+            iswrite[page] = '1';
         }
         if(pageset.find(page) == pageset.end()){
             if (debug)
@@ -435,7 +435,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
               
                 if(iswrite[first].to_ulong()){
                     diskwrites += 1;
-                    iswrite[first].reset();
+                    iswrite[first] = '0';
                     if (debug)
                     cout << "REPLACE: "  << "page "<<first<< " (DIRTY)" << endl;
                 } else {
