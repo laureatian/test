@@ -331,7 +331,6 @@ int fifo(string file, string mode, int pagesizes, int framenums, string algo)
         unsigned long long page = address / pagesize ;
   //      cout << "address " << address << endl;          
     //    cout << "page " << page << endl;          
-        cout<< "page "<< page << endl;
         if(s[0] == 'W'){
             iswrite[page].set();
         }
