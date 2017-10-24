@@ -72,7 +72,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     cout << "windowsize " << windowsize << endl; */
     set<unsigned long long> pageset;
     map<unsigned long long,BIT1> iswrite;
-    vector<BIT8>  shift(MAXPAGENUM2);
+    map<unsigned long long,BIT8>  shift;
     vector<pair<unsigned long long,int>>  pagevector;
     vector<MEMVECTOR> memoryvector;
     queue<unsigned long long> pagequeue;
@@ -268,8 +268,9 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
         if (temp == interval) {
 //             cout<<"before shift "<< shift[page].to_ulong() << endl;
             temp = 0;
-            for (int i = 0 ; i < shift.size(); i++){
-                shift[i] = shift[i] >> 1;
+            map<unsigned long long, BIT8>::iterator mapit;
+            for (mapit = shift.begin(); mapit != shift.end(); mapit ++){
+                mapit->second = (mapit->second) >> 1;
             }
   //          cout<<"after shift "<< shift[page].to_ulong() << endl;
         }
@@ -379,7 +380,7 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
 
     set<unsigned long long> pageset;
     map<unsigned long long,BIT1> iswrite;
-    vector<BIT8>  shift(MAXPAGENUM2);
+    map<unsigned long long,BIT8>  shift;
     vector<pair<unsigned long long,int>>  pagevector;
     int eventsnum = 0;
     int diskreads = 0;
@@ -451,8 +452,9 @@ int arb(string file, string mode, int pagesizes, int framenums, string algo,int 
     temp ++;
     if (temp == interval) {
        temp = 0;
-       for (int i = 0 ; i < shift.size(); i++){
-            shift[i] = shift[i] >> 1;
+       map<unsigned long long, BIT8>::iterator mapit;
+       for (mapit = shift.begin(); mapit != shift.end(); mapit ++){
+            mapit->second = (mapit->second) >> 1;
        }
     }
     }  
