@@ -66,7 +66,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     }
     set<unsigned long long> contextset;
     contextset.clear();
-   
+    queue<unsigned long long> contextqueue;   
     map<unsigned long long,int> trace;
     /*cout <<"debug int "<< debug << endl;
     cout << "pagesize " << pagesize << endl; 
@@ -127,7 +127,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                 cout << endl;*/
 
                 // store pagevector to memoryvector && memoryset
-                sort(pagevector.begin(), pagevector.end(),CmpByValue());
+/*                sort(pagevector.begin(), pagevector.end(),CmpByValue());
                 vector<PAIR> tempvector;
                 tempvector.assign(pagevector.end() - windowsize,pagevector.end());  
                 for (int k = 0; k < pagevector.size() - windowsize; k++){
@@ -140,7 +140,25 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                      }
 
 
-                } 
+                } */
+                 vector<PAIR> tempvector;
+                 tempvector.clear();
+                 set<unsigned long long>::iterator it;
+                 for (it = contextset.begin(); it != contextset.end(); it ++){
+                     tempvector.push_back(PAIR(*it,0));
+                 }
+                 cout <<"tepvectr.size " <<tempvector.size() <<endl;
+                 cout <<"contextsetsize " <<contextset.size() <<endl;
+                 for(int k  = 0; k < pagevector.size(); k++){
+                     if(contextset.find(pagevector[k].first) == contextset.end()){
+                         if(iswrite[pagevector[k].first].to_ulong()){
+                            diskwrites ++;
+                            iswrite[pagevector[k].first].reset();
+                         }
+                     }
+ 
+                 }
+
              /*   vector<PAIR>  tempvector;
                 for(int k = 0; k < pagequeue.size(); k ++){
                     tempvector.push_back(pair<long,int>(pagequeue.front(),0));
@@ -154,7 +172,10 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
                 // after store, clear them
                 pagevector.clear();
                 pageset.clear();
-           
+                contextset.clear();
+                queue<unsigned long long> q;
+                swap(contextqueue, q);
+ 
                 // if memory has this process, load it to pagevector
                 if (memoryset.find(processname) != memoryset.end()){
                  //   cout << processname <<" in memory" << endl; 
@@ -227,10 +248,20 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
         addresstring = line.substr(pos + 1,line.length() - pos -1 );
         unsigned long long address = hextodecimal(addresstring);
         unsigned long long page = address /  pagesize;
-        pagequeue.push(page);
-        if (pagequeue.size() >  windowsize )
-              pagequeue.pop();
-        //    cout << "address" << address << endl; 
+        
+
+         contextqueue.push(page);
+         if (contextqueue.size() >  windowsize ){
+            unsigned long long pagerase = contextqueue.front();
+            contextqueue.pop();
+            contextset.erase(pagerase);
+            contextset.insert(page);
+         } else {
+            contextset.insert(page);
+         }
+
+
+//    cout << "address" << address << endl; 
         //  cout << "page" << page << endl; 
         shift[page].set(7);
         if(s[0] == 'W'){
