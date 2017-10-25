@@ -67,6 +67,7 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
     set<unsigned long long> contextset;
     contextset.clear();
    
+    map<unsigned long long,int> trace;
     /*cout <<"debug int "<< debug << endl;
     cout << "pagesize " << pagesize << endl; 
     cout << "framenum " << framenum << endl; 
@@ -238,15 +239,31 @@ int workingset(string file, string mode, int pagesizes, int framenums, string al
         if(pageset.find(page) == pageset.end()){
             if (debug) 
             cout << "MISS:    "<<"page " << page <<endl;
+            trace[page] = eventsnum;
             //cout << " mapsize:" <<  pagemap.size()<< endl; 
             if(pageset.size() == framenum ){
                 for(int i = 0 ; i < framenum; i++){
                  pagevector[i].second = (int) (shift[pagevector[i].first].to_ulong());
                 } 
                 sort(pagevector.begin(), pagevector.end(),CmpByValue());
+                int destpos = 0;
+                int minevent = trace[pagevector[0].first];
+                for(int i = 0 ; i < framenum - 1; i++){
+                  if (pagevector[0].second == pagevector[i+1].second){
+                      if(minevent  > trace[pagevector[i+1].first]){
+                      destpos = i+1;
+                      minevent = trace[pagevector[i+1].first];
+                      } 
+                  }else{
+                      break;
+                  }
+
+                 cout <<" id sh "<< pagevector[i].first << " "<< shift[pagevector[i].first].to_ulong()<< endl;
+                } 
+
                
-                unsigned long long first = pagevector[0].first;
-                pagevector.erase(pagevector.begin());
+                unsigned long long first = pagevector[destpos].first;
+                pagevector.erase(pagevector.begin() + destpos);
                 pageset.erase(first);
               
                 if(iswrite[first].to_ulong()){
