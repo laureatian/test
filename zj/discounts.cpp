@@ -5,14 +5,14 @@
 #include<string>
 using namespace std;
 
-int remaining_goods_num;
+int remaining_goods_num = 12;
 int minimal_goods = 12;
 set<string>  goods;
 set<string>  goods_in_path;
 vector<vector<string> >  discount_group;
 vector<int> path;
 vector<int> returned_path;
-
+vector<string>  remaining_goods;
 int init(){
     string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < 12; i++){
@@ -60,13 +60,14 @@ int init(){
 
 }
 i*/
-int min_remaining(int path_value){
+vector<int> min_remaining(int path_value){
 
-    
-    if ( path.size() < 8 && path.size() > 1 ){
-        path.push_back(path_value);
-        vector<string>  discount_group_ele = discount_group[path.size() - 2];
+    std::cout<<"pathsie"<<path.size()<<std::endl; 
+    if ( path.size() < 8 ){
         vector<string>  temp_vec;
+        path.push_back(path_value);
+        if (path.size() > 1 &&  path_value == 1){
+        vector<string>  discount_group_ele = discount_group[path.size() - 2];
         for(int j = 0; j < discount_group_ele.size(); j ++){
             set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
             set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
@@ -80,6 +81,15 @@ int min_remaining(int path_value){
                  returned_path.clear(); 
                  for(int k = 0; k < path.size(); k++){
                      returned_path.push_back(path[k]);                  
+                 }
+                 remaining_goods.clear();
+                 if(goods_in_path.size() != 0 ){
+                     set<string>::iterator setiter;
+                     for(setiter =  goods_in_path.begin(); setiter !=  goods_in_path.end(); setiter++){
+                        remaining_goods.push_back(*setiter);
+                        std::cout<<"setiter"<<*setiter<<std::endl;
+
+                     }
                  }
              }
  
@@ -102,9 +112,10 @@ int min_remaining(int path_value){
            int min_value = goods.size();
      
         } 
-    
+        }  
+        min_remaining(1);
         min_remaining(0);
-        min_remaining(1); 
+       
 label1: path.pop_back();
         if(temp_vec.size()!=0){
             for(int k = 0; k <temp_vec.size(); k++){
@@ -112,15 +123,33 @@ label1: path.pop_back();
             }
         }
     }    
-  
-
-
+    return  returned_path;
 }
 
 
 int main(){
 
     std::cout<<"compile end!"<<std::endl;
+    init();
+    min_remaining(0);
+    std::cout<<"print path "<<std::endl;
+    if(returned_path.size() != 0){
+       for(int i = 0; i < returned_path.size(); i ++){
+   
+           std::cout<< returned_path[i] <<"  "<<std::endl;
+       }
+    }
+   
+    std::cout<<"print remaining_goods "<<std::endl;
+    if(remaining_goods.size() != 0){
+        for(int k = 0; k < remaining_goods.size(); k ++){
+        std::cout<<remaining_goods[k]<<"  "<< std::endl;
+
+    }
+
+
+    }
+
     return 0;
 
 }
