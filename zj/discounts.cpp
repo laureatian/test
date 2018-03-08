@@ -65,13 +65,15 @@ vector<int> min_remaining(int path_value){
     std::cout<<"pathsie"<<path.size()<<std::endl; 
     if ( path.size() < 8 ){
         vector<string>  temp_vec;
+        temp_vec.clear();
         path.push_back(path_value);
         if (path.size() > 1 &&  path_value == 1){
         vector<string>  discount_group_ele = discount_group[path.size() - 2];
         for(int j = 0; j < discount_group_ele.size(); j ++){
             set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
             set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
-             if(iter1 != goods.end() && iter2 == goods_in_path.end()){
+             //if(iter1 == goods.end()||(iter1 != goods.end() && iter2 == goods_in_path.end())){
+             if( iter2 == goods_in_path.end()){
 
              // can't put this group in,compute this remaining_goods prune
           
@@ -94,27 +96,30 @@ vector<int> min_remaining(int path_value){
              }
  
              goto label1;        
-            }
+            } 
 
         }
       
         for(int j = 0; j < discount_group_ele.size(); j ++){
             set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
             set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
-            if( iter1 != goods.end()  && iter2 != goods_in_path.end()){
+            //if( iter1 != goods.end()  && iter2 != goods_in_path.end()){
+            if(iter2 != goods_in_path.end()){
                 goods_in_path.erase(discount_group_ele[j]);   
                 temp_vec.push_back(discount_group_ele[j]);
+            } else {
+                std::cout<<"  print  wrong" <<std::endl;
             }
 
         } 
-        if( path.size() >= 8){
-
+        if( path.size() > 8){
+           std::cout<<"path bigger than eight"<< std::endl;
            int min_value = goods.size();
      
         } 
         }  
-        min_remaining(1);
         min_remaining(0);
+        min_remaining(1);
        
 label1: path.pop_back();
         if(temp_vec.size()!=0){
