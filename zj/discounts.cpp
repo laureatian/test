@@ -7,6 +7,7 @@ using namespace std;
 
 int remaining_goods_num;
 set<string>  goods;
+set<string>  goods_in_path;
 vector<vector<string> >  discount_group;
 vector<int> path;
 
@@ -14,6 +15,7 @@ int init(){
     string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < 12; i++){
     goods.insert(goods_list[i]);
+    goods_in_path.insert(goods_list[i]);
     }    
  
     string g1[6] = {"A1","A2","A3","A4","A5","A6"};
@@ -40,35 +42,42 @@ int init(){
     return 0;
 }
 
-int max_discount(){
+/*int max_discount(){
 
     int height = 0;
     int remaining_goods_num =  goods.size();
     vector<int> path;
     path.push_back(0);
-   /*  
+     
     for(;;){
    
       ;
 
-    }*/
+    }
 
 
 }
+i*/
+int min_remaining(int path_value){
 
-int min_remaining(int path_value ){
-
-
-    if (height < 7){
+    
+    if ( path.size() < 8){
         path.push_back(path_value);
-        if( path.size > 7){
+        vector<string>  discount_group_ele = discount_group[path.size() + 1];
+        
+        
+        
+        if( path.size() >= 8){
 
            int min_value = goods.size();
      
         } 
     
-    }     
-
+        min_remaining(0);
+        min_remaining(1); 
+        path.pop_back();
+    }    
+  
 
 
 }
