@@ -13,19 +13,12 @@ vector<vector<string> >  discount_group;
 vector<int> path;
 vector<int> returned_path;
 vector<string>  remaining_goods;
-vector<string>  discount_group_name;
 int init(){
     string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < 12; i++){
-        goods.insert(goods_list[i]);
-        goods_in_path.insert(goods_list[i]);
+    goods.insert(goods_list[i]);
+    goods_in_path.insert(goods_list[i]);
     }    
-    
-    string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
-    for(int i = 0; i < 7; i ++){
-        discount_group_name.push_back(discount_group_name_list[i]);
-
-    }
  
     string g1[6] = {"A1","A2","A3","A4","A5","A6"};
     vector<string> g_1(g1,g1+6);
@@ -165,18 +158,16 @@ label1: path.pop_back(); // pop back under prune
 
 int main(){
 
-    std::cout<<"compile end!"<<std::endl;
     init();
     min_remaining(0);
     std::cout<<"print path "<<std::endl;
     if(returned_path.size() != 0){
        for(int i = 0; i < returned_path.size(); i ++){
-           if(returned_path[i] != 0){
-               std::cout<< "  "<<discount_group_name[i - 1];
-           }   
+   
+           std::cout<< returned_path[i] <<"  "<<std::endl;
        }
     }
-    std::cout << std::endl;
+   
     std::cout<<"print remaining_goods "<<std::endl;
     if(remaining_goods.size() != 0){
         for(int k = 0; k < remaining_goods.size(); k ++){

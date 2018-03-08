@@ -13,19 +13,12 @@ vector<vector<string> >  discount_group;
 vector<int> path;
 vector<int> returned_path;
 vector<string>  remaining_goods;
-vector<string>  discount_group_name;
 int init(){
     string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < 12; i++){
-        goods.insert(goods_list[i]);
-        goods_in_path.insert(goods_list[i]);
+    goods.insert(goods_list[i]);
+    goods_in_path.insert(goods_list[i]);
     }    
-    
-    string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
-    for(int i = 0; i < 7; i ++){
-        discount_group_name.push_back(discount_group_name_list[i]);
-
-    }
  
     string g1[6] = {"A1","A2","A3","A4","A5","A6"};
     vector<string> g_1(g1,g1+6);
@@ -77,38 +70,6 @@ vector<int> min_remaining(int path_value){
         std::cout<<"path_value"<<path_value<<std::endl;
         if (path.size() > 1 &&  path_value == 1){
             vector<string>  discount_group_ele = discount_group[path.size() - 2];
-            for(int j = 0; j < discount_group_ele.size(); j ++){
-                set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
-                set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
-                 //if(iter1 == goods.end()||(iter1 != goods.end() && iter2 == goods_in_path.end())){
-                if( iter2 == goods_in_path.end()){
-
-                // can't put this group in,compute this remaining_goods prune
-                    std::cout<<"prune"<<std::endl; 
-                    remaining_goods_num = goods_in_path.size(); 
-                     if(remaining_goods_num  < minimal_goods ){
-                         std::cout<<"update  path" << std::endl;
-                         minimal_goods = remaining_goods_num;
-                         returned_path.clear(); 
-                         for(int k = 0; k < path.size(); k++){
-                             returned_path.push_back(path[k]); 
-                             std::cout<<" "<<path[k];                 
-                         }
-                         remaining_goods.clear();
-                         if(goods_in_path.size() != 0 ){
-                             set<string>::iterator setiter;
-                             for(setiter =  goods_in_path.begin(); setiter !=  goods_in_path.end(); setiter++){
-                                 remaining_goods.push_back(*setiter);
-                                 std::cout<<"setiter"<<*setiter<<std::endl;
-
-                             }
-                         }
-                     }
- 
-                     goto label1;        
-                } 
-
-            }
       
             temp_vec.clear();
             for(int j = 0; j < discount_group_ele.size(); j ++){
@@ -145,6 +106,38 @@ vector<int> min_remaining(int path_value){
 
             } 
       
+            for(int j = 0; j < discount_group_ele.size(); j ++){
+                set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
+                set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
+                 //if(iter1 == goods.end()||(iter1 != goods.end() && iter2 == goods_in_path.end())){
+                if( iter2 == goods_in_path.end()){
+
+                // can't put this group in,compute this remaining_goods prune
+                    std::cout<<"prune"<<std::endl; 
+                    remaining_goods_num = goods_in_path.size(); 
+                     if(remaining_goods_num  < minimal_goods ){
+                         std::cout<<"update  path" << std::endl;
+                         minimal_goods = remaining_goods_num;
+                         returned_path.clear(); 
+                         for(int k = 0; k < path.size(); k++){
+                             returned_path.push_back(path[k]); 
+                             std::cout<<" "<<path[k];                 
+                         }
+                         remaining_goods.clear();
+                         if(goods_in_path.size() != 0 ){
+                             set<string>::iterator setiter;
+                             for(setiter =  goods_in_path.begin(); setiter !=  goods_in_path.end(); setiter++){
+                                 remaining_goods.push_back(*setiter);
+                                 std::cout<<"setiter"<<*setiter<<std::endl;
+
+                             }
+                         }
+                     }
+ 
+                     goto label1;        
+                } 
+
+            }
         }
         if(path.size() != 8){ 
             min_remaining(1);
@@ -171,12 +164,11 @@ int main(){
     std::cout<<"print path "<<std::endl;
     if(returned_path.size() != 0){
        for(int i = 0; i < returned_path.size(); i ++){
-           if(returned_path[i] != 0){
-               std::cout<< "  "<<discount_group_name[i - 1];
-           }   
+   
+           std::cout<< returned_path[i] <<"  "<<std::endl;
        }
     }
-    std::cout << std::endl;
+   
     std::cout<<"print remaining_goods "<<std::endl;
     if(remaining_goods.size() != 0){
         for(int k = 0; k < remaining_goods.size(); k ++){
