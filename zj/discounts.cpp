@@ -6,10 +6,12 @@
 using namespace std;
 
 int remaining_goods_num;
+int minimal_goods = 12;
 set<string>  goods;
 set<string>  goods_in_path;
 vector<vector<string> >  discount_group;
 vector<int> path;
+vector<int> returned_path;
 
 int init(){
     string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
@@ -61,12 +63,40 @@ i*/
 int min_remaining(int path_value){
 
     
-    if ( path.size() < 8){
+    if ( path.size() < 8 && path.size() > 1 ){
         path.push_back(path_value);
-        vector<string>  discount_group_ele = discount_group[path.size() + 1];
-        
-        
-        
+        vector<string>  discount_group_ele = discount_group[path.size() - 2];
+        vector<string>  temp_vec;
+        for(int j = 0; j < discount_group_ele.size(); j ++){
+            set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
+            set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
+             if(iter1 != goods.end() && iter2 == goods_in_path.end()){
+
+             // can't put this group in,compute this remaining_goods prune
+          
+             remaining_goods_num = goods_in_path.size(); 
+             if(remaining_goods_num  < minimal_goods ){
+                 minimal_goods = remaining_goods_num;
+                 returned_path.clear(); 
+                 for(int k = 0; k < path.size(); k++){
+                     returned_path.push_back(path[k]);                  
+                 }
+             }
+ 
+             goto label1;        
+            }
+
+        }
+      
+        for(int j = 0; j < discount_group_ele.size(); j ++){
+            set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
+            set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
+            if( iter1 != goods.end()  && iter2 != goods_in_path.end()){
+                goods_in_path.erase(discount_group_ele[j]);   
+                temp_vec.push_back(discount_group_ele[j]);
+            }
+
+        } 
         if( path.size() >= 8){
 
            int min_value = goods.size();
@@ -75,7 +105,12 @@ int min_remaining(int path_value){
     
         min_remaining(0);
         min_remaining(1); 
-        path.pop_back();
+label1: path.pop_back();
+        if(temp_vec.size()!=0){
+            for(int k = 0; k <temp_vec.size(); k++){
+                goods_in_path.insert(temp_vec[k]);
+            }
+        }
     }    
   
 
@@ -85,7 +120,7 @@ int min_remaining(int path_value){
 
 int main(){
 
-std::cout<<"compile end!"<<std::endl;
-return 0;
+    std::cout<<"compile end!"<<std::endl;
+    return 0;
 
 }
