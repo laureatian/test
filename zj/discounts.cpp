@@ -3,21 +3,26 @@
 #include<set>
 #include<vector>
 #include<string>
-using namespace std;
 
 #define DISCOUNT_GROUP_NUM 7
 #define GOODS_NUM          12
 
+using namespace std;
 
+// num of goods
 int remaining_goods_num = GOODS_NUM;
+// final remaining goods
 int minimal_goods = GOODS_NUM;
 set<string>  goods;
+// the remaining goods in current path
 set<string>  goods_in_path;
 vector<vector<string> >  discount_group;
 vector<int> path;
 vector<int> returned_path;
 vector<string>  remaining_goods;
 vector<string>  discount_group_name;
+
+// prepare the data
 int init(){
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < GOODS_NUM; i++){
@@ -55,22 +60,10 @@ int init(){
     return 0;
 }
 
-/*int max_discount(){
-
-    int height = 0;
-    int remaining_goods_num =  goods.size();
-    vector<int> path;
-    path.push_back(0);
-     
-    for(;;){
-   
-      ;
-
-    }
-
-
-}
-i*/
+// search bi-tree, prune when the node can not meet requirements
+// a node with value 1 on ith layer means choose ith discount_group in this path 
+// a node with value 0 on ith layer means do not choose ith discount_group in this path
+// recursively  search all pathes in this bi-tree, find the best one
 vector<int> min_remaining(int path_value){
 
     std::cout<<"path size"<<path.size()<<std::endl; 
@@ -84,7 +77,7 @@ vector<int> min_remaining(int path_value){
             for(int j = 0; j < discount_group_ele.size(); j ++){
                 set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
                 set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
-
+                // update best path if needed
                 if( iter2 == goods_in_path.end()){
                     std::cout<<"prune"<<std::endl; 
                     remaining_goods_num = goods_in_path.size(); 
@@ -96,6 +89,7 @@ vector<int> min_remaining(int path_value){
                              returned_path.push_back(path[k]); 
                              std::cout<<" "<<path[k];                 
                          }
+                        // update remaining_goods
                          remaining_goods.clear();
                          if(goods_in_path.size() != 0 ){
                              set<string>::iterator setiter;
@@ -107,7 +101,7 @@ vector<int> min_remaining(int path_value){
                          }
                      }
  
-                     goto label1;        
+                     goto label1;      // prune this branch if parent node fails  
                 } 
 
             }
@@ -125,7 +119,8 @@ vector<int> min_remaining(int path_value){
                 }  
 
             }
-            
+            // if the last layer meets requirement, check if it is best path
+            // update best path if needed 
             if(path.size() == DISCOUNT_GROUP_NUM + 1){
                  remaining_goods_num = goods_in_path.size();
                  if(remaining_goods_num < minimal_goods){
@@ -153,6 +148,7 @@ vector<int> min_remaining(int path_value){
             min_remaining(0);
         }
 label1: path.pop_back(); 
+        // when rollback, the deleted goods needed to put back too
         if(temp_vec.size() != 0){
             for(int k = 0; k <temp_vec.size(); k++){
                 goods_in_path.insert(temp_vec[k]);
@@ -164,12 +160,12 @@ label1: path.pop_back();
     return  returned_path;
 }
 
-
+// print discounts and the remaining goods
 int main(){
-
+  
     init();
     min_remaining(0);
-    std::cout<<"print discounts groups "<<std::endl;
+    std::cout<<"discounts groups: "<<std::endl;
     if(returned_path.size() != 0){
        for(int i = 0; i < returned_path.size(); i ++){
            if(returned_path[i] != 0){
@@ -178,7 +174,7 @@ int main(){
        }
     }
     std::cout << std::endl;
-    std::cout<<"print remaining goods "<<std::endl;
+    std::cout<<"remaining goods: "<<std::endl;
     if(remaining_goods.size() != 0){
         for(int k = 0; k < remaining_goods.size(); k ++){
         std::cout<<remaining_goods[k]<<"  "<< std::endl;
