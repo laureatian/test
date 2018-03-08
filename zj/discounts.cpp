@@ -122,8 +122,10 @@ vector<int> min_remaining(int path_value){
                  if(remaining_goods_num < minimal_goods){
                       minimal_goods =  remaining_goods_num;
                       returned_path.clear();
+                      std::cout<<"update  path" << std::endl;
                       for(int k = 0; k < path.size(); k++){
                          returned_path.push_back(path[k]);
+                         std::cout<<" "<<path[k];                 
                       } 
                       remaining_goods.clear();
                       if(goods_in_path.size() !=0){
