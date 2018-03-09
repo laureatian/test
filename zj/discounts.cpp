@@ -1,22 +1,22 @@
 /*
-Author: Tiantian
-Date: 2018-3-9
-
-
-            0  G0
-           / \
-          /   \
-         0     1   G1
-        / \    / \
-       0   1  0   1  G2
-      / \ / \/ \ / \      
-     0  10  10 1 0 1  G3
-    ..................
-   ....................
-
-
-
-
+*Author: Tiantian
+*Date: 2018-3-9
+*
+*
+*           0  G0
+*           / \
+*          /   \
+*         0     1   G1
+*        / \    / \
+*       0   1  0   1  G2
+*      / \ / \/ \ / \      
+*     0  10  10 1 0 1  G3
+*    ..................
+*   ....................
+*
+*
+*
+*
 */
 
 #include<stdio.h>
@@ -60,6 +60,7 @@ vector<string>  discount_group_name;
 
 bool update_path(const vector<int> &current_path, vector<int> &new_path);
 bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods);
+bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path);
 // prepare the data
 int init(){
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
@@ -112,11 +113,7 @@ vector<int> min_remaining(int path_value){
   //      std::cout<<"path_value"<<path_value<<std::endl;
         if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD){
             vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
-            for(int j = 0; j < discount_group_ele.size(); j ++){
-                if(goods_in_path.find(discount_group_ele[j]) == goods_in_path.end() ){
-                    need_prune = true;
-                }
-            }
+            need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
              
             if(need_prune){//check if need update
                   UpdatePathAndGoods();
@@ -149,6 +146,23 @@ vector<int> min_remaining(int path_value){
     }    
     return  returned_path;
 }
+
+bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path){
+    if(discounts_group_ele.empty()){
+        return false;
+    }
+   
+    if(goods_in_path.empty()){
+        return true;
+    }
+    for(int i = 0; i < discounts_group_ele.size(); i ++){
+        if(goods_in_path.find(discounts_group_ele[i]) == goods_in_path.end()){
+           return true;
+        }
+    } 
+    return false;
+}
+
 
 bool update_path(const vector<int> &current_path, vector<int> &new_path){
     new_path.clear();
