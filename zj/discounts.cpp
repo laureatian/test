@@ -109,72 +109,40 @@ vector<int> min_remaining(int path_value){
             }
              
             if(need_prune){//check if need update
-                     remaining_goods_num = goods_in_path.size();
-                     if(remaining_goods_num  < minimal_goods ){
+                remaining_goods_num = goods_in_path.size();
+                if(remaining_goods_num  < minimal_goods ){
                          //std::cout<<"update  path" << std::endl;
-                         minimal_goods = remaining_goods_num;
-                         update_path(path,returned_path);
-                        // update remaining_goods
-                         update_remaining_goods(goods_in_path,remaining_goods);
-                     }
-            
-
-
-            } else {
-            temp_vec.clear();
-            for(int j = 0; j < discount_group_ele.size(); j ++){
-                set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
-                set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
-                //if( iter1 != goods.end()  && iter2 != goods_in_path.end()){
-                if(iter2 != goods_in_path.end()){
-                    goods_in_path.erase(discount_group_ele[j]);
-                    temp_vec.push_back(discount_group_ele[j]);
-                } else {
-          ;//          std::cout<<"  print  wrong" <<std::endl;
-                }
-
-            }
-            // if the last layer meets requirement, check if it is best path
-            // update best path if needed
-            if(path.size() == DISCOUNT_GROUP_NUM + 1){
-                 remaining_goods_num = goods_in_path.size();
-                 if(remaining_goods_num < minimal_goods){
-                         //std::cout<<"update  path" << std::endl;
-                   /* minimal_goods =  remaining_goods_num;
+                    minimal_goods = remaining_goods_num;
                     update_path(path,returned_path);
                     update_remaining_goods(goods_in_path,remaining_goods);
-                 */ 
-                     
-                        minimal_goods = remaining_goods_num;
-                         update_path(path,returned_path);
+                }
+            } else {
+                temp_vec.clear();
+                for(int j = 0; j < discount_group_ele.size(); j ++){
+                    set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
+                    goods_in_path.erase(discount_group_ele[j]);
+                    temp_vec.push_back(discount_group_ele[j]);
+                }
+            // if the last layer meets requirement, check if it is best path
+            // update best path if needed
+               if(path.size() == DISCOUNT_GROUP_NUM + 1){
+                   remaining_goods_num = goods_in_path.size();
+                   if(remaining_goods_num < minimal_goods){
+                       minimal_goods = remaining_goods_num;
+                       update_path(path,returned_path);
                         // update remaining_goods
-                         update_remaining_goods(goods_in_path,remaining_goods);
-                   /*  returned_path.clear();
-                      minimal_goods =  remaining_goods_num;
-             //         std::cout<<"update  path" << std::endl;
-                      for(int k = 0; k < path.size(); k++){
-                         returned_path.push_back(path[k]);
-//                         std::cout<<" "<<path[k];
-                      }
-                      remaining_goods.clear();
-                      if(goods_in_path.size() !=0){
-                          set<string>::iterator iter3 = goods_in_path.begin();
-                          for(iter3; iter3 != goods_in_path.end(); iter3++){
-                               remaining_goods.push_back(*iter3);
-                          }
-                      }*/
-                 }
-
-            }
-
-      }}
-      if(!need_prune){ 
-            min_remaining(LEFT_CHILD);
-            min_remaining(RIGHT_CHILD);
+                       update_remaining_goods(goods_in_path,remaining_goods);
+                   }
+               }
+           }
       }
-         path.pop_back(); 
+      if(!need_prune){ 
+          min_remaining(LEFT_CHILD);
+          min_remaining(RIGHT_CHILD);
+      }
+      path.pop_back(); 
         // when rollback, the deleted goods needed to put back too
-        if(temp_vec.size() != 0){
+      if(temp_vec.size() != 0){
             for(int k = 0; k <temp_vec.size(); k++){
                 goods_in_path.insert(temp_vec[k]);
             }
@@ -225,7 +193,7 @@ int main(){
        for(int i = 0; i < returned_path.size(); i ++){
           //std::cout<<"path value："<< returned_path[i];
            if(returned_path[i] != 0){
-               std::cout<<"group:  "<<discount_group_name[i - 1]<<"  ";
+               std::cout<<discount_group_name[i - 1]<<"  ";
            }   
        }
     }
