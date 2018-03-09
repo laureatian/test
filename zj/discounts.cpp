@@ -143,7 +143,7 @@ vector<int> min_remaining(int path_value){
             } 
       
         }
-        if(path.size() != 8){ 
+        if(path.size() !=  DISCOUNT_GROUP_NUM + 1){ 
             min_remaining(1);
             min_remaining(0);
         }
