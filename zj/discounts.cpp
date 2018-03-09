@@ -1,3 +1,24 @@
+/*
+Author: Tiantian
+Date: 2018-3-9
+
+
+            0  G0
+           / \
+          /   \
+         0     1   G1
+        / \    / \
+       0   1  0   1  G2
+      / \ / \/ \ / \      
+     0  10  10 1 0 1  G3
+    ..................
+   ....................
+
+
+
+
+*/
+
 #include<stdio.h>
 #include<iostream>
 #include<set>
@@ -8,6 +29,7 @@
 #define GOODS_NUM              12
 #define RIGHT_CHILD            0 
 #define LEFT_CHILD             1
+#define ROOT                   0
 
 
 using namespace std;
@@ -147,8 +169,8 @@ vector<int> min_remaining(int path_value){
       
         }
         if(path.size() !=  DISCOUNT_GROUP_NUM + 1){ 
-            min_remaining(1);
-            min_remaining(0);
+            min_remaining(LEFT_CHILD);
+            min_remaining(RIGHT_CHILD);
         }
 label1: path.pop_back(); 
         // when rollback, the deleted goods needed to put back too
@@ -167,7 +189,7 @@ label1: path.pop_back();
 int main(){
   
     init();
-    min_remaining(0);
+    min_remaining(ROOT);
     std::cout<<"discounts groups: "<<std::endl;
     if(returned_path.size() != 0){
        for(int i = 0; i < returned_path.size(); i ++){
