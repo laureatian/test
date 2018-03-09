@@ -24,6 +24,7 @@
 #include<set>
 #include<vector>
 #include<string>
+#include<map>
 
 #define DISCOUNT_GROUP_NUM                7
 #define MAX_PATH                          DISCOUNT_GROUP_NUM + 1
@@ -58,9 +59,9 @@ using namespace std;
 int remaining_goods_num = GOODS_NUM;
 // final remaining goods
 int minimal_goods = GOODS_NUM;
-set<string>  goods;
+map<string>  goods;
 // the remaining goods in current path
-set<string>  goods_in_path;
+map<string>  goods_in_path;
 vector<vector<string> >  discount_group;
 vector<int> path;
 vector<int> returned_path;
@@ -68,9 +69,9 @@ vector<string>  remaining_goods;
 vector<string>  discount_group_name;
 
 int update_path(const vector<int> &current_path, vector<int> &new_path);
-int update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods);
-bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path);
-int add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec);
+int update_remaining_goods(const map<string> &goods_in_path, vector<string> &remaining_goods);
+bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string> &goods_in_path);
+int add_node_to_path(const vector<string> &discounts_group_ele, map<string> &goods_in_path, vector<string> &temp_vec);
 int roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
 
 // prepare the data
@@ -156,7 +157,7 @@ int min_remaining(int path_value){
     return  ret;
 }
 
-int roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path){
+int roll_back_node(map<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path){
     if(path.empty()){
         return ERR;
 
@@ -167,14 +168,18 @@ int roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<
     }
    
     for(int i = 0; i < temp_vec.size(); i++){
-       goods_in_path.insert(temp_vec[i]);
+       if(goods_in_path.find(temp_vec[i]) != goods_in_path.end()){ 
+           goods_in_path[temp_vec[i]] =  goods_in_path[temp_vec[i]] + 1;
+       } else {
+           goods_in_path[temp_vec[i]] = 1;
+       }
     }
     temp_vec.clear(); 
     return OK;
 
 }
 
-int add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec){
+int add_node_to_path(const vector<string> &discounts_group_ele, map<string> &goods_in_path, vector<string> &temp_vec){
     temp_vec.clear();
     if(discounts_group_ele.empty()){
        return OK;
@@ -184,7 +189,11 @@ int add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goo
         if(iter ==  goods_in_path.end()){
              return ERR;
         } else {
-            goods_in_path.erase(discounts_group_ele[i]);
+            if(goods_in_path[discounts_group_ele[i]] > 1){
+                goods_in_path[discounts_group_ele[i]] =  goods_in_path[discounts_group_ele[i]] - 1;
+            } else {
+                goods_in_path.erase(discounts_group_ele[i]);
+            }
             temp_vec.push_back(discounts_group_ele[i]);
         } 
 
@@ -194,7 +203,7 @@ int add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goo
 
 }
 
-bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path){
+bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string> &goods_in_path){
     if(discounts_group_ele.empty()){
         return false;
     }
@@ -226,13 +235,15 @@ int update_path(const vector<int> &current_path, vector<int> &new_path){
 
 }
 
-int update_remaining_goods(const set<string> &goods_in_path, vector<string> &remain_goods){
+int update_remaining_goods(const map<string> &goods_in_path, vector<string> &remain_goods){
     remain_goods.clear();  
     if(goods_in_path.empty()){
         return OK;
     }
     for(set<string>::iterator iter = goods_in_path.begin(); iter != goods_in_path.end(); iter ++){
-       remain_goods.push_back(*iter);
+       for(int k = 0; k < goods_in_path[*iter]; k ++){
+           remain_goods.push_back(*iter);
+       }
     }
     return OK;
 }
