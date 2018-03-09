@@ -96,10 +96,10 @@ vector<int> min_remaining(int path_value){
         vector<string>  temp_vec;
         temp_vec.clear();
         path.push_back(path_value);
+        bool need_prune = false; 
   //      std::cout<<"path_value"<<path_value<<std::endl;
         if (path.size() > 1 &&  path_value == 1){
             vector<string>  discount_group_ele = discount_group[path.size() - 2];
-            bool need_prune = false; 
             for(int j = 0; j < discount_group_ele.size(); j ++){
                 if(goods_in_path.find(discount_group_ele[j]) == goods_in_path.end() ){
                     need_prune = true;
@@ -167,10 +167,11 @@ vector<int> min_remaining(int path_value){
 
             }
 
-        
+      }}
+      if(!need_prune){ 
             min_remaining(LEFT_CHILD);
             min_remaining(RIGHT_CHILD);
-       }    
+      }
 
 
            /*  }
