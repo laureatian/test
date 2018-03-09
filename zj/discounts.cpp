@@ -239,9 +239,12 @@ int update_remaining_goods(const set<string> &goods_in_path, vector<string> &rem
 
 // print discounts and the remaining goods
 int main(){
-  
+    int ret = OK;  
     init();
-    min_remaining(ROOT);
+    ret = min_remaining(ROOT);
+    if(!ret){
+       return ret;
+    }
     std::cout<<"discounts groups: "<<std::endl;
     if(returned_path.size() != 0){
        for(int i = 0; i < returned_path.size(); i ++){
