@@ -111,7 +111,7 @@ vector<int> min_remaining(int path_value){
             if(need_prune){//check if need update
                      remaining_goods_num = goods_in_path.size();
                      if(remaining_goods_num  < minimal_goods ){
-      //                   std::cout<<"update  path" << std::endl;
+                         //std::cout<<"update  path" << std::endl;
                          minimal_goods = remaining_goods_num;
                          update_path(path,returned_path);
                         // update remaining_goods
@@ -139,12 +139,17 @@ vector<int> min_remaining(int path_value){
             if(path.size() == DISCOUNT_GROUP_NUM + 1){
                  remaining_goods_num = goods_in_path.size();
                  if(remaining_goods_num < minimal_goods){
-                     /* minimal_goods =  remaining_goods_num;
+                         //std::cout<<"update  path" << std::endl;
+                   /* minimal_goods =  remaining_goods_num;
                     update_path(path,returned_path);
                     update_remaining_goods(goods_in_path,remaining_goods);
-                  */
+                 */ 
                      
-                      returned_path.clear();
+                        minimal_goods = remaining_goods_num;
+                         update_path(path,returned_path);
+                        // update remaining_goods
+                         update_remaining_goods(goods_in_path,remaining_goods);
+                   /*  returned_path.clear();
                       minimal_goods =  remaining_goods_num;
              //         std::cout<<"update  path" << std::endl;
                       for(int k = 0; k < path.size(); k++){
@@ -157,8 +162,8 @@ vector<int> min_remaining(int path_value){
                           for(iter3; iter3 != goods_in_path.end(); iter3++){
                                remaining_goods.push_back(*iter3);
                           }
-                      }
-               }
+                      }*/
+                 }
 
             }
 
@@ -185,9 +190,8 @@ bool update_path(const vector<int> &current_path, vector<int> &new_path){
     if(current_path.empty()){
    
         std::cout<<"current_path is empty!"<<std::endl;
-
+        return true;
     }
-   return true; 
    for(int i = 0; i < current_path.size(); i ++){
       new_path.push_back(current_path[i]);
    }
@@ -196,13 +200,13 @@ bool update_path(const vector<int> &current_path, vector<int> &new_path){
 
 }
 
-bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods){
-    remaining_goods.clear();  
+bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remain_goods){
+    remain_goods.clear();  
     if(goods_in_path.empty()){
         return true;
     }
     for(set<string>::iterator iter = goods_in_path.begin(); iter != goods_in_path.end(); iter ++){
-       remaining_goods.push_back(*iter);
+       remain_goods.push_back(*iter);
     }
     return true;
 }
@@ -219,8 +223,9 @@ int main(){
     std::cout<<"discounts groups: "<<std::endl;
     if(returned_path.size() != 0){
        for(int i = 0; i < returned_path.size(); i ++){
+          //std::cout<<"path value："<< returned_path[i];
            if(returned_path[i] != 0){
-               std::cout<<discount_group_name[i - 1]<<"  ";
+               std::cout<<"group:  "<<discount_group_name[i - 1]<<"  ";
            }   
        }
     }
