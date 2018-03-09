@@ -62,6 +62,8 @@ bool update_path(const vector<int> &current_path, vector<int> &new_path);
 bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods);
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path);
 bool add_left_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec);
+bool roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
+
 // prepare the data
 int init(){
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
@@ -120,8 +122,6 @@ vector<int> min_remaining(int path_value){
                   UpdatePathAndGoods();
             } else {
                 add_left_node_to_path(discount_group_ele,goods_in_path,temp_vec);
-            // if the last layer meets requirement, check if it is best path
-            // update best path if needed
                if(path.size() == DISCOUNT_GROUP_NUM + 1){
                    UpdatePathAndGoods();
                }
@@ -131,17 +131,27 @@ vector<int> min_remaining(int path_value){
           min_remaining(LEFT_CHILD);
           min_remaining(RIGHT_CHILD);
       }
-      path.pop_back(); 
-      // when rollback, the deleted goods needed to put back too
-      if(!temp_vec.empty()){
-            for(int k = 0; k <temp_vec.size(); k++){
-                goods_in_path.insert(temp_vec[k]);
-            }
-            temp_vec.clear();
-        }
-     
+      roll_back_node(goods_in_path,temp_vec,path);
     }    
     return  returned_path;
+}
+
+bool roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path){
+    if(path.empty()){
+        return false;
+
+    }
+    path.pop_back();
+    if(temp_vec.empty()){
+    return true;
+    }
+   
+    for(int i = 0; i < temp_vec.size(); i++){
+       goods_in_path.insert(temp_vec[i]);
+    }
+    temp_vec.clear(); 
+    return true;
+
 }
 
 bool add_left_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec){
