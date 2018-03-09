@@ -25,23 +25,30 @@
 #include<vector>
 #include<string>
 
-#define DISCOUNT_GROUP_NUM     7
-#define MAX_PATH              DISCOUNT_GROUP_NUM + 1
-#define RELATIVE_DISTANCE      2
-#define GOODS_NUM              12
-#define RIGHT_CHILD            0 
-#define LEFT_CHILD             1
-#define ROOT                   0
-#define LENGTH_FOR_ONE_DISCOUNT_GROUP 2 
-#define OK                     1
-#define ERR                    0
+#define DISCOUNT_GROUP_NUM                7
+#define MAX_PATH                          DISCOUNT_GROUP_NUM + 1
+#define RELATIVE_DISTANCE                 2
+#define GOODS_NUM                         12
+#define RIGHT_CHILD                       0 
+#define LEFT_CHILD                        1
+#define ROOT                              0
+#define LENGTH_FOR_ONE_DISCOUNT_GROUP     2 
+#define OK                                1
+#define ERR                               0
 
 #define UpdatePathAndGoods()\
+int ret = OK;\
 remaining_goods_num = goods_in_path.size();\
 if(remaining_goods_num  < minimal_goods ){\
 minimal_goods = remaining_goods_num;\
-update_path(path,returned_path);\
-update_remaining_goods(goods_in_path,remaining_goods);\
+ret = update_path(path,returned_path);\
+if(!ret){\
+   ret =ERR;\
+}\
+ret = update_remaining_goods(goods_in_path,remaining_goods);\
+if(!ret){\
+   ret =ERR;\
+}\
 }
 
 
@@ -60,11 +67,11 @@ vector<int> returned_path;
 vector<string>  remaining_goods;
 vector<string>  discount_group_name;
 
-bool update_path(const vector<int> &current_path, vector<int> &new_path);
-bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods);
+int update_path(const vector<int> &current_path, vector<int> &new_path);
+int update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods);
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path);
-bool add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec);
-bool roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
+int add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec);
+int roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
 
 // prepare the data
 int init(){
@@ -108,8 +115,8 @@ int init(){
 // a node with value 1 on ith layer means choose ith discount_group in this path 
 // a node with value 0 on ith layer means do not choose ith discount_group in this path
 // recursively  search all pathes in this bi-tree, find the best one
-vector<int> min_remaining(int path_value){
-
+int min_remaining(int path_value){
+    int ret = OK;
     if ( path.size() < MAX_PATH ){
         vector<string>  temp_vec;
         path.push_back(path_value);
@@ -121,48 +128,61 @@ vector<int> min_remaining(int path_value){
             if(need_prune){//check if need update
                   UpdatePathAndGoods();
             } else {
-                add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
+               ret = add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
+               if(!ret){
+                   return ret;
+               }
                if(path.size() == DISCOUNT_GROUP_NUM + 1){
                    UpdatePathAndGoods();
                }
            }
       }
       if(!need_prune){ 
-          min_remaining(LEFT_CHILD);
-          min_remaining(RIGHT_CHILD);
+          ret = min_remaining(LEFT_CHILD);
+          if(!ret){
+              return ret;
+          }
+          
+          ret = min_remaining(RIGHT_CHILD);
+          if(!ret){
+              return ret;
+          }
       }
-      roll_back_node(goods_in_path,temp_vec,path);
+      ret = roll_back_node(goods_in_path,temp_vec,path);
+      if(!ret){
+          return ret;
+      }
     }    
-    return  returned_path;
+    return  ret;
 }
 
-bool roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path){
+int roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path){
     if(path.empty()){
-        return false;
+        return ERR;
 
     }
     path.pop_back();
     if(temp_vec.empty()){
-    return true;
+        return OK;
     }
    
     for(int i = 0; i < temp_vec.size(); i++){
        goods_in_path.insert(temp_vec[i]);
     }
     temp_vec.clear(); 
-    return true;
+    return OK;
 
 }
 
-bool add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec){
+int add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec){
     temp_vec.clear();
     if(discounts_group_ele.empty()){
-       return true;
+       return OK;
     }
     for(int i = 0; i < discounts_group_ele.size(); i ++){
         set<string>::iterator iter = goods_in_path.find(discounts_group_ele[i]);
         if(iter ==  goods_in_path.end()){
-            std::cout<<" wrong" << std::endl;
+             return ERR;
         } else {
             goods_in_path.erase(discounts_group_ele[i]);
             temp_vec.push_back(discounts_group_ele[i]);
@@ -170,7 +190,7 @@ bool add_node_to_path(const vector<string> &discounts_group_ele, set<string> &go
 
     }
      
-    return true;
+    return OK;
 
 }
 
@@ -191,30 +211,30 @@ bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<st
 }
 
 
-bool update_path(const vector<int> &current_path, vector<int> &new_path){
+int update_path(const vector<int> &current_path, vector<int> &new_path){
     new_path.clear();
     if(current_path.empty()){
    
         std::cout<<"current_path is empty!"<<std::endl;
-        return true;
+        return ERR;
     }
    for(int i = 0; i < current_path.size(); i ++){
       new_path.push_back(current_path[i]);
    }
 
-   return true;
+   return OK;
 
 }
 
-bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remain_goods){
+int update_remaining_goods(const set<string> &goods_in_path, vector<string> &remain_goods){
     remain_goods.clear();  
     if(goods_in_path.empty()){
-        return true;
+        return OK;
     }
     for(set<string>::iterator iter = goods_in_path.begin(); iter != goods_in_path.end(); iter ++){
        remain_goods.push_back(*iter);
     }
-    return true;
+    return OK;
 }
 
 // print discounts and the remaining goods
