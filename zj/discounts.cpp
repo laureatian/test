@@ -113,22 +113,9 @@ vector<int> min_remaining(int path_value){
                      if(remaining_goods_num  < minimal_goods ){
       //                   std::cout<<"update  path" << std::endl;
                          minimal_goods = remaining_goods_num;
-                         returned_path.clear();
                          update_path(path,returned_path);
-                         /*for(int k = 0; k < path.size(); k++){
-                             returned_path.push_back(path[k]);
-//                             std::cout<<" "<<path[k];
-                         }*/
                         // update remaining_goods
                          update_remaining_goods(goods_in_path,remaining_goods);
-                       /*  if(goods_in_path.size() != 0 ){
-                             set<string>::iterator setiter;
-                             for(setiter =  goods_in_path.begin(); setiter !=  goods_in_path.end(); setiter++){
-                                 remaining_goods.push_back(*setiter);
-        //                         std::cout<<"setiter"<<*setiter<<std::endl;
-
-                             }
-                         }*/
                      }
             
 
@@ -152,8 +139,13 @@ vector<int> min_remaining(int path_value){
             if(path.size() == DISCOUNT_GROUP_NUM + 1){
                  remaining_goods_num = goods_in_path.size();
                  if(remaining_goods_num < minimal_goods){
-                      minimal_goods =  remaining_goods_num;
+                     /* minimal_goods =  remaining_goods_num;
+                    update_path(path,returned_path);
+                    update_remaining_goods(goods_in_path,remaining_goods);
+                  */
+                     
                       returned_path.clear();
+                      minimal_goods =  remaining_goods_num;
              //         std::cout<<"update  path" << std::endl;
                       for(int k = 0; k < path.size(); k++){
                          returned_path.push_back(path[k]);
