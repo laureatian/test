@@ -4,8 +4,11 @@
 #include<vector>
 #include<string>
 
-#define DISCOUNT_GROUP_NUM 7
-#define GOODS_NUM          12
+#define DISCOUNT_GROUP_NUM     7
+#define GOODS_NUM              12
+#define RIGHT_CHILD            0 
+#define LEFT_CHILD             1
+
 
 using namespace std;
 
@@ -177,7 +180,7 @@ int main(){
     std::cout<<"remaining goods: "<<std::endl;
     if(remaining_goods.size() != 0){
         for(int k = 0; k < remaining_goods.size(); k ++){
-        std::cout<<remaining_goods[k]<<"  "<< std::endl;
+            std::cout<<remaining_goods[k]<<"  "<< std::endl;
 
     }
 
