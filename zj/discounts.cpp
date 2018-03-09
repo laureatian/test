@@ -33,6 +33,8 @@
 #define LEFT_CHILD             1
 #define ROOT                   0
 #define LENGTH_FOR_ONE_DISCOUNT_GROUP 2 
+#define OK                     1
+#define ERR                    0
 
 #define UpdatePathAndGoods()\
 remaining_goods_num = goods_in_path.size();\
@@ -61,7 +63,7 @@ vector<string>  discount_group_name;
 bool update_path(const vector<int> &current_path, vector<int> &new_path);
 bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods);
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path);
-bool add_left_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec);
+bool add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec);
 bool roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
 
 // prepare the data
@@ -108,12 +110,10 @@ int init(){
 // recursively  search all pathes in this bi-tree, find the best one
 vector<int> min_remaining(int path_value){
 
-//    std::cout<<"path size"<<path.size()<<std::endl; 
     if ( path.size() < MAX_PATH ){
         vector<string>  temp_vec;
         path.push_back(path_value);
         bool need_prune = false; 
-  //      std::cout<<"path_value"<<path_value<<std::endl;
         if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD){
             vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
             need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
@@ -121,7 +121,7 @@ vector<int> min_remaining(int path_value){
             if(need_prune){//check if need update
                   UpdatePathAndGoods();
             } else {
-                add_left_node_to_path(discount_group_ele,goods_in_path,temp_vec);
+                add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
                if(path.size() == DISCOUNT_GROUP_NUM + 1){
                    UpdatePathAndGoods();
                }
@@ -154,7 +154,7 @@ bool roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector
 
 }
 
-bool add_left_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec){
+bool add_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec){
     temp_vec.clear();
     if(discounts_group_ele.empty()){
        return true;
