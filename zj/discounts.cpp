@@ -61,6 +61,7 @@ vector<string>  discount_group_name;
 bool update_path(const vector<int> &current_path, vector<int> &new_path);
 bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &remaining_goods);
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path);
+bool add_left_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec);
 // prepare the data
 int init(){
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
@@ -118,11 +119,7 @@ vector<int> min_remaining(int path_value){
             if(need_prune){//check if need update
                   UpdatePathAndGoods();
             } else {
-                for(int j = 0; j < discount_group_ele.size(); j ++){
-                    set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
-                    goods_in_path.erase(discount_group_ele[j]);
-                    temp_vec.push_back(discount_group_ele[j]);
-                }
+                add_left_node_to_path(discount_group_ele,goods_in_path,temp_vec);
             // if the last layer meets requirement, check if it is best path
             // update best path if needed
                if(path.size() == DISCOUNT_GROUP_NUM + 1){
@@ -145,6 +142,26 @@ vector<int> min_remaining(int path_value){
      
     }    
     return  returned_path;
+}
+
+bool add_left_node_to_path(const vector<string> &discounts_group_ele, set<string> &goods_in_path, vector<string> &temp_vec){
+    temp_vec.clear();
+    if(discounts_group_ele.empty()){
+       return true;
+    }
+    for(int i = 0; i < discounts_group_ele.size(); i ++){
+        set<string>::iterator iter = goods_in_path.find(discounts_group_ele[i]);
+        if(iter ==  goods_in_path.end()){
+            std::cout<<" wrong" << std::endl;
+        } else {
+            goods_in_path.erase(discounts_group_ele[i]);
+            temp_vec.push_back(discounts_group_ele[i]);
+        } 
+
+    }
+     
+    return true;
+
 }
 
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const set<string> &goods_in_path){
