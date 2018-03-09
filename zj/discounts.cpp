@@ -31,6 +31,14 @@ Date: 2018-3-9
 #define LEFT_CHILD             1
 #define ROOT                   0
 
+#define UpdatePathAndGoods()\
+remaining_goods_num = goods_in_path.size();\
+if(remaining_goods_num  < minimal_goods ){\
+minimal_goods = remaining_goods_num;\
+update_path(path,returned_path);\
+update_remaining_goods(goods_in_path,remaining_goods);\
+}
+
 
 using namespace std;
 
@@ -109,13 +117,7 @@ vector<int> min_remaining(int path_value){
             }
              
             if(need_prune){//check if need update
-                remaining_goods_num = goods_in_path.size();
-                if(remaining_goods_num  < minimal_goods ){
-                         //std::cout<<"update  path" << std::endl;
-                    minimal_goods = remaining_goods_num;
-                    update_path(path,returned_path);
-                    update_remaining_goods(goods_in_path,remaining_goods);
-                }
+                  UpdatePathAndGoods();
             } else {
                 temp_vec.clear();
                 for(int j = 0; j < discount_group_ele.size(); j ++){
@@ -126,13 +128,7 @@ vector<int> min_remaining(int path_value){
             // if the last layer meets requirement, check if it is best path
             // update best path if needed
                if(path.size() == DISCOUNT_GROUP_NUM + 1){
-                   remaining_goods_num = goods_in_path.size();
-                   if(remaining_goods_num < minimal_goods){
-                       minimal_goods = remaining_goods_num;
-                       update_path(path,returned_path);
-                        // update remaining_goods
-                       update_remaining_goods(goods_in_path,remaining_goods);
-                   }
+                   UpdatePathAndGoods();
                }
            }
       }
@@ -178,10 +174,6 @@ bool update_remaining_goods(const set<string> &goods_in_path, vector<string> &re
     }
     return true;
 }
-/*vector<string> compute_remaing_goods(){
-  vector<string> remaining_good;
- return remaining_good;
-}*/
 
 // print discounts and the remaining goods
 int main(){
