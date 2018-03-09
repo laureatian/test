@@ -99,6 +99,83 @@ vector<int> min_remaining(int path_value){
   //      std::cout<<"path_value"<<path_value<<std::endl;
         if (path.size() > 1 &&  path_value == 1){
             vector<string>  discount_group_ele = discount_group[path.size() - 2];
+            bool need_prune = false; 
+            for(int j = 0; j < discount_group_ele.size(); j ++){
+                if(goods_in_path.find(discount_group_ele[j]) == goods_in_path.end() ){
+                    need_prune = true;
+                }
+            }
+             
+            if(need_prune){//check if need update
+                     remaining_goods_num = goods_in_path.size();
+                     if(remaining_goods_num  < minimal_goods ){
+      //                   std::cout<<"update  path" << std::endl;
+                         minimal_goods = remaining_goods_num;
+                         returned_path.clear();
+                         for(int k = 0; k < path.size(); k++){
+                             returned_path.push_back(path[k]);
+//                             std::cout<<" "<<path[k];
+                         }
+                        // update remaining_goods
+                         remaining_goods.clear();
+                         if(goods_in_path.size() != 0 ){
+                             set<string>::iterator setiter;
+                             for(setiter =  goods_in_path.begin(); setiter !=  goods_in_path.end(); setiter++){
+                                 remaining_goods.push_back(*setiter);
+        //                         std::cout<<"setiter"<<*setiter<<std::endl;
+
+                             }
+                         }
+                     }
+            
+
+
+            } else {
+            temp_vec.clear();
+            for(int j = 0; j < discount_group_ele.size(); j ++){
+                set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
+                set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
+                //if( iter1 != goods.end()  && iter2 != goods_in_path.end()){
+                if(iter2 != goods_in_path.end()){
+                    goods_in_path.erase(discount_group_ele[j]);
+                    temp_vec.push_back(discount_group_ele[j]);
+                } else {
+          ;//          std::cout<<"  print  wrong" <<std::endl;
+                }
+
+            }
+            // if the last layer meets requirement, check if it is best path
+            // update best path if needed
+            if(path.size() == DISCOUNT_GROUP_NUM + 1){
+                 remaining_goods_num = goods_in_path.size();
+                 if(remaining_goods_num < minimal_goods){
+                      minimal_goods =  remaining_goods_num;
+                      returned_path.clear();
+             //         std::cout<<"update  path" << std::endl;
+                      for(int k = 0; k < path.size(); k++){
+                         returned_path.push_back(path[k]);
+//                         std::cout<<" "<<path[k];
+                      }
+                      remaining_goods.clear();
+                      if(goods_in_path.size() !=0){
+                          set<string>::iterator iter3 = goods_in_path.begin();
+                          for(iter3; iter3 != goods_in_path.end(); iter3++){
+                               remaining_goods.push_back(*iter3);
+                          }
+                      }
+               }
+
+            }
+
+        
+            min_remaining(LEFT_CHILD);
+            min_remaining(RIGHT_CHILD);
+       }    
+
+
+           /*  }
+           
+             
             for(int j = 0; j < discount_group_ele.size(); j ++){
                 set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
                 // update best path if needed
@@ -168,7 +245,7 @@ vector<int> min_remaining(int path_value){
       
         }
         min_remaining(LEFT_CHILD);
-        min_remaining(RIGHT_CHILD);
+        min_remaining(RIGHT_CHILD);*/
         
 label1: path.pop_back(); 
         // when rollback, the deleted goods needed to put back too
@@ -183,10 +260,10 @@ label1: path.pop_back();
     return  returned_path;
 }
 
-vector<string> compute_remaing_goods(){
+/*vector<string> compute_remaing_goods(){
   vector<string> remaining_good;
  return remaining_good;
-}
+}*/
 
 // print discounts and the remaining goods
 int main(){
