@@ -26,10 +26,13 @@ Date: 2018-3-9
 #include<string>
 
 #define DISCOUNT_GROUP_NUM     7
+#define MAX_PATH              DISCOUNT_GROUP_NUM + 1
+#define RELATIVE_DISTANCE      2
 #define GOODS_NUM              12
 #define RIGHT_CHILD            0 
 #define LEFT_CHILD             1
 #define ROOT                   0
+#define LENGTH_FOR_ONE_DISCOUNT_GROUP 2 
 
 #define UpdatePathAndGoods()\
 remaining_goods_num = goods_in_path.size();\
@@ -102,14 +105,13 @@ int init(){
 vector<int> min_remaining(int path_value){
 
 //    std::cout<<"path size"<<path.size()<<std::endl; 
-    if ( path.size() < DISCOUNT_GROUP_NUM + 1 ){
+    if ( path.size() < MAX_PATH ){
         vector<string>  temp_vec;
-        temp_vec.clear();
         path.push_back(path_value);
         bool need_prune = false; 
   //      std::cout<<"path_value"<<path_value<<std::endl;
-        if (path.size() > 1 &&  path_value == 1){
-            vector<string>  discount_group_ele = discount_group[path.size() - 2];
+        if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD){
+            vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
             for(int j = 0; j < discount_group_ele.size(); j ++){
                 if(goods_in_path.find(discount_group_ele[j]) == goods_in_path.end() ){
                     need_prune = true;
@@ -119,7 +121,6 @@ vector<int> min_remaining(int path_value){
             if(need_prune){//check if need update
                   UpdatePathAndGoods();
             } else {
-                temp_vec.clear();
                 for(int j = 0; j < discount_group_ele.size(); j ++){
                     set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
                     goods_in_path.erase(discount_group_ele[j]);
@@ -137,8 +138,8 @@ vector<int> min_remaining(int path_value){
           min_remaining(RIGHT_CHILD);
       }
       path.pop_back(); 
-        // when rollback, the deleted goods needed to put back too
-      if(temp_vec.size() != 0){
+      // when rollback, the deleted goods needed to put back too
+      if(!temp_vec.empty()){
             for(int k = 0; k <temp_vec.size(); k++){
                 goods_in_path.insert(temp_vec[k]);
             }
