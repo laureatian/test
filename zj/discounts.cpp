@@ -100,7 +100,6 @@ vector<int> min_remaining(int path_value){
         if (path.size() > 1 &&  path_value == 1){
             vector<string>  discount_group_ele = discount_group[path.size() - 2];
             for(int j = 0; j < discount_group_ele.size(); j ++){
-                set<string>::iterator iter1 = goods.find(discount_group_ele[j]);
                 set<string>::iterator iter2 = goods_in_path.find(discount_group_ele[j]);
                 // update best path if needed
                 if( iter2 == goods_in_path.end()){
@@ -168,10 +167,9 @@ vector<int> min_remaining(int path_value){
             } 
       
         }
-        if(path.size() !=  DISCOUNT_GROUP_NUM + 1){ 
-            min_remaining(LEFT_CHILD);
-            min_remaining(RIGHT_CHILD);
-        }
+        min_remaining(LEFT_CHILD);
+        min_remaining(RIGHT_CHILD);
+        
 label1: path.pop_back(); 
         // when rollback, the deleted goods needed to put back too
         if(temp_vec.size() != 0){
@@ -183,6 +181,11 @@ label1: path.pop_back();
      
     }    
     return  returned_path;
+}
+
+vector<string> compute_remaing_goods(){
+  vector<string> remaining_good;
+ return remaining_good;
 }
 
 // print discounts and the remaining goods
