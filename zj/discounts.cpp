@@ -14,7 +14,9 @@
 *    ..................
 *   ....................
 *
-*
+* I don't construct this tree explicitlyi in my code, because I use path length to constrain
+* the search, If a path length is longer than MAX_PATH, It means this path has reach 
+* tree bottom, I need to rollback this node and search other path
 *
 *
 */
@@ -52,7 +54,6 @@ if(!ret){\
 }\
 }
 
-
 using namespace std;
 
 // num of goods
@@ -68,10 +69,16 @@ vector<int> returned_path;
 vector<string>  remaining_goods;
 vector<string>  discount_group_name;
 
+//if current_path is best ever, than update this path to returned_path
 int update_path(const vector<int> &current_path, vector<int> &new_path);
+//if current_path is best ever, than update remaining_goods in this path to remaining_goods
 int update_remaining_goods(const map<string,int> &goods_in_path, vector<string> &remaining_goods);
+//check if this node can be put to current_path, if discounts_group are not included in goods in path, 
+//it need be pruned, can't put this node in, and paths after it do not need be searched
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string,int> &goods_in_path);
+//add current discounts_group to path
 int add_node_to_path(const vector<string> &discounts_group_ele, map<string,int> &goods_in_path, vector<string> &temp_vec);
+//if pathes behind a node all be searhed and checked, it need be roll back than search other pathes do not go through it
 int roll_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
 
 // prepare the data
@@ -263,7 +270,6 @@ int main() {
     std::cout<<"discounts groups: "<<std::endl;
     if(returned_path.size() != 0) {
         for(int i = 0; i < returned_path.size(); i ++) {
-            //std::cout<<"path value："<< returned_path[i];
             if(returned_path[i] != 0) {
                 std::cout<<discount_group_name[i - 1]<<"  ";
             }
@@ -274,12 +280,7 @@ int main() {
     if(remaining_goods.size() != 0) {
         for(int k = 0; k < remaining_goods.size(); k ++) {
             std::cout<<remaining_goods[k]<<"  "<< std::endl;
-
         }
-
-
     }
-
     return 0;
-
 }
