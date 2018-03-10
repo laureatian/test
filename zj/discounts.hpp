@@ -1,9 +1,10 @@
 #ifndef DISCOUNTS_HPP_
 #define DISCOUNTS_HPP__
-
-
-
-
+/*
+*Author: Tiantian
+*Date: 2018-3-11
+*This is an interview task for ZhuJian Intelligence, only for interview, no other use.
+*/
 
 class DiscountsBase{
 
@@ -13,7 +14,7 @@ public:
 }
  
 
-Class Discounts: public iscountsBase{
+Class Discounts: public DiscountsBase{
 Public:
     Discounts();
     int init();
