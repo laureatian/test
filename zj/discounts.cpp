@@ -1,6 +1,6 @@
 /*
 *Author: Tiantian
-*Date: 2018-3-9
+*Date: 2018-3-11
 *This is an interview task for ZhuJian Intelligence, only for interview, no other use.
 *
 * Below is my thinking about this problem.
@@ -26,13 +26,13 @@
 *   .......................
 *
 * 1, init data
-* 2, search node
+* 2, search root 
 *        if path.length >= MAX_PATH  ###1
 *            return
 *        if node is 1                ###2
 *            check node, add it to path  ###3  or prune this node and all sub-path  ###4
 *            update best path and minimal remaining_goods if needed ###5
-*        if node is not pruned       ###6
+*        if node is not pruned (node = 0 included)       ###6
 *            search left child;      ###7
 *            search right child;     ###8
 *        trace back this node        ###9
@@ -62,7 +62,6 @@
 #define ERR                              OK - 1
 
 //if best path ever is found, update current_best_path and remaining_goods
-//for code duplicate problem, I add a macro definition here
 #define UpdatePathAndRemainingGoods()\
 int ret = OK;\
 remaining_goods_num = current_remaining_goods.size();\
@@ -107,7 +106,7 @@ int init();
 // a node with value 1 on ith layer means choose ith discount_group in this path
 // a node with value 0 on ith layer means do not choose ith discount_group in this path
 // recursively  search all pathes in this bi-tree, find the best one
-int search_node(int path_value);
+int search_node(int node_value);
 
 //check if this node can be put to current_path, if discount_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
@@ -163,7 +162,7 @@ int init() {
     return OK;
 }
 
-int search_node(int path_value) {
+int search_node(int node_value) {
     int ret = OK;
     // if tree bottom is reached, current_path search ends  ###1
     if (current_path.size() >= MAX_PATH) {   //###1
@@ -171,9 +170,9 @@ int search_node(int path_value) {
     }
     bool need_prune = false;
     vector<string>  temp_vec;
-    current_path.push_back(path_value);
+    current_path.push_back(node_value);
     // if current node is not a dummy discount_group, add it or prune it   
-    if (path_value == RIGHT_CHILD) {          // ###2
+    if (node_value == RIGHT_CHILD) {          // ###2
         // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
@@ -225,8 +224,6 @@ bool check_if_need_prune(const vector<string> &discount_group, const map<string,
 int update_best_path(const vector<int> &current_path, vector<int> &current_best_path) {
     current_best_path.clear();
     if(current_path.empty()) {
-
-        std::cout<<"current_path is empty!"<<std::endl;
         return ERR;
     }
     for(int i = 0; i < current_path.size(); i ++) {
