@@ -1,14 +1,14 @@
 /*
 *Author: Tiantian
 *Date: 2018-3-9
+*This is interview task for ZhuJian Intelligence, only for interview, no other use
 *
-*
-*           0  G0
+*            0         G0
 *           / \
 *          /   \
-*         0     1   G1
+*         0     1      G1
 *        / \    / \
-*       0   1  0   1  G2
+*       0   1  0   1   G2
 *      / \ / \/ \ / \
 *     0  10  10 1 0 1  G3
 *    ..................
@@ -16,7 +16,7 @@
 *
 * I don't construct this tree explicitlyi in my code, because I use path length to constrain
 * the search, If a path length is as long as MAX_PATH, It means this path has reach
-* tree bottom, I need to rollback this node and search other pathes
+* tree bottom, I need to traceback this node and search other pathes
 *
 *
 */
@@ -86,8 +86,8 @@ int update_remaining_goods(const map<string,int> &goods_in_path, vector<string> 
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string,int> &goods_in_path);
 //add current discounts_group to path
 int add_node_to_path(const vector<string> &discounts_group_ele, map<string,int> &goods_in_path, vector<string> &temp_vec);
-//if pathes behind a node all be searhed and checked, it need be roll back than search other pathes do not go through it
-int roll_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
+//if pathes behind a node all be searhed and checked, it need be trace back than search other pathes do not go through it
+int trace_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
 
 // prepare the data
 int init() {
@@ -138,29 +138,32 @@ int init() {
 // recursively  search all pathes in this bi-tree, find the best one
 int min_remaining(int path_value) {
     int ret = OK;
-    if (path.size() >= MAX_PATH) {
+    if (path.size() >= MAX_PATH) { // if tree bottom is reached, current_path search ends
         return ret;
     }
     bool need_prune = false;
     vector<string>  temp_vec;
     path.push_back(path_value);
     if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
+        // take out corresponding discount_group 
         vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
+        // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
 
-        if(need_prune) { //check if need update
+        if(need_prune) { //check if path and remain_goods need update
             UpdatePathAndRemainingGoods();
-        } else {
+        } else {// no prune, add to path
             ret = add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
             if(!ret) {
                 return ret;
             }
+            // if it is last node, check if path and corresponding remaining_goods need update
             if(path.size() == MAX_PATH) {
                 UpdatePathAndRemainingGoods();
             }
         }
     }
-    if(!need_prune) {
+    if(!need_prune) { // search downward if (not pruned) && (not last node)
         ret = min_remaining(LEFT_CHILD);
         if(!ret) {
             return ret;
@@ -171,12 +174,13 @@ int min_remaining(int path_value) {
             return ret;
         }
     }
-    ret = roll_back_node(goods_in_path,temp_vec,path);
+    // trace back a node
+    ret = trace_back_node(goods_in_path,temp_vec,path);
 
     return  ret;
 }
 
-int roll_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path) {
+int trace_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path) {
     if(path.empty()) {
         return ERR;
 
