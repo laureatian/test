@@ -26,7 +26,7 @@
 *   .......................
 *
 * 1, init data
-* 2, search root 
+* 2, search root
 *        if path.length >= MAX_PATH  ###1
 *            return
 *        if node is 1                ###2
@@ -164,27 +164,27 @@ int init() {
 
 int search_node(int node_value) {
     int ret = OK;
-    // if tree bottom is reached, current_path search ends  ###1
+    // if tree bottom is reached, current_path search ends
     if (current_path.size() >= MAX_PATH) {   //###1
         return ret;
     }
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(node_value);
-    // if current node is not a dummy discount_group, add it or prune it   
+    // if current node is not a dummy discount_group, add it or prune it
     if (node_value == RIGHT_CHILD) {          // ###2
         // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
 
-        if(!need_prune) {
+        if(!need_prune) {// add_node_to_path
             ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec); //###3
             if(!ret) {
                 return ret;
             }
         }
-        if(need_prune || current_path.size() == MAX_PATH) {            //###5
+        if(need_prune || current_path.size() == MAX_PATH) {            //###5 //prune and UpdatePathAndRemainingGoods
 
             UpdatePathAndRemainingGoods();
         }
@@ -197,7 +197,7 @@ int search_node(int node_value) {
         }
         ret = search_node(RIGHT_CHILD);                                //###8
         if(!ret) {
-            return ret; 
+            return ret;
         }
     }
     // trace back a node
@@ -222,10 +222,10 @@ bool check_if_need_prune(const vector<string> &discount_group, const map<string,
 }
 
 int update_best_path(const vector<int> &current_path, vector<int> &current_best_path) {
-    current_best_path.clear();
     if(current_path.empty()) {
         return ERR;
     }
+    current_best_path.clear();
     for(int i = 0; i < current_path.size(); i ++) {
         current_best_path.push_back(current_path[i]);
     }
@@ -233,10 +233,10 @@ int update_best_path(const vector<int> &current_path, vector<int> &current_best_
 }
 
 int update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods) {
-    minimal_remaining_goods.clear();
     if(current_remaining_goods.empty()) {
         return OK;
     }
+    minimal_remaining_goods.clear();
     for(map<string,int>::const_iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++) {
         for(int k = 0; k < iter->second; k ++) {
             minimal_remaining_goods.push_back(iter->first);
@@ -246,10 +246,10 @@ int update_minimal_remaining_goods(const map<string,int> &current_remaining_good
 }
 
 int add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec) {
-    temp_vec.clear();
     if(discount_group.empty()) {
         return OK;
     }
+    temp_vec.clear();
     for(int i = 0; i < discount_group.size(); i ++) {
         map<string,int>::iterator iter = current_remaining_goods.find(discount_group[i]);
         if(iter ==  current_remaining_goods.end()) {
