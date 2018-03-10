@@ -63,10 +63,15 @@ int minimal_goods = GOODS_NUM;
 map<string,int>  goods;
 // the remaining goods in current path
 map<string,int>  goods_in_path;
+//the discount_group
 vector<vector<string> >  discount_group;
+//path is current search
 vector<int> path;
+//current best path
 vector<int> returned_path;
+//current remaining_goods in current best path
 vector<string>  remaining_goods;
+//name of discount group
 vector<string>  discount_group_name;
 
 //if current_path is best ever, than update this path to returned_path
