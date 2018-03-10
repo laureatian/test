@@ -39,7 +39,6 @@
 #define OK                                1
 #define ERR                               0
 
-
 //if best path ever is found, update returned_path and remaining_goods
 //for code duplicate problem, I add a macro definition here
 #define UpdatePathAndRemainingGoods()\
@@ -105,7 +104,6 @@ int init() {
     string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
     for(int i = 0; i < DISCOUNT_GROUP_NUM; i ++) {
         discount_group_name.push_back(discount_group_name_list[i]);
-
     }
 
     string g1[6] = {"A1","A2","A3","A4","A5","A6"};
@@ -129,6 +127,7 @@ int init() {
     string g7[3] = {"A20","A25","A30"};
     vector<string> g_7(g7,g7 + 3);
     discount_group.push_back(g_7);
+  
     return 0;
 }
 
@@ -168,7 +167,6 @@ int min_remaining(int path_value) {
         if(!ret) {
             return ret;
         }
-
         ret = min_remaining(RIGHT_CHILD);
         if(!ret) {
             return ret;
@@ -183,7 +181,6 @@ int min_remaining(int path_value) {
 int trace_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path) {
     if(path.empty()) {
         return ERR;
-
     }
     path.pop_back();
     if(temp_vec.empty()) {
@@ -199,7 +196,6 @@ int trace_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, ve
     }
     temp_vec.clear();
     return OK;
-
 }
 
 int add_node_to_path(const vector<string> &discounts_group_ele, map<string,int> &goods_in_path, vector<string> &temp_vec) {
@@ -219,18 +215,14 @@ int add_node_to_path(const vector<string> &discounts_group_ele, map<string,int> 
             }
             temp_vec.push_back(discounts_group_ele[i]);
         }
-
     }
-
     return OK;
-
 }
 
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string,int> &goods_in_path) {
     if(discounts_group_ele.empty()) {
         return false;
     }
-
     if(goods_in_path.empty()) {
         return true;
     }
@@ -253,9 +245,7 @@ int update_path(const vector<int> &current_path, vector<int> &new_path) {
     for(int i = 0; i < current_path.size(); i ++) {
         new_path.push_back(current_path[i]);
     }
-
     return OK;
-
 }
 
 int update_remaining_goods(const map<string,int> &goods_in_path, vector<string> &remain_goods) {
