@@ -123,42 +123,44 @@ int init() {
 // recursively  search all pathes in this bi-tree, find the best one
 int min_remaining(int path_value) {
     int ret = OK;
-    if ( path.size() < MAX_PATH ) {
-        vector<string>  temp_vec;
-        path.push_back(path_value);
-        bool need_prune = false;
-        if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
-            vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
-            need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
+    if (path.size() >= MAX_PATH) {
+        return ret;
+    }
+    vector<string>  temp_vec;
+    path.push_back(path_value);
+    bool need_prune = false;
+    if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
+        vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
+        need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
 
-            if(need_prune) { //check if need update
+        if(need_prune) { //check if need update
+            UpdatePathAndRemainingGoods();
+        } else {
+            ret = add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
+            if(!ret) {
+                return ret;
+            }
+            if(path.size() == MAX_PATH) {
                 UpdatePathAndRemainingGoods();
-            } else {
-                ret = add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
-                if(!ret) {
-                    return ret;
-                }
-                if(path.size() == MAX_PATH) {
-                    UpdatePathAndRemainingGoods();
-                }
             }
         }
-        if(!need_prune) {
-            ret = min_remaining(LEFT_CHILD);
-            if(!ret) {
-                return ret;
-            }
+    }
+    if(!need_prune) {
+        ret = min_remaining(LEFT_CHILD);
+        if(!ret) {
+            return ret;
+        }
 
-            ret = min_remaining(RIGHT_CHILD);
-            if(!ret) {
-                return ret;
-            }
-        }
-        ret = roll_back_node(goods_in_path,temp_vec,path);
+        ret = min_remaining(RIGHT_CHILD);
         if(!ret) {
             return ret;
         }
     }
+    ret = roll_back_node(goods_in_path,temp_vec,path);
+    if(!ret) {
+        return ret;
+    }
+
     return  ret;
 }
 
