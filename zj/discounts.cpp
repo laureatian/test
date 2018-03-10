@@ -31,10 +31,11 @@
 *            return
 *        if node is 1                ###2
 *            check node, add it to path  ###3  or prune this node and all sub-path  ###4
-*        if node is not pruned       ###5
-*            search left child;      ###6
-*            search right child;     ###7
-*        trace back this node        ###8
+*            update best path and minimal remaining_goods if needed ###5
+*        if node is not pruned       ###6
+*            search left child;      ###7
+*            search right child;     ###8
+*        trace back this node        ###9
 *        return
 *
 * I don't construct this tree explicitly in my code, because I use path length to constrain
@@ -165,43 +166,43 @@ int init() {
 int search_node(int path_value) {
     int ret = OK;
     // if tree bottom is reached, current_path search ends  ###1
-    if (current_path.size() >= MAX_PATH) {
+    if (current_path.size() >= MAX_PATH) {   //###1
         return ret;
     }
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(path_value);
-    // if current node is not a dummy discount_group, add it or prune it   ###2
-    if (path_value == RIGHT_CHILD) {
+    // if current node is not a dummy discount_group, add it or prune it   
+    if (path_value == RIGHT_CHILD) {          // ###2
         // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
 
         if(!need_prune) {
-            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec);
+            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec); //###3
             if(!ret) {
                 return ret;
             }
         }
-        if(need_prune || current_path.size() == MAX_PATH) {
+        if(need_prune || current_path.size() == MAX_PATH) {            //###5
 
             UpdatePathAndRemainingGoods();
         }
 
     }
-    if(!need_prune) { // search downward if (not pruned) && (not last node)
-        ret = search_node(LEFT_CHILD);
+    if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
+        ret = search_node(LEFT_CHILD);                                 // ###7
         if(!ret) {
             return ret;
         }
-        ret = search_node(RIGHT_CHILD);
+        ret = search_node(RIGHT_CHILD);                                //###8
         if(!ret) {
-            return ret;
+            return ret; 
         }
     }
     // trace back a node
-    ret = trace_back_node(current_remaining_goods,temp_vec,current_path);
+    ret = trace_back_node(current_remaining_goods,temp_vec,current_path); // ###9
 
     return  ret;
 }
