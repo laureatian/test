@@ -3,6 +3,17 @@
 *Date: 2018-3-9
 *This is an interview task for ZhuJian Intelligence, only for interview, no other use.
 *
+* Below is my thinking about this problem
+*
+* The searching space is built form a bi-tree
+*
+* Root G0 is a (imaginary)dummy discount_group that means no discounts.
+* 0 also means a dummy discount_group, 1 in ith layer means corresponding ith real discount_group
+* Path is constuted of zeros and ones in a vector of int.
+* I search the following bi-tree heuristicly for the best path, during the search, if a discount_group
+* in path fails to be included in remaining_goods, search for sub-path will be prohibited.
+*
+*
 *            0         G0   dummy discount_group
 *           / \
 *          /   \
@@ -17,9 +28,6 @@
 * I don't construct this tree explicitly in my code, because I use path length to constrain
 * the search, If a path length is as long as MAX_PATH, It means this path has reach
 * tree bottom, I need to traceback this node and search other pathes
-* G0 is a (imaginary)dummy discount_group that mean no discounts
-* path is constuted of zeros and ones in a vector of int
-* 0 means a dummy discount_group, 1 in ith layer means corresponding ith real discount_group
 */
 
 #include<stdio.h>
@@ -33,12 +41,12 @@
 #define MAX_PATH                          DISCOUNT_GROUP_NUM + 1
 #define RELATIVE_DISTANCE                 2
 #define GOODS_NUM                         12
-#define RIGHT_CHILD                       0
-#define LEFT_CHILD                        1
+#define RIGHT_CHILD                       1
+#define LEFT_CHILD                        0
 #define ROOT                              0
 #define LENGTH_FOR_ONE_DISCOUNT_GROUP     2
 #define OK                                1
-#define ERR                              OK - 1 
+#define ERR                              OK - 1
 
 //if best path ever is found, update current_best_path and remaining_goods
 //for code duplicate problem, I add a macro definition here
@@ -150,8 +158,8 @@ int search_path(int path_value) {
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(path_value);
-    // if current node is not a dummy discount_group, add it or prune it 
-    if (current_path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
+    // if current node is not a dummy discount_group, add it or prune it
+    if (current_path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == RIGHT_CHILD) {
         // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
