@@ -14,7 +14,9 @@
 *    ..................
 *   ....................
 *
-*
+* I don't construct this tree explicitlyi in my code, because I use path length to constrain
+* the search, If a path length is as long as MAX_PATH, It means this path has reach 
+* tree bottom, I need to rollback this node and search other pathes
 *
 *
 */
@@ -37,6 +39,9 @@
 #define OK                                1
 #define ERR                               0
 
+
+//if best path ever is found, update returned_path and remaining_goods
+//for code duplicate problem, I add a macro definition here 
 #define UpdatePathAndRemainingGoods()\
 int ret = OK;\
 remaining_goods_num = goods_in_path.size();\
@@ -52,7 +57,6 @@ if(!ret){\
 }\
 }
 
-
 using namespace std;
 
 // num of goods
@@ -62,16 +66,27 @@ int minimal_goods = GOODS_NUM;
 map<string,int>  goods;
 // the remaining goods in current path
 map<string,int>  goods_in_path;
+//the discount_group
 vector<vector<string> >  discount_group;
+//path is current search
 vector<int> path;
+//current best path
 vector<int> returned_path;
+//current remaining_goods in current best path
 vector<string>  remaining_goods;
+//name of discount group
 vector<string>  discount_group_name;
 
+//if current_path is best ever, than update this path to returned_path
 int update_path(const vector<int> &current_path, vector<int> &new_path);
+//if current_path is best ever, than update remaining_goods in this path to remaining_goods
 int update_remaining_goods(const map<string,int> &goods_in_path, vector<string> &remaining_goods);
+//check if this node can be put to current_path, if discounts_group are not included in goods in path, 
+//it need be pruned, can't put this node in, and paths after it do not need be searched
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string,int> &goods_in_path);
+//add current discounts_group to path
 int add_node_to_path(const vector<string> &discounts_group_ele, map<string,int> &goods_in_path, vector<string> &temp_vec);
+//if pathes behind a node all be searhed and checked, it need be roll back than search other pathes do not go through it
 int roll_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
 
 // prepare the data
@@ -126,40 +141,37 @@ int min_remaining(int path_value) {
     if (path.size() >= MAX_PATH) {
         return ret;
     }
-        vector<string>  temp_vec;
-        path.push_back(path_value);
-        bool need_prune = false;
-        if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
-            vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
-            need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
+    bool need_prune = false;
+    vector<string>  temp_vec;
+    path.push_back(path_value);
+    if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
+        vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
+        need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
 
-            if(need_prune) { //check if need update
+        if(need_prune) { //check if need update
+            UpdatePathAndRemainingGoods();
+        } else {
+            ret = add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
+            if(!ret) {
+                return ret;
+            }
+            if(path.size() == MAX_PATH) {
                 UpdatePathAndRemainingGoods();
-            } else {
-                ret = add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
-                if(!ret) {
-                    return ret;
-                }
-                if(path.size() == MAX_PATH) {
-                    UpdatePathAndRemainingGoods();
-                }
             }
         }
-        if(!need_prune) {
-            ret = min_remaining(LEFT_CHILD);
-            if(!ret) {
-                return ret;
-            }
-
-            ret = min_remaining(RIGHT_CHILD);
-            if(!ret) {
-                return ret;
-            }
-        }
-        ret = roll_back_node(goods_in_path,temp_vec,path);
+    }
+    if(!need_prune) {
+        ret = min_remaining(LEFT_CHILD);
         if(!ret) {
             return ret;
         }
+
+        ret = min_remaining(RIGHT_CHILD);
+        if(!ret) {
+            return ret;
+        }
+    }
+    ret = roll_back_node(goods_in_path,temp_vec,path);
     
     return  ret;
 }
@@ -266,7 +278,6 @@ int main() {
     std::cout<<"discounts groups: "<<std::endl;
     if(returned_path.size() != 0) {
         for(int i = 0; i < returned_path.size(); i ++) {
-            //std::cout<<"path value："<< returned_path[i];
             if(returned_path[i] != 0) {
                 std::cout<<discount_group_name[i - 1]<<"  ";
             }
@@ -277,12 +288,7 @@ int main() {
     if(remaining_goods.size() != 0) {
         for(int k = 0; k < remaining_goods.size(); k ++) {
             std::cout<<remaining_goods[k]<<"  "<< std::endl;
-
         }
-
-
     }
-
     return 0;
-
 }

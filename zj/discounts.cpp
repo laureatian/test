@@ -15,8 +15,8 @@
 *   ....................
 *
 * I don't construct this tree explicitlyi in my code, because I use path length to constrain
-* the search, If a path length is longer than MAX_PATH, It means this path has reach 
-* tree bottom, I need to rollback this node and search other path
+* the search, If a path length is as long as MAX_PATH, It means this path has reach
+* tree bottom, I need to rollback this node and search other pathes
 *
 *
 */
@@ -39,6 +39,9 @@
 #define OK                                1
 #define ERR                               0
 
+
+//if best path ever is found, update returned_path and remaining_goods
+//for code duplicate problem, I add a macro definition here
 #define UpdatePathAndRemainingGoods()\
 int ret = OK;\
 remaining_goods_num = goods_in_path.size();\
@@ -78,7 +81,7 @@ vector<string>  discount_group_name;
 int update_path(const vector<int> &current_path, vector<int> &new_path);
 //if current_path is best ever, than update remaining_goods in this path to remaining_goods
 int update_remaining_goods(const map<string,int> &goods_in_path, vector<string> &remaining_goods);
-//check if this node can be put to current_path, if discounts_group are not included in goods in path, 
+//check if this node can be put to current_path, if discounts_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
 bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string,int> &goods_in_path);
 //add current discounts_group to path
@@ -169,7 +172,7 @@ int min_remaining(int path_value) {
         }
     }
     ret = roll_back_node(goods_in_path,temp_vec,path);
-    
+
     return  ret;
 }
 
