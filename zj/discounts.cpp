@@ -126,9 +126,9 @@ int min_remaining(int path_value) {
     if (path.size() >= MAX_PATH) {
         return ret;
     }
+    bool need_prune = false;
     vector<string>  temp_vec;
     path.push_back(path_value);
-    bool need_prune = false;
     if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
         vector<string>  discount_group_ele = discount_group[path.size() - RELATIVE_DISTANCE];
         need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
@@ -157,10 +157,7 @@ int min_remaining(int path_value) {
         }
     }
     ret = roll_back_node(goods_in_path,temp_vec,path);
-    if(!ret) {
-        return ret;
-    }
-
+    
     return  ret;
 }
 
