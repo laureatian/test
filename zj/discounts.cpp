@@ -59,9 +59,9 @@ using namespace std;
 int remaining_goods_num = GOODS_NUM;
 // final remaining goods
 int minimal_goods = GOODS_NUM;
-map<string>  goods;
+map<string,int>  goods;
 // the remaining goods in current path
-map<string>  goods_in_path;
+map<string,int>  goods_in_path;
 vector<vector<string> >  discount_group;
 vector<int> path;
 vector<int> returned_path;
@@ -69,17 +69,22 @@ vector<string>  remaining_goods;
 vector<string>  discount_group_name;
 
 int update_path(const vector<int> &current_path, vector<int> &new_path);
-int update_remaining_goods(const map<string> &goods_in_path, vector<string> &remaining_goods);
-bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string> &goods_in_path);
-int add_node_to_path(const vector<string> &discounts_group_ele, map<string> &goods_in_path, vector<string> &temp_vec);
-int roll_back_node(set<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
+int update_remaining_goods(const map<string,int> &goods_in_path, vector<string> &remaining_goods);
+bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string,int> &goods_in_path);
+int add_node_to_path(const vector<string> &discounts_group_ele, map<string,int> &goods_in_path, vector<string> &temp_vec);
+int roll_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path);
 
 // prepare the data
 int init(){
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < GOODS_NUM; i++){
-        goods.insert(goods_list[i]);
-        goods_in_path.insert(goods_list[i]);
+        if(goods.find(goods_list[i]) == goods.end()){
+           goods[goods_list[i]] = 1;
+           goods_in_path[goods_list[i]] = 1;
+        } else {
+          goods[goods_list[i]] =  goods[goods_list[i]] + 1;
+          goods_in_path[goods_list[i]] = goods_in_path[goods_list[i]] + 1;
+        }
     }    
     
     string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
@@ -157,7 +162,7 @@ int min_remaining(int path_value){
     return  ret;
 }
 
-int roll_back_node(map<string> &goods_in_path, vector<string> &temp_vec, vector<int> &path){
+int roll_back_node(map<string,int> &goods_in_path, vector<string> &temp_vec, vector<int> &path){
     if(path.empty()){
         return ERR;
 
@@ -179,13 +184,13 @@ int roll_back_node(map<string> &goods_in_path, vector<string> &temp_vec, vector<
 
 }
 
-int add_node_to_path(const vector<string> &discounts_group_ele, map<string> &goods_in_path, vector<string> &temp_vec){
+int add_node_to_path(const vector<string> &discounts_group_ele, map<string,int> &goods_in_path, vector<string> &temp_vec){
     temp_vec.clear();
     if(discounts_group_ele.empty()){
        return OK;
     }
     for(int i = 0; i < discounts_group_ele.size(); i ++){
-        set<string>::iterator iter = goods_in_path.find(discounts_group_ele[i]);
+        map<string,int>::iterator iter = goods_in_path.find(discounts_group_ele[i]);
         if(iter ==  goods_in_path.end()){
              return ERR;
         } else {
@@ -203,7 +208,7 @@ int add_node_to_path(const vector<string> &discounts_group_ele, map<string> &goo
 
 }
 
-bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string> &goods_in_path){
+bool check_if_need_prune(const vector<string> &discounts_group_ele, const map<string,int> &goods_in_path){
     if(discounts_group_ele.empty()){
         return false;
     }
@@ -235,14 +240,14 @@ int update_path(const vector<int> &current_path, vector<int> &new_path){
 
 }
 
-int update_remaining_goods(const map<string> &goods_in_path, vector<string> &remain_goods){
+int update_remaining_goods(const map<string,int> &goods_in_path, vector<string> &remain_goods){
     remain_goods.clear();  
     if(goods_in_path.empty()){
         return OK;
     }
-    for(set<string>::iterator iter = goods_in_path.begin(); iter != goods_in_path.end(); iter ++){
-       for(int k = 0; k < goods_in_path[*iter]; k ++){
-           remain_goods.push_back(*iter);
+    for(map<string,int>::const_iterator iter = goods_in_path.begin(); iter != goods_in_path.end(); iter ++){
+       for(int k = 0; k < iter->second; k ++){
+           remain_goods.push_back(iter->first);
        }
     }
     return OK;
