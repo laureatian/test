@@ -188,7 +188,6 @@ int search_node(int node_value) {
 
             UpdatePathAndRemainingGoods();
         }
-
     }
     if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
         ret = search_node(LEFT_CHILD);                                 // ###7
