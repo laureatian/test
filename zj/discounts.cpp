@@ -1,24 +1,25 @@
 /*
 *Author: Tiantian
 *Date: 2018-3-9
-*This is interview task for ZhuJian Intelligence, only for interview, no other use
+*This is an interview task for ZhuJian Intelligence, only for interview, no other use.
 *
-*            0         G0
+*            0         G0   dummy discount_group
 *           / \
 *          /   \
-*         0     1      G1
+*         0     1      G1   real discount_group
 *        / \    / \
-*       0   1  0   1   G2
+*       0   1  0   1   G2   real discount_group
 *      / \ / \/ \ / \
-*     0  10  10 1 0 1  G3
-*    ..................
-*   ....................
+*     0  10  10 1 0 1  G3   real discount_group
+*    .....................
+*   .......................
 *
 * I don't construct this tree explicitly in my code, because I use path length to constrain
 * the search, If a path length is as long as MAX_PATH, It means this path has reach
 * tree bottom, I need to traceback this node and search other pathes
-*
-*
+* G0 is a (imaginary)dummy discount_group that mean no discounts
+* path is constuted of zeros and ones in a vector of int
+* 0 means a dummy discount_group, 1 in ith layer means corresponding ith real discount_group
 */
 
 #include<stdio.h>
@@ -37,7 +38,7 @@
 #define ROOT                              0
 #define LENGTH_FOR_ONE_DISCOUNT_GROUP     2
 #define OK                                1
-#define ERR                               0
+#define ERR                              OK - 1 
 
 //if best path ever is found, update current_best_path and remaining_goods
 //for code duplicate problem, I add a macro definition here
@@ -64,7 +65,7 @@ int remaining_goods_num = GOODS_NUM;
 map<string,int>  goods;
 //the discount_group_list
 vector<vector<string> >  discount_group_list;
-//name of discounts_group. it is 1-1 mapped to discount_group_list
+//name of discount_group. it is 1-1 mapped to discount_group_list
 vector<string>  discount_group_names;
 
 //minimal remaining goods
@@ -82,19 +83,19 @@ vector<string>  minimal_remaining_goods;
 //prepare data
 int init();
 // search bi-tree, prune when the node can not meet requirements
-// a node with value 1 on ith layer means choose ith discount_group_list in this path
-// a node with value 0 on ith layer means do not choose ith discount_group_list in this path
+// a node with value 1 on ith layer means choose ith discount_group in this path
+// a node with value 0 on ith layer means do not choose ith discount_group in this path
 // recursively  search all pathes in this bi-tree, find the best one
 int search_path(int path_value);
 
-//check if this node can be put to current_path, if discounts_group are not included in goods in path,
+//check if this node can be put to current_path, if discount_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
 bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
 //if current_path is best ever, than update this path to current_best_path
 int update_best_path(const vector<int> &current_path, vector<int> &current_best_path);
 //if current_path is best ever, than update remaining_goods in this path to remaining_goods
 int update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods);
-//add current discounts_group to path
+//add current discount_group to path
 int add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec);
 //if pathes behind a node all be searhed and checked, it need be trace back than search other pathes do not go through it
 int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path);
@@ -149,13 +150,14 @@ int search_path(int path_value) {
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(path_value);
+    // if current node is not a dummy discount_group, add it or prune it 
     if (current_path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
         // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
 
-        if(need_prune) { //check if path and remain_goods need update
+        if(need_prune) { //prune it and check if path and remain_goods need update
             UpdatePathAndRemainingGoods();
         } else {// no prune, add to path
             ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec);
@@ -266,7 +268,6 @@ int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &te
     return OK;
 }
 
-
 // print discounts and the remaining goods
 int main() {
     int ret = OK;
@@ -290,5 +291,5 @@ int main() {
             std::cout<<minimal_remaining_goods[k]<<"  "<< std::endl;
         }
     }
-    return 0;
+    return OK;
 }
