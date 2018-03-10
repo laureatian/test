@@ -14,7 +14,7 @@
 *    ..................
 *   ....................
 *
-* I don't construct this tree explicitlyi in my code, because I use path length to constrain
+* I don't construct this tree explicitly in my code, because I use path length to constrain
 * the search, If a path length is as long as MAX_PATH, It means this path has reach
 * tree bottom, I need to traceback this node and search other pathes
 *
@@ -46,11 +46,11 @@ int ret = OK;\
 remaining_goods_num = current_remaining_goods.size();\
 if(remaining_goods_num  < minimal_goods_num ){\
 minimal_goods_num = remaining_goods_num;\
-ret = update_path(current_path,current_best_path);\
+ret = update_best_path(current_path,current_best_path);\
 if(!ret){\
    ret =ERR;\
 }\
-ret = update_remaining_goods(current_remaining_goods,minimal_remaining_goods);\
+ret = update_minimal_remaining_goods(current_remaining_goods,minimal_remaining_goods);\
 if(!ret){\
    ret =ERR;\
 }\
@@ -60,29 +60,31 @@ using namespace std;
 
 // num of goods
 int remaining_goods_num = GOODS_NUM;
-// final remaining goods
-int minimal_goods_num = GOODS_NUM;
+//all goods a user buys
 map<string,int>  goods;
-// the remaining goods in current path
-map<string,int>  current_remaining_goods;
 //the discount_group_list
 vector<vector<string> >  discount_group_list;
+//name of discounts_group. it is 1-1 mapped to discount_group_list
+vector<string>  discount_group_names;
+
+//minimal remaining goods
+int minimal_goods_num = GOODS_NUM;
 //path is current search
 vector<int> current_path;
 //current best path
 vector<int> current_best_path;
+// the remaining goods in current path
+map<string,int>  current_remaining_goods;
 //current remaining_goods in current best path
 vector<string>  minimal_remaining_goods;
-//name of discounts_group. it is 1-1 mapped to discount_group_list
-vector<string>  discount_group_names;
 
-//if current_path is best ever, than update this path to current_best_path
-int update_path(const vector<int> &current_path, vector<int> &current_best_path);
-//if current_path is best ever, than update remaining_goods in this path to remaining_goods
-int update_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods);
 //check if this node can be put to current_path, if discounts_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
 bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
+//if current_path is best ever, than update this path to current_best_path
+int update_best_path(const vector<int> &current_path, vector<int> &current_best_path);
+//if current_path is best ever, than update remaining_goods in this path to remaining_goods
+int update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods);
 //add current discounts_group to path
 int add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec);
 //if pathes behind a node all be searhed and checked, it need be trace back than search other pathes do not go through it
@@ -135,7 +137,7 @@ int init() {
 // a node with value 1 on ith layer means choose ith discount_group_list in this path
 // a node with value 0 on ith layer means do not choose ith discount_group_list in this path
 // recursively  search all pathes in this bi-tree, find the best one
-int min_remaining(int path_value) {
+int search_path(int path_value) {
     int ret = OK;
     if (current_path.size() >= MAX_PATH) { // if tree bottom is reached, current_path search ends
         return ret;
@@ -144,7 +146,7 @@ int min_remaining(int path_value) {
     vector<string>  temp_vec;
     current_path.push_back(path_value);
     if (current_path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
-        // take out corresponding discount_group_list 
+        // take out corresponding discount_group 
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
@@ -163,11 +165,11 @@ int min_remaining(int path_value) {
         }
     }
     if(!need_prune) { // search downward if (not pruned) && (not last node)
-        ret = min_remaining(LEFT_CHILD);
+        ret = search_path(LEFT_CHILD);
         if(!ret) {
             return ret;
         }
-        ret = min_remaining(RIGHT_CHILD);
+        ret = search_path(RIGHT_CHILD);
         if(!ret) {
             return ret;
         }
@@ -235,7 +237,7 @@ bool check_if_need_prune(const vector<string> &discount_group, const map<string,
 }
 
 
-int update_path(const vector<int> &current_path, vector<int> &current_best_path) {
+int update_best_path(const vector<int> &current_path, vector<int> &current_best_path) {
     current_best_path.clear();
     if(current_path.empty()) {
 
@@ -248,7 +250,7 @@ int update_path(const vector<int> &current_path, vector<int> &current_best_path)
     return OK;
 }
 
-int update_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods) {
+int update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods) {
     minimal_remaining_goods.clear();
     if(current_remaining_goods.empty()) {
         return OK;
@@ -265,7 +267,7 @@ int update_remaining_goods(const map<string,int> &current_remaining_goods, vecto
 int main() {
     int ret = OK;
     init();
-    ret = min_remaining(ROOT);
+    ret = search_path(ROOT);
     if(!ret) {
         return ret;
     }
