@@ -39,14 +39,14 @@
 #define OK                                1
 #define ERR                               0
 
-//if best path ever is found, update returned_path and remaining_goods
+//if best path ever is found, update current_best_path and remaining_goods
 //for code duplicate problem, I add a macro definition here
 #define UpdatePathAndRemainingGoods()\
 int ret = OK;\
 remaining_goods_num = current_remaining_goods.size();\
-if(remaining_goods_num  < minimal_goods ){\
-minimal_goods = remaining_goods_num;\
-ret = update_path(path,returned_path);\
+if(remaining_goods_num  < minimal_goods_num ){\
+minimal_goods_num = remaining_goods_num;\
+ret = update_path(current_path,current_best_path);\
 if(!ret){\
    ret =ERR;\
 }\
@@ -61,23 +61,23 @@ using namespace std;
 // num of goods
 int remaining_goods_num = GOODS_NUM;
 // final remaining goods
-int minimal_goods = GOODS_NUM;
+int minimal_goods_num = GOODS_NUM;
 map<string,int>  goods;
 // the remaining goods in current path
 map<string,int>  current_remaining_goods;
 //the discount_group_list
 vector<vector<string> >  discount_group_list;
 //path is current search
-vector<int> path;
+vector<int> current_path;
 //current best path
-vector<int> returned_path;
+vector<int> current_best_path;
 //current remaining_goods in current best path
 vector<string>  remaining_goods;
 //name of discounts_group. it is 1-1 mapped to discount_group_list
 vector<string>  discount_group_names;
 
-//if current_path is best ever, than update this path to returned_path
-int update_path(const vector<int> &current_path, vector<int> &new_path);
+//if current_path is best ever, than update this path to current_best_path
+int update_path(const vector<int> &current_path, vector<int> &current_best_path);
 //if current_path is best ever, than update remaining_goods in this path to remaining_goods
 int update_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &remaining_goods);
 //check if this node can be put to current_path, if discounts_group are not included in goods in path,
@@ -137,15 +137,15 @@ int init() {
 // recursively  search all pathes in this bi-tree, find the best one
 int min_remaining(int path_value) {
     int ret = OK;
-    if (path.size() >= MAX_PATH) { // if tree bottom is reached, current_path search ends
+    if (current_path.size() >= MAX_PATH) { // if tree bottom is reached, current_path search ends
         return ret;
     }
     bool need_prune = false;
     vector<string>  temp_vec;
-    path.push_back(path_value);
-    if (path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
+    current_path.push_back(path_value);
+    if (current_path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
         // take out corresponding discount_group_list 
-        vector<string>  discount_group = discount_group_list[path.size() - RELATIVE_DISTANCE];
+        vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
 
@@ -157,7 +157,7 @@ int min_remaining(int path_value) {
                 return ret;
             }
             // if it is last node, check if path and corresponding remaining_goods need update
-            if(path.size() == MAX_PATH) {
+            if(current_path.size() == MAX_PATH) {
                 UpdatePathAndRemainingGoods();
             }
         }
@@ -173,7 +173,7 @@ int min_remaining(int path_value) {
         }
     }
     // trace back a node
-    ret = trace_back_node(current_remaining_goods,temp_vec,path);
+    ret = trace_back_node(current_remaining_goods,temp_vec,current_path);
 
     return  ret;
 }
@@ -235,15 +235,15 @@ bool check_if_need_prune(const vector<string> &discount_group, const map<string,
 }
 
 
-int update_path(const vector<int> &current_path, vector<int> &new_path) {
-    new_path.clear();
+int update_path(const vector<int> &current_path, vector<int> &current_best_path) {
+    current_best_path.clear();
     if(current_path.empty()) {
 
         std::cout<<"current_path is empty!"<<std::endl;
         return ERR;
     }
     for(int i = 0; i < current_path.size(); i ++) {
-        new_path.push_back(current_path[i]);
+        current_best_path.push_back(current_path[i]);
     }
     return OK;
 }
@@ -270,9 +270,9 @@ int main() {
         return ret;
     }
     std::cout<<"discounts groups: "<<std::endl;
-    if(returned_path.size() != 0) {
-        for(int i = 0; i < returned_path.size(); i ++) {
-            if(returned_path[i] != 0) {
+    if(current_best_path.size() != 0) {
+        for(int i = 0; i < current_best_path.size(); i ++) {
+            if(current_best_path[i] != 0) {
                 std::cout<<discount_group_names[i - 1]<<"  ";
             }
         }
