@@ -50,7 +50,7 @@ ret = update_path(current_path,current_best_path);\
 if(!ret){\
    ret =ERR;\
 }\
-ret = update_remaining_goods(current_remaining_goods,remaining_goods);\
+ret = update_remaining_goods(current_remaining_goods,minimal_remaining_goods);\
 if(!ret){\
    ret =ERR;\
 }\
@@ -72,14 +72,14 @@ vector<int> current_path;
 //current best path
 vector<int> current_best_path;
 //current remaining_goods in current best path
-vector<string>  remaining_goods;
+vector<string>  minimal_remaining_goods;
 //name of discounts_group. it is 1-1 mapped to discount_group_list
 vector<string>  discount_group_names;
 
 //if current_path is best ever, than update this path to current_best_path
 int update_path(const vector<int> &current_path, vector<int> &current_best_path);
 //if current_path is best ever, than update remaining_goods in this path to remaining_goods
-int update_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &remaining_goods);
+int update_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods);
 //check if this node can be put to current_path, if discounts_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
 bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
@@ -248,14 +248,14 @@ int update_path(const vector<int> &current_path, vector<int> &current_best_path)
     return OK;
 }
 
-int update_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &remain_goods) {
-    remain_goods.clear();
+int update_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods) {
+    minimal_remaining_goods.clear();
     if(current_remaining_goods.empty()) {
         return OK;
     }
     for(map<string,int>::const_iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++) {
         for(int k = 0; k < iter->second; k ++) {
-            remain_goods.push_back(iter->first);
+            minimal_remaining_goods.push_back(iter->first);
         }
     }
     return OK;
@@ -279,9 +279,9 @@ int main() {
     }
     std::cout << std::endl;
     std::cout<<"remaining goods: "<<std::endl;
-    if(remaining_goods.size() != 0) {
-        for(int k = 0; k < remaining_goods.size(); k ++) {
-            std::cout<<remaining_goods[k]<<"  "<< std::endl;
+    if(minimal_remaining_goods.size() != 0) {
+        for(int k = 0; k < minimal_remaining_goods.size(); k ++) {
+            std::cout<<minimal_remaining_goods[k]<<"  "<< std::endl;
         }
     }
     return 0;
