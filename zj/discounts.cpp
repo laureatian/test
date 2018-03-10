@@ -37,7 +37,7 @@
 #define OK                                1
 #define ERR                               0
 
-#define UpdatePathAndGoods()\
+#define UpdatePathAndRemainingGoods()\
 int ret = OK;\
 remaining_goods_num = goods_in_path.size();\
 if(remaining_goods_num  < minimal_goods ){\
@@ -121,7 +121,7 @@ int init(){
 // a node with value 1 on ith layer means choose ith discount_group in this path 
 // a node with value 0 on ith layer means do not choose ith discount_group in this path
 // recursively  search all pathes in this bi-tree, find the best one
-int min_remaining(int path_value){
+int min_remaining(int path_value) {
     int ret = OK;
     if ( path.size() < MAX_PATH ){
         vector<string>  temp_vec;
@@ -132,14 +132,14 @@ int min_remaining(int path_value){
             need_prune = check_if_need_prune(discount_group_ele,goods_in_path);
              
             if(need_prune){//check if need update
-                  UpdatePathAndGoods();
+                  UpdatePathAndRemainingGoods();
             } else {
                ret = add_node_to_path(discount_group_ele,goods_in_path,temp_vec);
                if(!ret){
                    return ret;
                }
-               if(path.size() == DISCOUNT_GROUP_NUM + 1){
-                   UpdatePathAndGoods();
+               if(path.size() == MAX_PATH){
+                   UpdatePathAndRemainingGoods();
                }
            }
       }
