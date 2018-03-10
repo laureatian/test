@@ -3,13 +3,13 @@
 *Date: 2018-3-9
 *This is an interview task for ZhuJian Intelligence, only for interview, no other use.
 *
-* Below is my thinking about this problem
+* Below is my thinking about this problem.
 *
-* The searching space is built form a bi-tree
-*
+* The searching space is built form a bi-tree.
 * Root G0 is a (imaginary)dummy discount_group that means no discounts.
-* 0 also means a dummy discount_group, 1 in ith layer means corresponding ith real discount_group
+* 0(all left child) also means a dummy discount_group, 1(all right child) in ith layer means corresponding ith real discount_group.
 * Path is constuted of zeros and ones in a vector of int.
+*
 * I search the following bi-tree heuristicly for the best path, during the search, if a discount_group
 * in path fails to be included in remaining_goods, search for sub-path will be prohibited.
 *
@@ -24,6 +24,18 @@
 *     0  10  10 1 0 1  G3   real discount_group
 *    .....................
 *   .......................
+*
+* 1, init data
+* 2, search node
+*        if path.length >= MAX_PATH  ###1
+*            return
+*        if node is 1                ###2
+*            check node, add it to path  ###3  or prune this node and all sub-path  ###4
+*        if node is not pruned       ###5
+*            search left child;      ###6
+*            search right child;     ###7
+*        trace back this node        ###8
+*        return
 *
 * I don't construct this tree explicitly in my code, because I use path length to constrain
 * the search, If a path length is as long as MAX_PATH, It means this path has reach
@@ -94,7 +106,7 @@ int init();
 // a node with value 1 on ith layer means choose ith discount_group in this path
 // a node with value 0 on ith layer means do not choose ith discount_group in this path
 // recursively  search all pathes in this bi-tree, find the best one
-int search_path(int path_value);
+int search_node(int path_value);
 
 //check if this node can be put to current_path, if discount_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
@@ -150,40 +162,40 @@ int init() {
     return OK;
 }
 
-int search_path(int path_value) {
+int search_node(int path_value) {
     int ret = OK;
-    if (current_path.size() >= MAX_PATH) { // if tree bottom is reached, current_path search ends
+    // if tree bottom is reached, current_path search ends  ###1
+    if (current_path.size() >= MAX_PATH) {
         return ret;
     }
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(path_value);
-    // if current node is not a dummy discount_group, add it or prune it
-    if (current_path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == RIGHT_CHILD) {
+    // if current node is not a dummy discount_group, add it or prune it   ###2
+    if (path_value == RIGHT_CHILD) {
         // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
 
-        if(need_prune) { //prune it and check if path and remain_goods need update
-            UpdatePathAndRemainingGoods();
-        } else {// no prune, add to path
+        if(!need_prune) {
             ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec);
             if(!ret) {
                 return ret;
             }
-            // if it is last node, check if path and corresponding remaining_goods need update
-            if(current_path.size() == MAX_PATH) {
-                UpdatePathAndRemainingGoods();
-            }
         }
+        if(need_prune || current_path.size() == MAX_PATH) {
+
+            UpdatePathAndRemainingGoods();
+        }
+
     }
     if(!need_prune) { // search downward if (not pruned) && (not last node)
-        ret = search_path(LEFT_CHILD);
+        ret = search_node(LEFT_CHILD);
         if(!ret) {
             return ret;
         }
-        ret = search_path(RIGHT_CHILD);
+        ret = search_node(RIGHT_CHILD);
         if(!ret) {
             return ret;
         }
@@ -280,7 +292,7 @@ int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &te
 int main() {
     int ret = OK;
     init();
-    ret = search_path(ROOT);
+    ret = search_node(ROOT);
     if(!ret) {
         return ret;
     }
