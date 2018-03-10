@@ -78,6 +78,15 @@ map<string,int>  current_remaining_goods;
 //current remaining_goods in current best path
 vector<string>  minimal_remaining_goods;
 
+
+//prepare data
+int init();
+// search bi-tree, prune when the node can not meet requirements
+// a node with value 1 on ith layer means choose ith discount_group_list in this path
+// a node with value 0 on ith layer means do not choose ith discount_group_list in this path
+// recursively  search all pathes in this bi-tree, find the best one
+int search_path(int path_value);
+
 //check if this node can be put to current_path, if discounts_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
 bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
@@ -90,7 +99,6 @@ int add_node_to_path(const vector<string> &discount_group, map<string,int> &curr
 //if pathes behind a node all be searhed and checked, it need be trace back than search other pathes do not go through it
 int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path);
 
-// prepare the data
 int init() {
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < GOODS_NUM; i++) {
@@ -129,14 +137,10 @@ int init() {
     string g7[3] = {"A20","A25","A30"};
     vector<string> g_7(g7,g7 + 3);
     discount_group_list.push_back(g_7);
-  
-    return 0;
+
+    return OK;
 }
 
-// search bi-tree, prune when the node can not meet requirements
-// a node with value 1 on ith layer means choose ith discount_group_list in this path
-// a node with value 0 on ith layer means do not choose ith discount_group_list in this path
-// recursively  search all pathes in this bi-tree, find the best one
 int search_path(int path_value) {
     int ret = OK;
     if (current_path.size() >= MAX_PATH) { // if tree bottom is reached, current_path search ends
@@ -146,7 +150,7 @@ int search_path(int path_value) {
     vector<string>  temp_vec;
     current_path.push_back(path_value);
     if (current_path.size() >= LENGTH_FOR_ONE_DISCOUNT_GROUP &&  path_value == LEFT_CHILD) {
-        // take out corresponding discount_group 
+        // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
@@ -180,47 +184,6 @@ int search_path(int path_value) {
     return  ret;
 }
 
-int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path) {
-    if(path.empty()) {
-        return ERR;
-    }
-    path.pop_back();
-    if(temp_vec.empty()) {
-        return OK;
-    }
-
-    for(int i = 0; i < temp_vec.size(); i++) {
-        if(current_remaining_goods.find(temp_vec[i]) != current_remaining_goods.end()) {
-            current_remaining_goods[temp_vec[i]] =  current_remaining_goods[temp_vec[i]] + 1;
-        } else {
-            current_remaining_goods[temp_vec[i]] = 1;
-        }
-    }
-    temp_vec.clear();
-    return OK;
-}
-
-int add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec) {
-    temp_vec.clear();
-    if(discount_group.empty()) {
-        return OK;
-    }
-    for(int i = 0; i < discount_group.size(); i ++) {
-        map<string,int>::iterator iter = current_remaining_goods.find(discount_group[i]);
-        if(iter ==  current_remaining_goods.end()) {
-            return ERR;
-        } else {
-            if(current_remaining_goods[discount_group[i]] > 1) {
-                current_remaining_goods[discount_group[i]] =  current_remaining_goods[discount_group[i]] - 1;
-            } else {
-                current_remaining_goods.erase(discount_group[i]);
-            }
-            temp_vec.push_back(discount_group[i]);
-        }
-    }
-    return OK;
-}
-
 bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods) {
     if(discount_group.empty()) {
         return false;
@@ -235,7 +198,6 @@ bool check_if_need_prune(const vector<string> &discount_group, const map<string,
     }
     return false;
 }
-
 
 int update_best_path(const vector<int> &current_path, vector<int> &current_best_path) {
     current_best_path.clear();
@@ -262,6 +224,48 @@ int update_minimal_remaining_goods(const map<string,int> &current_remaining_good
     }
     return OK;
 }
+
+int add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec) {
+    temp_vec.clear();
+    if(discount_group.empty()) {
+        return OK;
+    }
+    for(int i = 0; i < discount_group.size(); i ++) {
+        map<string,int>::iterator iter = current_remaining_goods.find(discount_group[i]);
+        if(iter ==  current_remaining_goods.end()) {
+            return ERR;
+        } else {
+            if(current_remaining_goods[discount_group[i]] > 1) {
+                current_remaining_goods[discount_group[i]] =  current_remaining_goods[discount_group[i]] - 1;
+            } else {
+                current_remaining_goods.erase(discount_group[i]);
+            }
+            temp_vec.push_back(discount_group[i]);
+        }
+    }
+    return OK;
+}
+
+int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path) {
+    if(path.empty()) {
+        return ERR;
+    }
+    path.pop_back();
+    if(temp_vec.empty()) {
+        return OK;
+    }
+
+    for(int i = 0; i < temp_vec.size(); i++) {
+        if(current_remaining_goods.find(temp_vec[i]) != current_remaining_goods.end()) {
+            current_remaining_goods[temp_vec[i]] =  current_remaining_goods[temp_vec[i]] + 1;
+        } else {
+            current_remaining_goods[temp_vec[i]] = 1;
+        }
+    }
+    temp_vec.clear();
+    return OK;
+}
+
 
 // print discounts and the remaining goods
 int main() {
