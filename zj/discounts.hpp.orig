@@ -20,7 +20,8 @@ public:
     // a node with value 0 on ith layer means do not choose ith discount_group in this path
     // recursively  search all pathes in this bi-tree, find the best one
     int search_node(int node_value,vector<int> &current_path, map<string,int> &current_remaining_goods);
-    int print_result();
+//    ~Discounts():
+   int print_result();
 
     map<string,int>  goods;
 private:
@@ -30,7 +31,9 @@ private:
     vector<string>  discount_group_names;
 
     int minimal_goods_num;
+//    vector<int> current_path;     // no need to be  a member
     vector<int> current_best_path;
+  //  map<string,int>  current_remaining_goods; // no need to be a member
     vector<string>  minimal_remaining_goods;
 
     int init();

@@ -76,7 +76,7 @@ int Discounts::init() {
             //current_remaining_goods[goods_list[i]] = 1;
         } else {
             goods[goods_list[i]] =  goods[goods_list[i]] + 1;
-            // current_remaining_goods[goods_list[i]] = current_remaining_goods[goods_list[i]] + 1;
+           // current_remaining_goods[goods_list[i]] = current_remaining_goods[goods_list[i]] + 1;
         }
     }
 
@@ -170,14 +170,14 @@ bool Discounts::check_if_need_prune(const vector<string> &discount_group, const 
 
 int Discounts::UpdatePathAndRemainingGoods(vector<int> &current_path, map<string,int> &current_remaining_goods) {
     int ret = OK;
-    int remaining_goods_num = 0;
-    if(!current_remaining_goods.empty()) {
-        for(map<string, int>::iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++) {
-            remaining_goods_num += iter->second;
+    int remaining_goods_num = 0; 
+    if(!current_remaining_goods.empty()){
+        for(map<string, int>::iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++){
+           remaining_goods_num += iter->second;
         }
-
-    }
-
+ 
+    } 
+    
     if(remaining_goods_num  < minimal_goods_num ) {
         minimal_goods_num = remaining_goods_num;
         ret = update_best_path(current_path);
