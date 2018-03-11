@@ -30,7 +30,7 @@ private:
     vector<string>  discount_group_names;
 
     //int minimal_goods_num;
-    vector<int> current_best_path;
+    vector<int> best_path;
     vector<string>  minimal_remaining_goods;
 
     int init();
@@ -38,7 +38,7 @@ private:
     //it need be pruned, can't put this node in, and paths after it do not need be searched
     bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
     int update_path_and_remaining_goods(vector<int> &current_path, map<string,int>  &current_remaining_goods);
-    //if current_path is best ever, than update this path to current_best_path
+    //if current_path is best ever, than update this path to best_path
     int update_best_path(const vector<int> &current_path);
     //if current_path is best ever, than update remaining_goods in this path to remaining_goods
     int update_minimal_remaining_goods(const map<string,int> &current_remaining_goods);

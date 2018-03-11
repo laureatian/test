@@ -196,9 +196,9 @@ int Discounts::update_best_path(const vector<int> &current_path) {
     if(current_path.empty()) {
         return ERR;
     }
-    current_best_path.clear();
+    best_path.clear();
     for(int i = 0; i < current_path.size(); i ++) {
-        current_best_path.push_back(current_path[i]);
+        best_path.push_back(current_path[i]);
     }
     return OK;
 }
@@ -258,9 +258,9 @@ int Discounts::trace_back_node(map<string,int> &current_remaining_goods, vector<
 }
 int Discounts::print_result() {
     std::cout<<"discounts groups: "<<std::endl;
-    if(current_best_path.size() != 0) {
-        for(int i = 0; i < current_best_path.size(); i ++) {
-            if(current_best_path[i] != 0) {
+    if(best_path.size() != 0) {
+        for(int i = 0; i < best_path.size(); i ++) {
+            if(best_path[i] != 0) {
                 std::cout<<discount_group_names[i - 1]<<"  ";
             }
         }
