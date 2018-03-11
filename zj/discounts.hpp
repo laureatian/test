@@ -27,17 +27,17 @@ public:
     // a node with value 0 on ith layer means do not choose ith discount_group in this path
     // recursively  search all pathes in this bi-tree, find the best one
     int search_discount_groups(const map<string,int> &buyer_goods,vector<string> &best_discount_group,\
-                              vector<string> &minimal_remaining_goods);
-    int set_goods(map<string,int> &buyer_goods);
+                               vector<string> &minimal_remaining_goods);
+//    int set_goods(map<string,int> &buyer_goods);
     int set_discount_group_list(vector<vector<string> > &new_discount_group_list);
 private:
-    map<string,int>  goods;
+//    map<string,int>  goods;
     vector<vector<string> >  discount_group_list;
     vector<string>  discount_group_names;
 
     //int minimal_goods_num;
-   // vector<int> best_path;
-   // vector<string>  minimal_remaining_goods;
+    // vector<int> best_path;
+    // vector<string>  minimal_remaining_goods;
 
     int search_node(int node_value,vector<int> &current_path, map<string,int> &current_remaining_goods,\
                     vector<int> &best_path, vector<string>  &minimal_remaining_goods);
@@ -47,7 +47,7 @@ private:
     //it need be pruned, can't put this node in, and paths after it do not need be searched
     bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods) const;
     int update_path_and_remaining_goods(const vector<int> &current_path, const map<string,int>  &current_remaining_goods,\
-                                       vector<int> &best_path, vector<string> &minimal_remaining_goods);
+                                        vector<int> &best_path, vector<string> &minimal_remaining_goods);
     //if current_path is best ever, than update this path to best_path
     int update_best_path(const vector<int> &current_path, vector<int> &best_path);
     //if current_path is best ever, than update remaining_goods in this path to remaining_goods
