@@ -279,15 +279,19 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
 }
 
 int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_group_map) {
-    discount_group_list.clear();
-    if(!new_discount_group_map.empty()) {
+ 
+    std::cout<<"set begin"<<std::endl;
+    if(new_discount_group_map.empty()) {
+        discount_group_list.clear();
+    } else {
         for(map<string, vector<string> >::iterator iter =  new_discount_group_map.begin(); \
                 iter != new_discount_group_map.end(); iter ++) {
             discount_group_names.push_back(iter->first);
             discount_group_list.push_back(iter->second);
         }
     }
-
+    std::cout<<"set success"<<std::endl;
+    return OK;
 }
 
 
@@ -424,6 +428,32 @@ int test_6(Discounts &dis) {
     vector<string>  minimal_remaining_goods;
     vector<string>  best_discount_group;
     goods.clear();
+    string goods_list[13] = {"A33","A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
+    for(int i = 0; i < 13; i++) {
+        if(goods.find(goods_list[i]) == goods.end()) {
+            goods[goods_list[i]] = 1;
+        } else {
+            goods[goods_list[i]] =  goods[goods_list[i]] + 1;
+        }
+        minimal_remaining_goods.push_back(goods_list[i]);
+    }
+    ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
+    if(!ret) {
+        return ret;
+    }
+    PrintResults();
+
+    return ret;
+}
+// test_7, a discount_group appears twice
+int test_7(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 7, a discount_group appears twice."<<std::endl;
+    int ret = OK;
+    map<string,int> goods;
+    vector<string>  minimal_remaining_goods;
+    vector<string>  best_discount_group;
+    goods.clear();
     string goods_list[15] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A20","A25","A30"};
     for(int i = 0; i < 15; i++) {
         if(goods.find(goods_list[i]) == goods.end()) {
@@ -441,7 +471,6 @@ int test_6(Discounts &dis) {
 
     return ret;
 }
-// print discounts and the remaining goods
 int main() {
     int ret = OK;
     map<string,int> goods;
@@ -449,7 +478,7 @@ int main() {
     vector<string>  best_discount_group;
 
     map<string,vector<string> > discount_group_map;
-    string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
+    string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7","G8"};
 
     string g1[6] = {"A1","A2","A3","A4","A5","A6"};
     vector<string> g_1(g1,g1+6);
@@ -481,12 +510,14 @@ int main() {
     test_4(dis);
     test_5(dis);
 
-    string g8[3] = {"A20","A25","A30"};
-    vector<string> g_8(g8,g8 + 3);
+    string g8[2] = {"A7","A33"};
+    vector<string> g_8(g8,g8 + 2);
+
     discount_group_map[discount_group_name_list[7]] = g_8;
     dis.set_discount_groups(discount_group_map);    
    
     test_6(dis); 
+    test_7(dis); 
     return OK;
 }
 
