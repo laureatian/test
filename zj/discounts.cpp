@@ -54,7 +54,7 @@
 #define PrintResults()\
     if(!goods.empty()){\
     if(best_discount_group.size() != 0) {\
-        std::cout<<"best_discount_groups are:" << std::endl;\
+        std::cout<<"best_discount_groups: ";\
         for(int i = 0; i < best_discount_group.size(); i ++) {\
             std::cout<<best_discount_group[i]<<"  ";\
         }\
@@ -62,11 +62,12 @@
         std::cout<<"best_discount_groups is null."<<std::endl;\
     }\
     std::cout << std::endl;\
-    std::cout<<"remaining goods: "<<std::endl;\
+    std::cout<<"remaining goods: ";\
     if(minimal_remaining_goods.size() != 0) {\
         for(int k = 0; k < minimal_remaining_goods.size(); k ++) {\
-            std::cout<<minimal_remaining_goods[k]<<"  "<< std::endl;\
+            std::cout<<minimal_remaining_goods[k]<<"  ";\
         }\
+        std::cout<<std::endl;\
     } else {\
         std::cout<<"no goods left, all discounted." <<std::endl;\
     }\
@@ -166,7 +167,7 @@ int Discounts::update_path_and_remaining_goods(const vector<int> &current_path, 
     }
 
     if(remaining_goods_num  < minimal_remaining_goods.size() ) {
-        std::cout<<"update path and  remaining_goods: "<<remaining_goods_num<<std::endl;
+      //  std::cout<<"update path and  remaining_goods: "<<remaining_goods_num<<std::endl;
         ret = update_best_path(current_path,best_path);
         if(!ret) {
             ret =ERR;
@@ -183,12 +184,12 @@ int Discounts::update_best_path(const vector<int> &current_path, vector<int> &be
         return ERR;
     }
     best_path.clear();
-    std::cout<<"update path"<<std::endl;
+   // std::cout<<"update path"<<std::endl;
     for(int i = 0; i < current_path.size(); i ++) {
-        std::cout<<" "<<current_path[i];
+     //   std::cout<<" "<<current_path[i];
         best_path.push_back(current_path[i]);
     }
-    std::cout<<std::endl;
+    //std::cout<<std::endl;
     return OK;
 }
 
@@ -197,13 +198,13 @@ int Discounts::update_minimal_remaining_goods(const map<string,int> &current_rem
     if(current_remaining_goods.empty()) {
         return OK;
     }
-    std::cout<<"update remaining_goods"<<std::endl;
+    //std::cout<<"update remaining_goods"<<std::endl;
     for(map<string,int>::const_iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++) {
         for(int k = 0; k < iter->second; k ++) {
             minimal_remaining_goods.push_back(iter->first);
-            std::cout<<" "<<iter->first;
+            //std::cout<<" "<<iter->first;
         }
-        std::cout<<std::endl;
+        //std::cout<<std::endl;
     }
     return OK;
 }
@@ -293,6 +294,8 @@ int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_gro
 
 //test 1, same test data with the problem
 int test_1(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 1, same test data with the problem."<<std::endl;
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -318,6 +321,8 @@ int test_1(Discounts &dis) {
 
 //test 2, buyed goods is exactly the same with one discount_group
 int test_2(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 2, buyed goods exactly the same with one discount_group, for example(G5)"<<std::endl;
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -343,6 +348,8 @@ int test_2(Discounts &dis) {
 
 //test 3, two of the buyed goods are same
 int test_3(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 3, two of the buyed goods are same."<<std::endl;
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -368,6 +375,8 @@ int test_3(Discounts &dis) {
 
 //test 4, buys nothing
 int test_4(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 4, buys nothing."<<std::endl;
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -383,6 +392,8 @@ int test_4(Discounts &dis) {
 }
 //test 5, buys but can't discounts
 int test_5(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 5, buys but can't discounts."<<std::endl;
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -412,16 +423,6 @@ int main() {
     vector<string>  minimal_remaining_goods;
     vector<string>  best_discount_group;
 
-    /*   string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
-       for(int i = 0; i < 12; i++) {
-           if(goods.find(goods_list[i]) == goods.end()) {
-               goods[goods_list[i]] = 1;
-           } else {
-               goods[goods_list[i]] =  goods[goods_list[i]] + 1;
-           }
-           minimal_remaining_goods.push_back(goods_list[i]);
-       }*/
-
     map<string,vector<string> > discount_group_map;
     string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
 
@@ -447,17 +448,12 @@ int main() {
     vector<string> g_7(g7,g7 + 3);
     discount_group_map[discount_group_name_list[6]] = g_7;
 
-    // common result in the question
     Discounts dis =  Discounts(discount_group_map);
-    /*ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
-    if(!ret) {
-        return ret;
-    }
-    PrintResults();
-
-    // buyer_goods is exactly the same with one discount_group
-    */
-//    test_1(dis);
+    
+    test_1(dis);
+    test_2(dis);
+    test_3(dis);
+    test_4(dis);
     test_5(dis);
     return OK;
 }
