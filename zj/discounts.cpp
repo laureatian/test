@@ -128,7 +128,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
             }
         }
         //###5 //prune and update_path_and_remaining_goods
-        if(need_prune || current_path.size() == discount_group_list.size() + 1) { 
+        if(need_prune || current_path.size() == discount_group_list.size() + 1) {
 
             update_path_and_remaining_goods(current_path,current_remaining_goods);
         }
@@ -175,7 +175,7 @@ int Discounts::update_path_and_remaining_goods(vector<int> &current_path, map<st
     }
 
     if(remaining_goods_num  < minimal_remaining_goods.size() ) {
-     //   minimal_goods_num = remaining_goods_num;
+        //   minimal_goods_num = remaining_goods_num;
         ret = update_best_path(current_path);
         if(!ret) {
             ret =ERR;

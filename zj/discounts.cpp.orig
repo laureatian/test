@@ -55,12 +55,6 @@
 #define MAX_PATH                          DISCOUNT_GROUP_NUM + 1
 #define RELATIVE_DISTANCE                 2
 #define GOODS_NUM                         12
-#define RIGHT_CHILD                       1
-#define LEFT_CHILD                        0
-#define ROOT                              0
-#define LENGTH_FOR_ONE_DISCOUNT_GROUP     2
-#define OK                                1
-#define ERR                              OK - 1
 
 using namespace std;
 
@@ -76,8 +70,9 @@ int Discounts::init() {
             //current_remaining_goods[goods_list[i]] = 1;
         } else {
             goods[goods_list[i]] =  goods[goods_list[i]] + 1;
-           // current_remaining_goods[goods_list[i]] = current_remaining_goods[goods_list[i]] + 1;
+            // current_remaining_goods[goods_list[i]] = current_remaining_goods[goods_list[i]] + 1;
         }
+        minimal_remaining_goods.push_back(goods_list[i]);
     }
 
     string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
@@ -113,7 +108,7 @@ int Discounts::init() {
 int Discounts::search_node(int node_value, vector<int> &current_path, map<string,int> &current_remaining_goods) {
     int ret = OK;
     // if tree bottom is reached, current_path search ends
-    if (current_path.size() >= MAX_PATH) {   //###1
+    if (current_path.size() >= discount_group_list.size() + 1) {   //###1
         return ret;
     }
     bool need_prune = false;
@@ -132,9 +127,10 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
                 return ret;
             }
         }
-        if(need_prune || current_path.size() == MAX_PATH) {            //###5 //prune and UpdatePathAndRemainingGoods
+        //###5 //prune and update_path_and_remaining_goods
+        if(need_prune || current_path.size() == discount_group_list.size() + 1) { 
 
-            UpdatePathAndRemainingGoods(current_path,current_remaining_goods);
+            update_path_and_remaining_goods(current_path,current_remaining_goods);
         }
     }
     if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
@@ -168,18 +164,18 @@ bool Discounts::check_if_need_prune(const vector<string> &discount_group, const 
     return false;
 }
 
-int Discounts::UpdatePathAndRemainingGoods(vector<int> &current_path, map<string,int> &current_remaining_goods) {
+int Discounts::update_path_and_remaining_goods(vector<int> &current_path, map<string,int> &current_remaining_goods) {
     int ret = OK;
-    int remaining_goods_num = 0; 
-    if(!current_remaining_goods.empty()){
-        for(map<string, int>::iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++){
-           remaining_goods_num += iter->second;
+    int remaining_goods_num = 0;
+    if(!current_remaining_goods.empty()) {
+        for(map<string, int>::iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++) {
+            remaining_goods_num += iter->second;
         }
- 
-    } 
-    
-    if(remaining_goods_num  < minimal_goods_num ) {
-        minimal_goods_num = remaining_goods_num;
+
+    }
+
+    if(remaining_goods_num  < minimal_remaining_goods.size() ) {
+     //   minimal_goods_num = remaining_goods_num;
         ret = update_best_path(current_path);
         if(!ret) {
             ret =ERR;
@@ -195,9 +191,9 @@ int Discounts::update_best_path(const vector<int> &current_path) {
     if(current_path.empty()) {
         return ERR;
     }
-    current_best_path.clear();
+    best_path.clear();
     for(int i = 0; i < current_path.size(); i ++) {
-        current_best_path.push_back(current_path[i]);
+        best_path.push_back(current_path[i]);
     }
     return OK;
 }
@@ -257,9 +253,9 @@ int Discounts::trace_back_node(map<string,int> &current_remaining_goods, vector<
 }
 int Discounts::print_result() {
     std::cout<<"discounts groups: "<<std::endl;
-    if(current_best_path.size() != 0) {
-        for(int i = 0; i < current_best_path.size(); i ++) {
-            if(current_best_path[i] != 0) {
+    if(best_path.size() != 0) {
+        for(int i = 0; i < best_path.size(); i ++) {
+            if(best_path[i] != 0) {
                 std::cout<<discount_group_names[i - 1]<<"  ";
             }
         }
