@@ -381,6 +381,30 @@ int test_4(Discounts &dis) {
 
     return ret;
 }
+//test 5, buys but can't discounts
+int test_5(Discounts &dis) {
+    int ret = OK;
+    map<string,int> goods;
+    vector<string>  minimal_remaining_goods;
+    vector<string>  best_discount_group;
+    goods.clear();
+    string goods_list[5] = {"A1","A3","A5","A7","A9"};
+    for(int i = 0; i < 5; i++) {
+        if(goods.find(goods_list[i]) == goods.end()) {
+            goods[goods_list[i]] = 1;
+        } else {
+            goods[goods_list[i]] =  goods[goods_list[i]] + 1;
+        }
+        minimal_remaining_goods.push_back(goods_list[i]);
+    }
+    ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
+    if(!ret) {
+        return ret;
+    }
+    PrintResults();
+
+    return ret;
+}
 // print discounts and the remaining goods
 int main() {
     int ret = OK;
@@ -434,7 +458,7 @@ int main() {
     // buyer_goods is exactly the same with one discount_group
     */
 //    test_1(dis);
-    test_4(dis);
+    test_5(dis);
     return OK;
 }
 
