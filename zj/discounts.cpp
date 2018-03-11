@@ -86,6 +86,52 @@ Discounts::Discounts(map<string, vector<string> > &discount_group_map) {
         }
     }
 }
+
+int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<string>  &best_discount_group,\
+                                      vector<string> &minimal_remaining_goods) {
+    int ret = OK;
+    vector<int> path;
+    vector<int> best_path;
+    map<string,int> current_remaining_goods;
+    if(!buyer_goods.empty()) {
+        current_remaining_goods.insert(buyer_goods.begin(),buyer_goods.end());
+    } else {
+        std::cout<<"nothing buys!"<<std::endl;
+        return ERR;
+    }
+    ret =  search_node(ROOT,path,current_remaining_goods,best_path,minimal_remaining_goods);
+    if (!ret) {
+        return ret;
+    }
+    if(best_path.size() >=  RELATIVE_DISTANCE_PATH_DISCOUNT_NAME) {
+        for(int i = 0; i < best_path.size(); i ++) {
+            if(best_path[i] == 1) {
+                best_discount_group.push_back(discount_group_names[i - 1]);
+
+            }
+
+        }
+    }
+    return ret;
+}
+
+int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_group_map) {
+
+    std::cout<<"set begin"<<std::endl;
+    if(new_discount_group_map.empty()) {
+        discount_group_list.clear();
+    } else {
+        for(map<string, vector<string> >::iterator iter =  new_discount_group_map.begin(); \
+                iter != new_discount_group_map.end(); iter ++) {
+            discount_group_names.push_back(iter->first);
+            discount_group_list.push_back(iter->second);
+        }
+    }
+    std::cout<<"set success"<<std::endl;
+    return OK;
+}
+
+
 Discounts::~Discounts() {
 
 }
@@ -167,7 +213,7 @@ int Discounts::update_path_and_remaining_goods(const vector<int> &current_path, 
     }
 
     if(remaining_goods_num  < minimal_remaining_goods.size() ) {
-      //  std::cout<<"update path and  remaining_goods: "<<remaining_goods_num<<std::endl;
+        //  std::cout<<"update path and  remaining_goods: "<<remaining_goods_num<<std::endl;
         ret = update_best_path(current_path,best_path);
         if(!ret) {
             ret =ERR;
@@ -184,9 +230,9 @@ int Discounts::update_best_path(const vector<int> &current_path, vector<int> &be
         return ERR;
     }
     best_path.clear();
-   // std::cout<<"update path"<<std::endl;
+    // std::cout<<"update path"<<std::endl;
     for(int i = 0; i < current_path.size(); i ++) {
-     //   std::cout<<" "<<current_path[i];
+        //   std::cout<<" "<<current_path[i];
         best_path.push_back(current_path[i]);
     }
     //std::cout<<std::endl;
@@ -247,50 +293,6 @@ int Discounts::trace_back_node(map<string,int> &current_remaining_goods, vector<
         }
     }
     temp_vec.clear();
-    return OK;
-}
-
-int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<string>  &best_discount_group,\
-                                      vector<string> &minimal_remaining_goods) {
-    int ret = OK;
-    vector<int> path;
-    vector<int> best_path;
-    map<string,int> current_remaining_goods;
-    if(!buyer_goods.empty()) {
-        current_remaining_goods.insert(buyer_goods.begin(),buyer_goods.end());
-    } else {
-        std::cout<<"nothing buys!"<<std::endl;
-        return ERR;
-    }
-    ret =  search_node(ROOT,path,current_remaining_goods,best_path,minimal_remaining_goods);
-    if (!ret) {
-        return ret;
-    }
-    if(best_path.size() >=  RELATIVE_DISTANCE_PATH_DISCOUNT_NAME) {
-        for(int i = 0; i < best_path.size(); i ++) {
-            if(best_path[i] == 1) {
-                best_discount_group.push_back(discount_group_names[i - 1]);
-
-            }
-
-        }
-    }
-    return ret;
-}
-
-int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_group_map) {
- 
-    std::cout<<"set begin"<<std::endl;
-    if(new_discount_group_map.empty()) {
-        discount_group_list.clear();
-    } else {
-        for(map<string, vector<string> >::iterator iter =  new_discount_group_map.begin(); \
-                iter != new_discount_group_map.end(); iter ++) {
-            discount_group_names.push_back(iter->first);
-            discount_group_list.push_back(iter->second);
-        }
-    }
-    std::cout<<"set success"<<std::endl;
     return OK;
 }
 
@@ -503,7 +505,7 @@ int main() {
     discount_group_map[discount_group_name_list[6]] = g_7;
 
     Discounts dis =  Discounts(discount_group_map);
-    
+
     test_1(dis);
     test_2(dis);
     test_3(dis);
@@ -514,10 +516,10 @@ int main() {
     vector<string> g_8(g8,g8 + 2);
 
     discount_group_map[discount_group_name_list[7]] = g_8;
-    dis.set_discount_groups(discount_group_map);    
-   
-    test_6(dis); 
-    test_7(dis); 
+    dis.set_discount_groups(discount_group_map);
+
+    test_6(dis);
+    test_7(dis);
     return OK;
 }
 
