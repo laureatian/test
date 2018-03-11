@@ -31,9 +31,9 @@ private:
     vector<string>  discount_group_names;
 
     int minimal_goods_num;
-    vector<int> current_path;
+    vector<int> current_path;     // no need to be  a member
     vector<int> current_best_path;
-    map<string,int>  current_remaining_goods;
+    map<string,int>  current_remaining_goods; // no need to be a member
     vector<string>  minimal_remaining_goods;
 
     int init();
