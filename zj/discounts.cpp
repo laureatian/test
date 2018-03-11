@@ -51,6 +51,21 @@
 #include<map>
 #include"discounts.hpp"
 
+#define PrintResults()\
+    if(best_discount_group.size() != 0) {\
+        std::cout<<"best_discount_groups are:" << std::endl;\
+        for(int i = 0; i < best_discount_group.size(); i ++) {\
+            std::cout<<best_discount_group[i]<<"  ";\
+        }\
+    }\
+    std::cout << std::endl;\
+    std::cout<<"remaining goods: "<<std::endl;\
+    if(minimal_remaining_goods.size() != 0) {\
+        for(int k = 0; k < minimal_remaining_goods.size(); k ++) {\
+            std::cout<<minimal_remaining_goods[k]<<"  "<< std::endl;\
+        }\
+    }
+
 
 using namespace std;
 
@@ -82,7 +97,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
     // if current node is not a dummy discount_group, add it or prune it
     if (node_value == RIGHT_CHILD) {          // ###2
         // take out corresponding discount_group
-        vector<string>&  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
+        vector<string>&  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE_PATH_DISCOUNT_NAME];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
 
@@ -231,7 +246,7 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
     if (!ret) {
         return ret;
     }
-    if(best_path.size() >=  2) {
+    if(best_path.size() >=  RELATIVE_DISTANCE_PATH_DISCOUNT_NAME) {
         for(int i = 0; i < best_path.size(); i ++) {
             if(best_path[i] == 1) {
                 best_discount_group.push_back(discount_group_names[i - 1]);
@@ -262,7 +277,7 @@ int main() {
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
     vector<string>  best_discount_group;
-    
+
     string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < 12; i++) {
         if(goods.find(goods_list[i]) == goods.end()) {
@@ -303,7 +318,9 @@ int main() {
     if(!ret) {
         return ret;
     }
-    if(best_discount_group.size() != 0) {
+    PrintResults();
+    /*if(best_discount_group.size() != 0) {
+        std::cout<<" best_discount_groups are:" << std::endl;
         for(int i = 0; i < best_discount_group.size(); i ++) {
             std::cout<<best_discount_group[i]<<"  ";
         }
@@ -314,7 +331,7 @@ int main() {
         for(int k = 0; k < minimal_remaining_goods.size(); k ++) {
             std::cout<<minimal_remaining_goods[k]<<"  "<< std::endl;
         }
-    }
+    }*/
 
     return OK;
 }

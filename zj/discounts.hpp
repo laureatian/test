@@ -10,14 +10,13 @@
 #include<map>
 #include<vector>
 
-#define ROOT                              0
-#define RIGHT_CHILD                       1
-#define LEFT_CHILD                        0
-#define LENGTH_FOR_ONE_DISCOUNT_GROUP     2
-#define OK                                1
-#define ERR                              OK - 1
-#define RELATIVE_DISTANCE                 2
-
+#define ROOT                                  0
+#define RIGHT_CHILD                           1
+#define LEFT_CHILD                            0
+#define LENGTH_FOR_ONE_DISCOUNT_GROUP         2
+#define OK                                    1
+#define ERR                                   OK - 1
+#define RELATIVE_DISTANCE_PATH_DISCOUNT_NAME  2
 using namespace std;
 
 class Discounts {
