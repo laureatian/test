@@ -21,7 +21,7 @@ using namespace std;
 
 class Discounts {
 public:
-    Discounts();
+    Discounts(map<string,vector<string> > &discount_group_map);
     // search bi-tree, prune when the node can not meet requirements
     // a node with value 1 on ith layer means choose ith discount_group in this path
     // a node with value 0 on ith layer means do not choose ith discount_group in this path
@@ -30,19 +30,17 @@ public:
                                vector<string> &minimal_remaining_goods);
 //    int set_goods(map<string,int> &buyer_goods);
     int set_discount_group_list(vector<vector<string> > &new_discount_group_list);
+    ~Discounts();
 private:
 //    map<string,int>  goods;
     vector<vector<string> >  discount_group_list;
     vector<string>  discount_group_names;
 
-    //int minimal_goods_num;
-    // vector<int> best_path;
-    // vector<string>  minimal_remaining_goods;
 
     int search_node(int node_value,vector<int> &current_path, map<string,int> &current_remaining_goods,\
                     vector<int> &best_path, vector<string>  &minimal_remaining_goods);
 //    int print_result() const;
-    int init();
+//    int init();
     //check if this node can be put to current_path, if discount_group are not included in goods in path,
     //it need be pruned, can't put this node in, and paths after it do not need be searched
     bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods) const;

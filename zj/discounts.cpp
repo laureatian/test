@@ -58,12 +58,22 @@
 
 using namespace std;
 
-Discounts::Discounts() {
-    init();
+Discounts::Discounts(map<string, vector<string> > &discount_group_map) {
+    if(discount_group_map.empty()) {
+        discount_group_list.clear();
+    } else {
+        for(map<string, vector<string> >::iterator iter =  discount_group_map.begin(); \
+                iter != discount_group_map.end(); iter ++) {
+            discount_group_names.push_back(iter->first);
+            discount_group_list.push_back(iter->second);
+        }
+    }
+}
+Discounts::~Discounts() {
 
 }
-int Discounts::init() {
-    /* string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
+/*int Discounts::init() {
+   string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
      for(int i = 0; i < GOODS_NUM; i++) {
          if(goods.find(goods_list[i]) == goods.end()) {
              goods[goods_list[i]] = 1;
@@ -72,8 +82,8 @@ int Discounts::init() {
              goods[goods_list[i]] =  goods[goods_list[i]] + 1;
              // current_remaining_goods[goods_list[i]] = current_remaining_goods[goods_list[i]] + 1;
          }
-     }*/
-
+     }
+     map<string,vector<string> > discount_group_map;
     string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
     for(int i = 0; i < DISCOUNT_GROUP_NUM; i ++) {
         discount_group_names.push_back(discount_group_name_list[i]);
@@ -81,29 +91,29 @@ int Discounts::init() {
 
     string g1[6] = {"A1","A2","A3","A4","A5","A6"};
     vector<string> g_1(g1,g1+6);
-    discount_group_list.push_back(g_1);
+    discount_group_map[discount_group_name_list[0]] = g_1;
     string g2[3] = {"A1","A2","A50"};
     vector<string> g_2(g2,g2 + 3);
-    discount_group_list.push_back(g_2);
+    discount_group_map[discount_group_name_list[1]] = g_2;
     string g3[4] = {"A1","A2","A3","A4"};
     vector<string> g_3(g3,g3 + 4);
-    discount_group_list.push_back(g_3);
+    discount_group_map[discount_group_name_list[2]] = g_3;
     string g4[4] = {"A5","A10","A20","A30"};
     vector<string> g_4(g4,g4 + 4);
-    discount_group_list.push_back(g_4);
+    discount_group_map[discount_group_name_list[3]] = g_4;
     string g5[4] = {"A5","A6","A10","A15"};
     vector<string> g_5(g5,g5 + 4);
-    discount_group_list.push_back(g_5);
+    discount_group_map[discount_group_name_list[4]] = g_5;
     string g6[2] = {"A20","A30"};
     vector<string> g_6(g6,g6 + 2);
-    discount_group_list.push_back(g_6);
+    discount_group_map[discount_group_name_list[5]] = g_6;
     string g7[3] = {"A20","A25","A30"};
     vector<string> g_7(g7,g7 + 3);
-    discount_group_list.push_back(g_7);
+    discount_group_map[discount_group_name_list[6]] = g_7;
 
     return OK;
 }
-
+*/
 int Discounts::search_node(int node_value, vector<int> &current_path, map<string,int> &current_remaining_goods,\
                            vector<int> &best_path, vector<string> &minimal_remaining_goods) {
     int ret = OK;
@@ -320,7 +330,6 @@ int Discounts::set_discount_group_list(vector<vector<string> > &new_discount_gro
 // print discounts and the remaining goods
 int main() {
     int ret = OK;
-    Discounts dis =  Discounts();
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     map<string,int>  goods;
     vector<int> best_path;
@@ -336,6 +345,33 @@ int main() {
         }
         minimal_remaining_goods.push_back(goods_list[i]);
     }
+
+    map<string,vector<string> > discount_group_map;
+    string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
+
+    string g1[6] = {"A1","A2","A3","A4","A5","A6"};
+    vector<string> g_1(g1,g1+6);
+    discount_group_map[discount_group_name_list[0]] = g_1;
+    string g2[3] = {"A1","A2","A50"};
+    vector<string> g_2(g2,g2 + 3);
+    discount_group_map[discount_group_name_list[1]] = g_2;
+    string g3[4] = {"A1","A2","A3","A4"};
+    vector<string> g_3(g3,g3 + 4);
+    discount_group_map[discount_group_name_list[2]] = g_3;
+    string g4[4] = {"A5","A10","A20","A30"};
+    vector<string> g_4(g4,g4 + 4);
+    discount_group_map[discount_group_name_list[3]] = g_4;
+    string g5[4] = {"A5","A6","A10","A15"};
+    vector<string> g_5(g5,g5 + 4);
+    discount_group_map[discount_group_name_list[4]] = g_5;
+    string g6[2] = {"A20","A30"};
+    vector<string> g_6(g6,g6 + 2);
+    discount_group_map[discount_group_name_list[5]] = g_6;
+    string g7[3] = {"A20","A25","A30"};
+    vector<string> g_7(g7,g7 + 3);
+    discount_group_map[discount_group_name_list[6]] = g_7;
+    Discounts dis =  Discounts(discount_group_map);
+
     ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
     if(!ret) {
         return ret;
