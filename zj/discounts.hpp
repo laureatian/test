@@ -29,7 +29,7 @@ private:
     vector<vector<string> >  discount_group_list;
     vector<string>  discount_group_names;
 
-    int minimal_goods_num;
+    //int minimal_goods_num;
     vector<int> current_best_path;
     vector<string>  minimal_remaining_goods;
 

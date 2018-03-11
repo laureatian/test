@@ -78,6 +78,7 @@ int Discounts::init() {
             goods[goods_list[i]] =  goods[goods_list[i]] + 1;
             // current_remaining_goods[goods_list[i]] = current_remaining_goods[goods_list[i]] + 1;
         }
+        minimal_remaining_goods.push_back(goods_list[i]);
     }
 
     string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
@@ -178,8 +179,8 @@ int Discounts::UpdatePathAndRemainingGoods(vector<int> &current_path, map<string
 
     }
 
-    if(remaining_goods_num  < minimal_goods_num ) {
-        minimal_goods_num = remaining_goods_num;
+    if(remaining_goods_num  < minimal_remaining_goods.size() ) {
+     //   minimal_goods_num = remaining_goods_num;
         ret = update_best_path(current_path);
         if(!ret) {
             ret =ERR;
