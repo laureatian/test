@@ -288,10 +288,22 @@ int Discounts::set_goods(map<string,int> &buyer_goods) {
     if(!buyer_goods.empty()) {
         goods.insert(buyer_goods.begin(),buyer_goods.end());
     }
-
-
     return OK;
 }
+int Discounts::set_discount_group_list(vector<vector<string> > &new_discount_group_list){
+    discount_group_list.clear();
+    if(!new_discount_group_list.empty()){
+        for(int i = 0; i < new_discount_group_list.size(); i++){
+            discount_group_list.push_back(new_discount_group_list[i]);
+
+        }
+//        discount_group_list.insert(new_discount_group_list.begin(), new_discount_group_list.end());
+
+    }  
+   return OK; 
+
+}
+
 // print discounts and the remaining goods
 int main() {
     int ret = OK;

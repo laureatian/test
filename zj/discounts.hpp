@@ -28,7 +28,7 @@ public:
     // recursively  search all pathes in this bi-tree, find the best one
     int search_discount_groups(const map<string,int> &buyer_goods);
     int set_goods(map<string,int> &buyer_goods);
-//    int set_discount_group_list(vector<vector<string> > &new_discount_group_list);
+    int set_discount_group_list(vector<vector<string> > &new_discount_group_list);
 private:
     map<string,int>  goods;
     vector<vector<string> >  discount_group_list;
