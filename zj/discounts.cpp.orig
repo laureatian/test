@@ -26,7 +26,7 @@
 *   .......................
 *
 * 1, init data
-* 2, search root 
+* 2, search root
 *        if path.length >= MAX_PATH  ###1
 *            return
 *        if node is 1                ###2
@@ -49,6 +49,7 @@
 #include<vector>
 #include<string>
 #include<map>
+#include"discounts.hpp"
 
 #define DISCOUNT_GROUP_NUM                7
 #define MAX_PATH                          DISCOUNT_GROUP_NUM + 1
@@ -62,7 +63,7 @@
 #define ERR                              OK - 1
 
 //if best path ever is found, update current_best_path and remaining_goods
-#define UpdatePathAndRemainingGoods()\
+/*#define UpdatePathAndRemainingGoods()\
 int ret = OK;\
 remaining_goods_num = current_remaining_goods.size();\
 if(remaining_goods_num  < minimal_goods_num ){\
@@ -76,9 +77,9 @@ if(!ret){\
    ret =ERR;\
 }\
 }
-
+*/
 using namespace std;
-
+/*
 // num of goods
 int remaining_goods_num = GOODS_NUM;
 //all goods a user buys
@@ -98,29 +99,36 @@ vector<int> current_best_path;
 map<string,int>  current_remaining_goods;
 //current remaining_goods in current best path
 vector<string>  minimal_remaining_goods;
-
-
+*/
+/*
 //prepare data
-int init();
+int Discounts::init();
 // search bi-tree, prune when the node can not meet requirements
 // a node with value 1 on ith layer means choose ith discount_group in this path
 // a node with value 0 on ith layer means do not choose ith discount_group in this path
 // recursively  search all pathes in this bi-tree, find the best one
-int search_node(int node_value);
+int Discounts::search_node(int node_value);
 
 //check if this node can be put to current_path, if discount_group are not included in goods in path,
 //it need be pruned, can't put this node in, and paths after it do not need be searched
-bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
+bool Discounts::check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
 //if current_path is best ever, than update this path to current_best_path
-int update_best_path(const vector<int> &current_path, vector<int> &current_best_path);
+int Discounts::update_best_path(const vector<int> &current_path, vector<int> &current_best_path);
 //if current_path is best ever, than update remaining_goods in this path to remaining_goods
-int update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods);
+int Discounts::update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods);
 //add current discount_group to path
-int add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec);
+int Discounts::add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec);
 //if pathes behind a node all be searhed and checked, it need be trace back than search other pathes do not go through it
-int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path);
+int Discounts::trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path);
+*/
+Discounts::Discounts(){
+init();
 
-int init() {
+}
+/*Discounts::~Discounts(){
+;
+}*/
+int Discounts::init() {
     string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
     for(int i = 0; i < GOODS_NUM; i++) {
         if(goods.find(goods_list[i]) == goods.end()) {
@@ -162,16 +170,16 @@ int init() {
     return OK;
 }
 
-int search_node(int node_value) {
+int Discounts::search_node(int node_value) {
     int ret = OK;
-    // if tree bottom is reached, current_path search ends  
+    // if tree bottom is reached, current_path search ends
     if (current_path.size() >= MAX_PATH) {   //###1
         return ret;
     }
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(node_value);
-    // if current node is not a dummy discount_group, add it or prune it   
+    // if current node is not a dummy discount_group, add it or prune it
     if (node_value == RIGHT_CHILD) {          // ###2
         // take out corresponding discount_group
         vector<string>  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE];
@@ -188,7 +196,6 @@ int search_node(int node_value) {
 
             UpdatePathAndRemainingGoods();
         }
-
     }
     if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
         ret = search_node(LEFT_CHILD);                                 // ###7
@@ -197,7 +204,7 @@ int search_node(int node_value) {
         }
         ret = search_node(RIGHT_CHILD);                                //###8
         if(!ret) {
-            return ret; 
+            return ret;
         }
     }
     // trace back a node
@@ -206,7 +213,7 @@ int search_node(int node_value) {
     return  ret;
 }
 
-bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods) {
+bool Discounts::check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods) {
     if(discount_group.empty()) {
         return false;
     }
@@ -221,7 +228,23 @@ bool check_if_need_prune(const vector<string> &discount_group, const map<string,
     return false;
 }
 
-int update_best_path(const vector<int> &current_path, vector<int> &current_best_path) {
+int Discounts::UpdatePathAndRemainingGoods(){
+int ret = OK;
+int remaining_goods_num = current_remaining_goods.size();
+if(remaining_goods_num  < minimal_goods_num ){
+minimal_goods_num = remaining_goods_num;
+ret = update_best_path(current_path,current_best_path);
+if(!ret){
+   ret =ERR;
+}
+ret = update_minimal_remaining_goods(current_remaining_goods,minimal_remaining_goods);
+if(!ret){
+   ret =ERR;
+}
+}
+return ret;
+}
+int Discounts::update_best_path(const vector<int> &current_path, vector<int> &current_best_path) {
     if(current_path.empty()) {
         return ERR;
     }
@@ -232,7 +255,7 @@ int update_best_path(const vector<int> &current_path, vector<int> &current_best_
     return OK;
 }
 
-int update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods) {
+int Discounts::update_minimal_remaining_goods(const map<string,int> &current_remaining_goods, vector<string> &minimal_remaining_goods) {
     if(current_remaining_goods.empty()) {
         return OK;
     }
@@ -245,7 +268,7 @@ int update_minimal_remaining_goods(const map<string,int> &current_remaining_good
     return OK;
 }
 
-int add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec) {
+int Discounts::add_node_to_path(const vector<string> &discount_group, map<string,int> &current_remaining_goods, vector<string> &temp_vec) {
     if(discount_group.empty()) {
         return OK;
     }
@@ -266,7 +289,7 @@ int add_node_to_path(const vector<string> &discount_group, map<string,int> &curr
     return OK;
 }
 
-int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path) {
+int Discounts::trace_back_node(map<string,int> &current_remaining_goods, vector<string> &temp_vec, vector<int> &path) {
     if(path.empty()) {
         return ERR;
     }
@@ -285,15 +308,7 @@ int trace_back_node(map<string,int> &current_remaining_goods, vector<string> &te
     temp_vec.clear();
     return OK;
 }
-
-// print discounts and the remaining goods
-int main() {
-    int ret = OK;
-    init();
-    ret = search_node(ROOT);
-    if(!ret) {
-        return ret;
-    }
+int Discounts::print_result(){
     std::cout<<"discounts groups: "<<std::endl;
     if(current_best_path.size() != 0) {
         for(int i = 0; i < current_best_path.size(); i ++) {
@@ -309,5 +324,34 @@ int main() {
             std::cout<<minimal_remaining_goods[k]<<"  "<< std::endl;
         }
     }
+
+
+
+}
+// print discounts and the remaining goods
+int main() {
+    int ret = OK;
+    Discounts dis =  Discounts();
+//    dis.init();
+    ret = dis.search_node(ROOT);
+    if(!ret) {
+        return ret;
+    }
+    dis.print_result();
+/*    std::cout<<"discounts groups: "<<std::endl;
+    if(current_best_path.size() != 0) {
+        for(int i = 0; i < current_best_path.size(); i ++) {
+            if(current_best_path[i] != 0) {
+                std::cout<<discount_group_names[i - 1]<<"  ";
+            }
+        }
+    }
+    std::cout << std::endl;
+    std::cout<<"remaining goods: "<<std::endl;
+    if(minimal_remaining_goods.size() != 0) {
+        for(int k = 0; k < minimal_remaining_goods.size(); k ++) {
+            std::cout<<minimal_remaining_goods[k]<<"  "<< std::endl;
+        }
+    }*/
     return OK;
 }
