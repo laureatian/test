@@ -116,8 +116,6 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
 }
 
 int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_group_map) {
-
-    std::cout<<"set begin"<<std::endl;
     if(new_discount_group_map.empty()) {
         discount_group_list.clear();
     } else {
@@ -127,7 +125,6 @@ int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_gro
             discount_group_list.push_back(iter->second);
         }
     }
-    std::cout<<"set success"<<std::endl;
     return OK;
 }
 
@@ -225,6 +222,7 @@ int Discounts::update_path_and_remaining_goods(const vector<int> &current_path, 
     }
     return ret;
 }
+
 int Discounts::update_best_path(const vector<int> &current_path, vector<int> &best_path) {
     if(current_path.empty()) {
         return ERR;
@@ -395,6 +393,7 @@ int test_4(Discounts &dis) {
 
     return ret;
 }
+
 //test 5, buys but can't discounts
 int test_5(Discounts &dis) {
     std::cout<<std::endl;
@@ -421,6 +420,7 @@ int test_5(Discounts &dis) {
 
     return ret;
 }
+
 // test_6, add a discount_group
 int test_6(Discounts &dis) {
     std::cout<<std::endl;
@@ -447,6 +447,7 @@ int test_6(Discounts &dis) {
 
     return ret;
 }
+
 // test_7, a discount_group appears twice
 int test_7(Discounts &dis) {
     std::cout<<std::endl;
@@ -473,6 +474,7 @@ int test_7(Discounts &dis) {
 
     return ret;
 }
+
 int main() {
     int ret = OK;
     map<string,int> goods;
