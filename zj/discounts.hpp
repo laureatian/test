@@ -12,15 +12,6 @@
 
 using namespace std;
 
-
-/*class DiscountsBase {
-
-public:
-    DiscountsBase();
-    ~DiscountsBase();
-};*/
-
-
 class Discounts {
 public:
     Discounts();
