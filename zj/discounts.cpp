@@ -149,7 +149,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
     return  ret;
 }
 
-bool Discounts::check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods) {
+bool Discounts::check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods) const{
     if(discount_group.empty()) {
         return false;
     }
@@ -164,11 +164,11 @@ bool Discounts::check_if_need_prune(const vector<string> &discount_group, const 
     return false;
 }
 
-int Discounts::update_path_and_remaining_goods(vector<int> &current_path, map<string,int> &current_remaining_goods) {
+int Discounts::update_path_and_remaining_goods(const vector<int> &current_path, const map<string,int> &current_remaining_goods) {
     int ret = OK;
     int remaining_goods_num = 0;
     if(!current_remaining_goods.empty()) {
-        for(map<string, int>::iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++) {
+        for(map<string, int>::const_iterator iter = current_remaining_goods.begin(); iter != current_remaining_goods.end(); iter ++) {
             remaining_goods_num += iter->second;
         }
 
@@ -251,7 +251,7 @@ int Discounts::trace_back_node(map<string,int> &current_remaining_goods, vector<
     temp_vec.clear();
     return OK;
 }
-int Discounts::print_result() {
+int Discounts::print_result() const{
     std::cout<<"discounts groups: "<<std::endl;
     if(best_path.size() != 0) {
         for(int i = 0; i < best_path.size(); i ++) {
