@@ -55,12 +55,6 @@
 #define MAX_PATH                          DISCOUNT_GROUP_NUM + 1
 #define RELATIVE_DISTANCE                 2
 #define GOODS_NUM                         12
-#define RIGHT_CHILD                       1
-#define LEFT_CHILD                        0
-#define ROOT                              0
-#define LENGTH_FOR_ONE_DISCOUNT_GROUP     2
-#define OK                                1
-#define ERR                              OK - 1
 
 using namespace std;
 
@@ -114,7 +108,7 @@ int Discounts::init() {
 int Discounts::search_node(int node_value, vector<int> &current_path, map<string,int> &current_remaining_goods) {
     int ret = OK;
     // if tree bottom is reached, current_path search ends
-    if (current_path.size() >= MAX_PATH) {   //###1
+    if (current_path.size() >= discount_group_list.size() + 1) {   //###1
         return ret;
     }
     bool need_prune = false;
@@ -133,7 +127,8 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
                 return ret;
             }
         }
-        if(need_prune || current_path.size() == MAX_PATH) {            //###5 //prune and update_path_and_remaining_goods
+        //###5 //prune and update_path_and_remaining_goods
+        if(need_prune || current_path.size() == discount_group_list.size() + 1) { 
 
             update_path_and_remaining_goods(current_path,current_remaining_goods);
         }

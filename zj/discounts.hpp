@@ -10,6 +10,13 @@
 #include<map>
 #include<vector>
 
+#define RIGHT_CHILD                       1
+#define LEFT_CHILD                        0
+#define ROOT                              0
+#define LENGTH_FOR_ONE_DISCOUNT_GROUP     2
+#define OK                                1
+#define ERR                              OK - 1
+
 using namespace std;
 
 class Discounts {
@@ -24,8 +31,6 @@ public:
 
     map<string,int>  goods;
 private:
-    int goods_num;
-    int discount_group_num;
     vector<vector<string> >  discount_group_list;
     vector<string>  discount_group_names;
 
