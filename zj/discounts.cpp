@@ -51,10 +51,6 @@
 #include<map>
 #include"discounts.hpp"
 
-#define DISCOUNT_GROUP_NUM                7
-#define MAX_PATH                          DISCOUNT_GROUP_NUM + 1
-#define RELATIVE_DISTANCE                 2
-#define GOODS_NUM                         12
 
 using namespace std;
 
@@ -263,12 +259,12 @@ int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_gro
 // print discounts and the remaining goods
 int main() {
     int ret = OK;
-    string goods_list[GOODS_NUM] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
-    map<string,int>  goods;
-    vector<int> best_path;
+    map<string,int> goods;
     vector<string>  minimal_remaining_goods;
     vector<string>  best_discount_group;
-    for(int i = 0; i < GOODS_NUM; i++) {
+    
+    string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
+    for(int i = 0; i < 12; i++) {
         if(goods.find(goods_list[i]) == goods.end()) {
             goods[goods_list[i]] = 1;
         } else {
@@ -301,14 +297,12 @@ int main() {
     string g7[3] = {"A20","A25","A30"};
     vector<string> g_7(g7,g7 + 3);
     discount_group_map[discount_group_name_list[6]] = g_7;
-    Discounts dis =  Discounts(discount_group_map);
 
+    Discounts dis =  Discounts(discount_group_map);
     ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
     if(!ret) {
         return ret;
     }
-
-
     if(best_discount_group.size() != 0) {
         for(int i = 0; i < best_discount_group.size(); i ++) {
             std::cout<<best_discount_group[i]<<"  ";
