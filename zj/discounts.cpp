@@ -52,6 +52,7 @@
 #include"discounts.hpp"
 
 #define PrintResults()\
+    if(!goods.empty()){\
     if(best_discount_group.size() != 0) {\
         std::cout<<"best_discount_groups are:" << std::endl;\
         for(int i = 0; i < best_discount_group.size(); i ++) {\
@@ -68,8 +69,8 @@
         }\
     } else {\
         std::cout<<"no goods left, all discounted." <<std::endl;\
-    }
-
+    }\
+}
 
 using namespace std;
 
@@ -104,9 +105,9 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
         vector<string>&  discount_group = discount_group_list[current_path.size() - RELATIVE_DISTANCE_PATH_DISCOUNT_NAME];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
-        if(need_prune){
-        current_path.pop_back();
-        current_path.push_back(LEFT_CHILD);
+        if(need_prune) {
+            current_path.pop_back();
+            current_path.push_back(LEFT_CHILD);
 
         }
 
@@ -256,6 +257,9 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
     map<string,int> current_remaining_goods;
     if(!buyer_goods.empty()) {
         current_remaining_goods.insert(buyer_goods.begin(),buyer_goods.end());
+    } else {
+        std::cout<<"nothing buys!"<<std::endl;
+        return ERR;
     }
     ret =  search_node(ROOT,path,current_remaining_goods,best_path,minimal_remaining_goods);
     if (!ret) {
@@ -288,7 +292,7 @@ int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_gro
 
 
 //test 1, same test data with the problem
-int test_1(Discounts &dis){
+int test_1(Discounts &dis) {
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -312,8 +316,8 @@ int test_1(Discounts &dis){
     return ret;
 }
 
-//test 2, buyed goods is exactly the same with one discount_group 
-int test_2(Discounts &dis){
+//test 2, buyed goods is exactly the same with one discount_group
+int test_2(Discounts &dis) {
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -337,8 +341,8 @@ int test_2(Discounts &dis){
     return ret;
 }
 
-//test 3, two of the buyed goods are same 
-int test_3(Discounts &dis){
+//test 3, two of the buyed goods are same
+int test_3(Discounts &dis) {
     int ret = OK;
     map<string,int> goods;
     vector<string>  minimal_remaining_goods;
@@ -362,6 +366,21 @@ int test_3(Discounts &dis){
     return ret;
 }
 
+//test 4, buys nothing
+int test_4(Discounts &dis) {
+    int ret = OK;
+    map<string,int> goods;
+    vector<string>  minimal_remaining_goods;
+    vector<string>  best_discount_group;
+    goods.clear();
+    ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
+    if(!ret) {
+        return ret;
+    }
+    PrintResults();
+
+    return ret;
+}
 // print discounts and the remaining goods
 int main() {
     int ret = OK;
@@ -369,15 +388,15 @@ int main() {
     vector<string>  minimal_remaining_goods;
     vector<string>  best_discount_group;
 
- /*   string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
-    for(int i = 0; i < 12; i++) {
-        if(goods.find(goods_list[i]) == goods.end()) {
-            goods[goods_list[i]] = 1;
-        } else {
-            goods[goods_list[i]] =  goods[goods_list[i]] + 1;
-        }
-        minimal_remaining_goods.push_back(goods_list[i]);
-    }*/
+    /*   string goods_list[12] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30"};
+       for(int i = 0; i < 12; i++) {
+           if(goods.find(goods_list[i]) == goods.end()) {
+               goods[goods_list[i]] = 1;
+           } else {
+               goods[goods_list[i]] =  goods[goods_list[i]] + 1;
+           }
+           minimal_remaining_goods.push_back(goods_list[i]);
+       }*/
 
     map<string,vector<string> > discount_group_map;
     string discount_group_name_list[] = {"G1","G2","G3","G4","G5","G6","G7"};
@@ -403,8 +422,8 @@ int main() {
     string g7[3] = {"A20","A25","A30"};
     vector<string> g_7(g7,g7 + 3);
     discount_group_map[discount_group_name_list[6]] = g_7;
-    
-    // common result in the question 
+
+    // common result in the question
     Discounts dis =  Discounts(discount_group_map);
     /*ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
     if(!ret) {
@@ -412,10 +431,10 @@ int main() {
     }
     PrintResults();
 
-   // buyer_goods is exactly the same with one discount_group
-*/
+    // buyer_goods is exactly the same with one discount_group
+    */
 //    test_1(dis);
-    test_3(dis);
+    test_4(dis);
     return OK;
 }
 
