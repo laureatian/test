@@ -133,9 +133,9 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
                 return ret;
             }
         }
-        if(need_prune || current_path.size() == MAX_PATH) {            //###5 //prune and UpdatePathAndRemainingGoods
+        if(need_prune || current_path.size() == MAX_PATH) {            //###5 //prune and update_path_and_remaining_goods
 
-            UpdatePathAndRemainingGoods(current_path,current_remaining_goods);
+            update_path_and_remaining_goods(current_path,current_remaining_goods);
         }
     }
     if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
@@ -169,7 +169,7 @@ bool Discounts::check_if_need_prune(const vector<string> &discount_group, const 
     return false;
 }
 
-int Discounts::UpdatePathAndRemainingGoods(vector<int> &current_path, map<string,int> &current_remaining_goods) {
+int Discounts::update_path_and_remaining_goods(vector<int> &current_path, map<string,int> &current_remaining_goods) {
     int ret = OK;
     int remaining_goods_num = 0;
     if(!current_remaining_goods.empty()) {

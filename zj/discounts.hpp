@@ -37,7 +37,7 @@ private:
     //check if this node can be put to current_path, if discount_group are not included in goods in path,
     //it need be pruned, can't put this node in, and paths after it do not need be searched
     bool check_if_need_prune(const vector<string> &discount_group, const map<string,int> &current_remaining_goods);
-    int UpdatePathAndRemainingGoods(vector<int> &current_path, map<string,int>  &current_remaining_goods);
+    int update_path_and_remaining_goods(vector<int> &current_path, map<string,int>  &current_remaining_goods);
     //if current_path is best ever, than update this path to current_best_path
     int update_best_path(const vector<int> &current_path);
     //if current_path is best ever, than update remaining_goods in this path to remaining_goods
