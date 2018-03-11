@@ -257,7 +257,7 @@ int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_gro
             discount_group_list.push_back(iter->second);
         }
     }
- 
+
 }
 
 // print discounts and the remaining goods
