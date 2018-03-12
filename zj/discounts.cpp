@@ -118,6 +118,7 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
 int Discounts::set_discount_groups(map<string,vector<string> > &new_discount_group_map) {
     if(new_discount_group_map.empty()) {
         discount_group_list.clear();
+        return OK;
     } else {
         for(map<string, vector<string> >::iterator iter =  new_discount_group_map.begin(); \
                 iter != new_discount_group_map.end(); iter ++) {
