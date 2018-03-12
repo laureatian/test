@@ -22,7 +22,7 @@
 *      G1 G2 G3   G1 G2 G3   G1 G2 G3
 *   .....................................
 *............................................
-
+*
 *
 Because the search is heuristical, so it is not much compllicated.
 *
@@ -140,7 +140,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
     vector<string>  temp_vec;
     current_path.push_back(node_value);
     // if current node is not a dummy discount_group, add it or prune it
-    if (node_value != DUMMY_DISCOUNT_GROUP) {          // ###2
+    if (node_value != DUMMY_DISCOUNT_GROUP) {          // ###1
         // take out corresponding discount_group
         vector<string>&  discount_group = discount_group_list[node_value];
         // check node status. prune or add to path
@@ -151,20 +151,20 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
 
         }
 
-        if(!need_prune) {// add_node_to_path
-            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec); //###3
+        if(!need_prune) {// add_node_to_path   ###2
+            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec); 
             if(!ret) {
                 return ret;
             }
         }
-        //###5 //prune and update_path_and_remaining_goods
+        //###3 //prune and update_path_and_remaining_goods
         if(need_prune || current_path.size() == discount_group_list.size() + 1) {
 
-            update_path_and_remaining_goods(current_path,current_remaining_goods,best_path,minimal_remaining_goods);
+            update_path_and_remaining_goods(current_path,current_remaining_goods,best_path,minimal_remaining_goods); //###4
         }
     }
-    if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
-        for(int i = 0; i < discount_group_list.size(); i ++) {
+    if(!need_prune) { //  ###5 (need_prune == false) 
+        for(int i = 0; i < discount_group_list.size(); i ++) {   //###6
             ret =  search_node(i,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
             if(!ret ) {
                 return ret;
@@ -172,7 +172,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
         }
     }
     // trace back a node
-    ret = trace_back_node(current_remaining_goods,temp_vec,current_path); // ###9
+    ret = trace_back_node(current_remaining_goods,temp_vec,current_path); // ###7
 
     return  ret;
 }

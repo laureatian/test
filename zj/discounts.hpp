@@ -10,9 +10,9 @@
 #include<map>
 #include<vector>
 
-#define DUMMY_DISCOUNT_GROUP                  -1
 #define OK                                    1
 #define ERR                                   OK - 1
+#define DUMMY_DISCOUNT_GROUP                  -1
 #define MINIMAL_PATH_SIZE                     1
 using namespace std;
 
