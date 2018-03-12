@@ -16,18 +16,18 @@
 * for example, if there is only 3 discount_groups, This tree is like
 *
 *                    G0
-*     
+*
 *         G1         G2        G3
 *
-*      G1 G2 G3   G1 G2 G3   G1 G2 G3 
+*      G1 G2 G3   G1 G2 G3   G1 G2 G3
 *   .....................................
 *............................................
-
+*
 *
 Because the search is heuristical, so it is not much compllicated.
 *
 *  Below is the search process:
-* 
+*
 *  search from a dummy discount group
 *        if node  not dummy(root)                 ###1
 *            check node, add it to path  ###2  or prune this node and all sub-path  ###3
@@ -39,7 +39,7 @@ Because the search is heuristical, so it is not much compllicated.
 *
 * I don't construct this tree explicitly in my code, because I use prune  to constrain
 * the search, If a node can't put to path, it will be pruned, search for its sub-path will
-* be prohibited. 
+* be prohibited.
 */
 
 #include<stdio.h>
@@ -98,11 +98,15 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
         std::cout<<"nothing buys!"<<std::endl;
         return ERR;
     }
+    if(discount_group_list.empty()){
+        std::cout<<"no discount_groups, so no discounts."<<std::endl;
+        return ERR;
+    }
     ret =  search_node(DUMMY_DISCOUNT_GROUP,path,current_remaining_goods,best_path,minimal_remaining_goods);
     if (!ret) {
         return ret;
     }
-    if(best_path.size() >=  RELATIVE_DISTANCE_PATH_DISCOUNT_NAME) {
+    if(best_path.size() >  MINIMAL_PATH_SIZE) {
         for(int i = 0; i < best_path.size(); i ++) {
             if(best_path[i] != DUMMY_DISCOUNT_GROUP) {
                 best_discount_group.push_back(discount_group_names[best_path[i]]);
@@ -140,7 +144,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
     vector<string>  temp_vec;
     current_path.push_back(node_value);
     // if current node is not a dummy discount_group, add it or prune it
-    if (node_value != DUMMY_DISCOUNT_GROUP) {          // ###2
+    if (node_value != DUMMY_DISCOUNT_GROUP) {          // ###1
         // take out corresponding discount_group
         vector<string>&  discount_group = discount_group_list[node_value];
         // check node status. prune or add to path
@@ -151,20 +155,20 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
 
         }
 
-        if(!need_prune) {// add_node_to_path
-            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec); //###3
+        if(!need_prune) {// add_node_to_path   ###2
+            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec); 
             if(!ret) {
                 return ret;
             }
         }
-        //###5 //prune and update_path_and_remaining_goods
+        //###3 //prune and update_path_and_remaining_goods
         if(need_prune || current_path.size() == discount_group_list.size() + 1) {
 
-            update_path_and_remaining_goods(current_path,current_remaining_goods,best_path,minimal_remaining_goods);
+            update_path_and_remaining_goods(current_path,current_remaining_goods,best_path,minimal_remaining_goods); //###4
         }
     }
-    if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
-        for(int i = 0; i < discount_group_list.size(); i ++) {
+    if(!need_prune) { //  ###5 (need_prune == false) 
+        for(int i = 0; i < discount_group_list.size(); i ++) {   //###6
             ret =  search_node(i,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
             if(!ret ) {
                 return ret;
@@ -172,7 +176,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
         }
     }
     // trace back a node
-    ret = trace_back_node(current_remaining_goods,temp_vec,current_path); // ###9
+    ret = trace_back_node(current_remaining_goods,temp_vec,current_path); // ###7
 
     return  ret;
 }
@@ -469,6 +473,33 @@ int test_7(Discounts &dis) {
     return ret;
 }
 
+// test_8, null discount_groups
+int test_8(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 8, null discount_groups."<<std::endl;
+    int ret = OK;
+    map<string,int> goods;
+    vector<string>  minimal_remaining_goods;
+    vector<string>  best_discount_group;
+    goods.clear();
+    //string goods_list[16] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A1","A2","A3","A4"};
+    string goods_list[20] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A1","A2","A3","A4","A1","A2","A3","A4"};
+    for(int i = 0; i < 20; i++) {
+        if(goods.find(goods_list[i]) == goods.end()) {
+            goods[goods_list[i]] = 1;
+        } else {
+            goods[goods_list[i]] =  goods[goods_list[i]] + 1;
+        }
+        minimal_remaining_goods.push_back(goods_list[i]);
+    }
+    ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
+    if(!ret) {
+        return ret;
+    }
+    PrintResults();
+
+    return ret;
+}
 int main() {
     int ret = OK;
     map<string,int> goods;
@@ -513,9 +544,12 @@ int main() {
 
     discount_group_map[discount_group_name_list[7]] = g_8;
     dis.set_discount_groups(discount_group_map);
-
     test_6(dis);
     test_7(dis);
+    
+    map<string,vector<string> > null_discount_groups_map;
+    dis.set_discount_groups(null_discount_groups_map);
+    test_8(dis);
     return OK;
 }
 

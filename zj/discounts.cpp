@@ -98,6 +98,10 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
         std::cout<<"nothing buys!"<<std::endl;
         return ERR;
     }
+    if(discount_group_list.empty()) {
+        std::cout<<"no discount_groups, so no discounts."<<std::endl;
+        return ERR;
+    }
     ret =  search_node(DUMMY_DISCOUNT_GROUP,path,current_remaining_goods,best_path,minimal_remaining_goods);
     if (!ret) {
         return ret;
@@ -152,7 +156,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
         }
 
         if(!need_prune) {// add_node_to_path   ###2
-            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec); 
+            ret = add_node_to_path(discount_group,current_remaining_goods,temp_vec);
             if(!ret) {
                 return ret;
             }
@@ -163,7 +167,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
             update_path_and_remaining_goods(current_path,current_remaining_goods,best_path,minimal_remaining_goods); //###4
         }
     }
-    if(!need_prune) { //  ###5 (need_prune == false) 
+    if(!need_prune) { //  ###5 (need_prune == false)
         for(int i = 0; i < discount_group_list.size(); i ++) {   //###6
             ret =  search_node(i,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
             if(!ret ) {
@@ -469,6 +473,33 @@ int test_7(Discounts &dis) {
     return ret;
 }
 
+// test_8, null discount_groups
+int test_8(Discounts &dis) {
+    std::cout<<std::endl;
+    std::cout<<"test 8, null discount_groups."<<std::endl;
+    int ret = OK;
+    map<string,int> goods;
+    vector<string>  minimal_remaining_goods;
+    vector<string>  best_discount_group;
+    goods.clear();
+    //string goods_list[16] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A1","A2","A3","A4"};
+    string goods_list[20] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A1","A2","A3","A4","A1","A2","A3","A4"};
+    for(int i = 0; i < 20; i++) {
+        if(goods.find(goods_list[i]) == goods.end()) {
+            goods[goods_list[i]] = 1;
+        } else {
+            goods[goods_list[i]] =  goods[goods_list[i]] + 1;
+        }
+        minimal_remaining_goods.push_back(goods_list[i]);
+    }
+    ret = dis.search_discount_groups(goods,best_discount_group,minimal_remaining_goods);
+    if(!ret) {
+        return ret;
+    }
+    PrintResults();
+
+    return ret;
+}
 int main() {
     int ret = OK;
     map<string,int> goods;
@@ -513,9 +544,12 @@ int main() {
 
     discount_group_map[discount_group_name_list[7]] = g_8;
     dis.set_discount_groups(discount_group_map);
-
     test_6(dis);
     test_7(dis);
+
+    map<string,vector<string> > null_discount_groups_map;
+    dis.set_discount_groups(null_discount_groups_map);
+    test_8(dis);
     return OK;
 }
 
