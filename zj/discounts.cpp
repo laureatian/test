@@ -137,10 +137,6 @@ Discounts::~Discounts() {
 int Discounts::search_node(int node_value, vector<int> &current_path, map<string,int> &current_remaining_goods,\
                            vector<int> &best_path, vector<string> &minimal_remaining_goods) {
     int ret = OK;
-    // if tree bottom is reached, current_path search ends
-    /*   if (current_path.size() >= discount_group_list.size() + 1) {   //###1
-           return ret;
-       }*/
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(node_value);
@@ -175,17 +171,6 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
                 return ret;
             }
         }
-
-
-        /*    //###7
-            ret = search_node(RIGHT_CHILD,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
-            if(!ret) {
-                return ret;
-            }   //###8
-            ret = search_node(LEFT_CHILD,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
-            if(!ret) {
-                return ret;
-            }*/
     }
     // trace back a node
     ret = trace_back_node(current_remaining_goods,temp_vec,current_path); // ###9
@@ -457,7 +442,7 @@ int test_6(Discounts &dis) {
     return ret;
 }
 
-// test_7, a discount_group appears 3 times/ twice
+// test_7, a discount_group appears more than once
 int test_7(Discounts &dis) {
     std::cout<<std::endl;
     std::cout<<"test 7, a discount_group appears twice."<<std::endl;
