@@ -138,9 +138,9 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
                            vector<int> &best_path, vector<string> &minimal_remaining_goods) {
     int ret = OK;
     // if tree bottom is reached, current_path search ends
- /*   if (current_path.size() >= discount_group_list.size() + 1) {   //###1
-        return ret;
-    }*/
+    /*   if (current_path.size() >= discount_group_list.size() + 1) {   //###1
+           return ret;
+       }*/
     bool need_prune = false;
     vector<string>  temp_vec;
     current_path.push_back(node_value);
@@ -169,23 +169,23 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
         }
     }
     if(!need_prune) { //  ###6(need_prune == false) ###4(need_prune == true)
-        for(int i = 0; i < discount_group_list.size(); i ++){
-           ret =  search_node(i,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
-           if(!ret ){
+        for(int i = 0; i < discount_group_list.size(); i ++) {
+            ret =  search_node(i,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
+            if(!ret ) {
                 return ret;
-           }
+            }
         }
 
-        
-    /*    //###7
-        ret = search_node(RIGHT_CHILD,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
-        if(!ret) {
-            return ret;
-        }   //###8
-        ret = search_node(LEFT_CHILD,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
-        if(!ret) {
-            return ret;
-        }*/
+
+        /*    //###7
+            ret = search_node(RIGHT_CHILD,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
+            if(!ret) {
+                return ret;
+            }   //###8
+            ret = search_node(LEFT_CHILD,current_path,current_remaining_goods,best_path,minimal_remaining_goods);
+            if(!ret) {
+                return ret;
+            }*/
     }
     // trace back a node
     ret = trace_back_node(current_remaining_goods,temp_vec,current_path); // ###9
