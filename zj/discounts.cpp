@@ -449,7 +449,7 @@ int test_6(Discounts &dis) {
     return ret;
 }
 
-// test_7, a discount_group appears twice
+// test_7, a discount_group appears 3 times/ twice
 int test_7(Discounts &dis) {
     std::cout<<std::endl;
     std::cout<<"test 7, a discount_group appears twice."<<std::endl;
@@ -458,8 +458,9 @@ int test_7(Discounts &dis) {
     vector<string>  minimal_remaining_goods;
     vector<string>  best_discount_group;
     goods.clear();
-    string goods_list[15] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A20","A25","A30"};
-    for(int i = 0; i < 15; i++) {
+    //string goods_list[16] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A1","A2","A3","A4"};
+    string goods_list[20] = {"A1","A2","A3","A4","A5","A6","A7","A10","A15","A20","A25","A30","A1","A2","A3","A4","A1","A2","A3","A4"};
+    for(int i = 0; i < 20; i++) {
         if(goods.find(goods_list[i]) == goods.end()) {
             goods[goods_list[i]] = 1;
         } else {
