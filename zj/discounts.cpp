@@ -162,7 +162,7 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
             }
         }
         //###3 //prune and update_path_and_remaining_goods
-        if(need_prune || current_path.size() == discount_group_list.size() + 1) {
+        if(need_prune) {
 
             update_path_and_remaining_goods(current_path,current_remaining_goods,best_path,minimal_remaining_goods); //###4
         }
