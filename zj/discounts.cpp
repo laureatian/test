@@ -5,42 +5,41 @@
 *
 * Below is my thinking about this problem.
 *
-* The searching space is built form a bi-tree.
-* Root G0 is a (imaginary)dummy discount_group that means no discounts.
-* 0(all left child) also means a dummy discount_group, 1(all right child) in ith layer means corresponding ith real discount_group.
-* Path is constuted of zeros and ones in a vector of int.
+* The searching space is built form a tree with every node has discount_group_num child.
+* That is every discount_group is child of every node.
+* Root or DUMMY_DISCOUNT_GROUP is a (imaginary)dummy discount_group that means no discounts.
+* Search will start from a DUMMY_DISCOUNT_GROUP
 *
-* I search the following bi-tree heuristicly for the best path, during the search, if a discount_group
+* I search the following tree heuristicly for the best path, during the search, if a discount_group
 * in path fails to be included in remaining_goods, search for sub-path will be prohibited.
 *
+* for example, if there is only 3 discount_groups, This tree is like
 *
-*            0         G0   dummy discount_group
-*           / \
-*          /   \
-*         0     1      G1   real discount_group
-*        / \    / \
-*       0   1  0   1   G2   real discount_group
-*      / \ / \/ \ / \
-*     0  10  10 1 0 1  G3   real discount_group
-*    .....................
-*   .......................
+*                    G0
 *
-* 1, init data
-* 2, search root
-*        if path.length >= MAX_PATH  ###1
-*            return
-*        if node is 1                ###2
-*            check node, add it to path  ###3  or prune this node and all sub-path  ###4
-*            update best path and minimal remaining_goods if needed ###5
-*        if node is not pruned (node = 0 included)       ###6
-*            search left child;      ###7
-*            search right child;     ###8
-*        trace back this node        ###9
+*         G1         G2        G3
+*
+*      G1 G2 G3   G1 G2 G3   G1 G2 G3
+*   .....................................
+*............................................
+
+*
+Because the search is heuristical, so it is not much compllicated.
+*
+*  Below is the search process:
+*
+*  search from a dummy discount group
+*        if node  not dummy(root)                 ###1
+*            check node, add it to path  ###2  or prune this node and all sub-path  ###3
+*            update best path and minimal remaining_goods if needed ###4
+*        if node is not pruned (node = 0 included)       ###5
+*             search its every child,that is all discount_groups ###6
+*        trace back this node        ###7
 *        return
 *
-* I don't construct this tree explicitly in my code, because I use path length to constrain
-* the search, If a path length is as long as MAX_PATH, It means this path has reach
-* tree bottom, I need to traceback this node and search other pathes
+* I don't construct this tree explicitly in my code, because I use prune  to constrain
+* the search, If a node can't put to path, it will be pruned, search for its sub-path will
+* be prohibited.
 */
 
 #include<stdio.h>
@@ -99,13 +98,13 @@ int Discounts::search_discount_groups(const map<string,int> &buyer_goods,vector<
         std::cout<<"nothing buys!"<<std::endl;
         return ERR;
     }
-    ret =  search_node(-1,path,current_remaining_goods,best_path,minimal_remaining_goods);
+    ret =  search_node(DUMMY_DISCOUNT_GROUP,path,current_remaining_goods,best_path,minimal_remaining_goods);
     if (!ret) {
         return ret;
     }
-    if(best_path.size() >=  RELATIVE_DISTANCE_PATH_DISCOUNT_NAME) {
+    if(best_path.size() >  MINIMAL_PATH_SIZE) {
         for(int i = 0; i < best_path.size(); i ++) {
-            if(best_path[i] != -1) {
+            if(best_path[i] != DUMMY_DISCOUNT_GROUP) {
                 best_discount_group.push_back(discount_group_names[best_path[i]]);
 
             }
@@ -141,14 +140,14 @@ int Discounts::search_node(int node_value, vector<int> &current_path, map<string
     vector<string>  temp_vec;
     current_path.push_back(node_value);
     // if current node is not a dummy discount_group, add it or prune it
-    if (node_value != -1) {          // ###2
+    if (node_value != DUMMY_DISCOUNT_GROUP) {          // ###2
         // take out corresponding discount_group
         vector<string>&  discount_group = discount_group_list[node_value];
         // check node status. prune or add to path
         need_prune = check_if_need_prune(discount_group,current_remaining_goods);
         if(need_prune) {
             current_path.pop_back();
-            current_path.push_back(-1);
+            current_path.push_back(DUMMY_DISCOUNT_GROUP);
 
         }
 

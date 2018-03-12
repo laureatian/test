@@ -4,19 +4,16 @@
 
 /*
 *Author: Tiantian
-*Date: 2018-3-11
+*Date: 2018-3-12
 *This is an interview task for ZhuJian Intelligence, only for interview, no other use.
 */
 #include<map>
 #include<vector>
 
-#define ROOT                                  0
-#define RIGHT_CHILD                           1
-#define LEFT_CHILD                            0
-#define LENGTH_FOR_ONE_DISCOUNT_GROUP         2
+#define DUMMY_DISCOUNT_GROUP                  -1
 #define OK                                    1
 #define ERR                                   OK - 1
-#define RELATIVE_DISTANCE_PATH_DISCOUNT_NAME  2
+#define MINIMAL_PATH_SIZE                     1
 using namespace std;
 
 class Discounts {
@@ -50,7 +47,7 @@ private:
 
 
     /**
-     * search bi-tree for @best_path, prune when the node can not meet requirements
+     * search a tree with every node has discount_group_num child for @best_path, prune when the node can not meet requirements
      */
     int search_node(int node_value,vector<int> &current_path, map<string,int> &current_remaining_goods,\
                     vector<int> &best_path, vector<string>  &minimal_remaining_goods);
